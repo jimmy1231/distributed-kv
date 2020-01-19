@@ -1,9 +1,5 @@
 package app_kvServer;
 
-import app_kvServer.impl.DSCacheFIFO;
-import app_kvServer.impl.DSCacheLFU;
-import app_kvServer.impl.DSCacheLRU;
-
 public class KVServer implements IKVServer {
 	/**
 	 * Start KV Server at given port
@@ -18,20 +14,7 @@ public class KVServer implements IKVServer {
 	private DSCache cache;
 
 	public KVServer(int port, int cacheSize, String strategy) throws Exception {
-		DSCache.Strategy s = DSCache.Strategy.valueOf(strategy);
-		switch (s) {
-			case LRU:
-				cache = new DSCacheLRU(cacheSize);
-				break;
-			case FIFO:
-				cache = new DSCacheFIFO(cacheSize);
-				break;
-			case LFU:
-				cache = new DSCacheLFU(cacheSize);
-				break;
-			default:
-				throw new Exception("Invalid replacement strategy");
-		}
+		cache = new DSCache(cacheSize, strategy);
 	}
 	
 	@Override
