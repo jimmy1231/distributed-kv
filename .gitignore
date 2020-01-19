@@ -1,0 +1,12 @@
+*.iml
+ece419-distributed-system.properties
+ece419-distributed-system.xml
+module_echoclient.xml
+module_echoclient1.xml
+module_echoserver.xml
+module_ece419-distributed-system.xml
+.idea/
+out/
+*.tgz
+*.jar
+*.exe
