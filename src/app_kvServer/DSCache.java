@@ -78,7 +78,7 @@ public class DSCache {
         }
 
         this.strategy = strat;
-        _cache = new HashMap<>(size);
+        _cache = new HashMap<>();
         cacheSize = size;
         gl = new ReentrantLock();
     }
@@ -92,7 +92,10 @@ public class DSCache {
     }
 
     public boolean inCache(String key) {
-        return _cache.containsKey(key);
+        gl.lock();
+        boolean contains = _cache.containsKey(key);
+        gl.unlock();
+        return contains;
     }
 
     public String getCacheStrategy() {
@@ -100,6 +103,16 @@ public class DSCache {
     }
 
     /**
+     * Locking scheme:
+     * ------------------------------------------------------------------
+     * (1) Lock global -> guarantees 'get' from $ is atomic
+     * (2) If entry exists, then lock entry. Note that the entry is locked
+     *     while global is still locked. The global lock ensures that no
+     *     other threads evict the entry between the time when entry is
+     *     accessed from $ and when the entry is locked.
+     * (3) Unlock global -> once entry is locked, the entry can no longer
+     *     be evicted. We can safely perform entry-wise operations.
+     *
      * GetKV involves cache and disk coordination. Here's the algorithm:
      * (1) Search _cache for matching key
      * (2) If matching key, return that object
@@ -113,53 +126,39 @@ public class DSCache {
      * @throws Exception
      */
     public String getKV(String key) throws Exception {
-        CacheElem elem = _cache.get(key);
+        /* GLOBAL CRITICAL REGION - START */
+        gl.lock();
+
+        CacheElem entry = null;
         String data = null;
 
-        if (Objects.nonNull(elem)) {
+        if (Objects.nonNull(entry = _cache.get(key))) {
             /* ENTRY CRITICAL REGION - START */
-            elem.l.lock();
+            entry.l.lock();
 
-            if (Objects.nonNull(_cache.get(key))) {
-                data = elem.data;
-                elem.updateAccessTime();
-                elem.accessFrequency++;
-            }
+            gl.unlock();
+            /* GLOBAL CRITICAL REGION - END */
 
-            elem.l.unlock();
+            entry.updateAccessTime();
+            entry.accessFrequency++;
+            data = entry.data;
+
+            entry.l.unlock();
             /* ENTRY CRITICAL REGION - END */
 
             return data;
         }
 
+        gl.unlock();
+        /* GLOBAL CRITICAL REGION - END */
+
         /* Look in the disk to see if entry was evicted */
         if (Objects.nonNull(data = Disk.getKV(key))) {
-            /* GLOBAL CRITICAL REGION - START */
-            gl.lock();
-
-            elem = new CacheElem(key, data);
-            if (_cache.size() < cacheSize) {
-                _cache.put(key, elem);
-            } else {
-                assert(_cache.size() == cacheSize);
-                CacheElem entry2Evict = policy.evict(_cache, key);
-
-                /* ENTRY CRITICAL REGION - START */
-                entry2Evict.l.lock();
-
-                Disk.putKV(key, entry2Evict.data);
-                _cache.remove(key);
-
-                entry2Evict.l.unlock();
-                /* ENTRY CRITICAL REGION - END */
-            }
-
-            gl.unlock();
-            /* GLOBAL CRITICAL REGION - END */
-
+            putKV(key, data);
             return data;
         }
 
+        /* Element doesn't exist anywhere */
         return null;
     }
 
@@ -193,6 +192,9 @@ public class DSCache {
                 /* ENTRY CRITICAL REGION - START */
                 entry.l.lock();
 
+                gl.unlock();
+                /* GLOBAL CRITICAL REGION - END */
+
                 entry.data = value;
                 entry.accessFrequency++;
                 entry.updateAccessTime();
@@ -204,10 +206,10 @@ public class DSCache {
             else {
                 entry = new CacheElem(key, value);
                 _cache.put(key, entry);
-            }
 
-            gl.unlock();
-            /* GLOBAL CRITICAL REGION - END */
+                gl.unlock();
+                /* GLOBAL CRITICAL REGION - END */
+            }
 
             return;
         }
@@ -217,6 +219,10 @@ public class DSCache {
          * disk handles its own synchronization. Notice that entry2Evict
          * is locked and unlocked. This is to prevent read/write race
          * conditions during eviction.
+         *
+         * IMPORTANT: Always lock the entry before evicting! Acquiring
+         * the lock guarantees that no other threads are working on the
+         * entry to be evicted.
          */
         assert(_cache.size() == cacheSize);
         CacheElem entry2Evict = policy.evict(_cache, key);
