@@ -149,16 +149,35 @@ public class DSCache {
             return data;
         }
 
-        gl.unlock();
-        /* GLOBAL CRITICAL REGION - END */
-
-        /* Look in the disk to see if entry was evicted */
+        /*
+         * Look in the disk to see if entry was evicted. Yes, we
+         * are essentially doing an evict-put (same as putKV), but
+         * can't call putKV because we have to ensure atomicity, so
+         * have to replicate putKV code here.
+         */
         if (Objects.nonNull(data = Disk.getKV(key))) {
-            putKV(key, data);
+            entry = new CacheElem(key, data);
+
+            if (_cache.size() < cacheSize) {
+                _cache.put(key, entry);
+            } else {
+                CacheElem evict = policy.evict(_cache, key);
+                Disk.putKV(evict.key, evict.data);
+
+                _cache.remove(evict.key);
+                _cache.put(key, entry);
+            }
+
+            gl.unlock();
+            /* GLOBAL CRITICAL REGION - END */
+
             return data;
         }
 
         /* Element doesn't exist anywhere */
+        gl.unlock();
+        /* GLOBAL CRITICAL REGION - END */
+
         return null;
     }
 
