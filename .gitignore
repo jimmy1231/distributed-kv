@@ -10,3 +10,6 @@ out/
 *.tgz
 *.jar
 *.exe
+*.MF
+*.class
+*.log
