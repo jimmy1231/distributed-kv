@@ -3,6 +3,7 @@ package app_kvServer;
 import app_kvServer.impl.PolicyFIFO;
 import app_kvServer.impl.PolicyLFU;
 import app_kvServer.impl.PolicyLRU;
+import app_kvServer.impl.PolicyNoOp;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +15,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * This is the cache to be used. It is fully thread safe.
  */
 public class DSCache {
-    public class CacheElem {
+    public class CacheEntry {
         public long lastAccessed;
         public int accessFrequency;
         public int order;
@@ -22,9 +23,9 @@ public class DSCache {
         String data;
         Lock l;
 
-        CacheElem(String _key, String _data, int _order) {
+        CacheEntry(String _key, String _data, int _order) {
             updateAccessTime();
-            accessFrequency = 0;
+            accessFrequency = 1;
             key = _key;
             data = _data;
             order = _order;
@@ -50,12 +51,12 @@ public class DSCache {
          *
          * @param _cache The cache
          * @param key New key to be inserted
-         * @return The CacheElem to be evicted
+         * @return The CacheEntry to be evicted
          */
-        CacheElem evict(Map<String, CacheElem> _cache, String key);
+        CacheEntry evict(Map<String, CacheEntry> _cache, String key);
     }
 
-    private Map<String, CacheElem> _cache;
+    private Map<String, CacheEntry> _cache;
     private Policy policy;
     private int cacheSize;
     private IKVServer.CacheStrategy strategy;
@@ -64,7 +65,7 @@ public class DSCache {
     /* Monotonically non-decreasing number -> enforces FIFO ordering */
     private int n = 0;
 
-    public DSCache(int size, String strategy) throws Exception {
+    public DSCache(int size, String strategy) {
         IKVServer.CacheStrategy strat = IKVServer.CacheStrategy.valueOf(strategy);
         switch (strat) {
             case LRU:
@@ -77,7 +78,9 @@ public class DSCache {
                 policy = new PolicyLFU();
                 break;
             default:
-                throw new Exception("Invalid Policy: " + strategy);
+                policy = new PolicyNoOp();
+                size = 0;
+                break;
         }
 
         this.strategy = strat;
@@ -93,7 +96,7 @@ public class DSCache {
         /* Persist all to disk */
         int cnt = 0;
         try {
-            for (CacheElem entry : _cache.values()) {
+            for (CacheEntry entry : _cache.values()) {
                 Disk.putKV(entry.key, entry.data);
                 cnt++;
             }
@@ -112,13 +115,30 @@ public class DSCache {
     }
 
     public int getCacheSize() {
+        /* GLOBAL CRITICAL REGION - START */
+        gl.lock();
+
+        int size = _cache.size();
+
+        gl.unlock();
+        /* GLOBAL CRITICAL REGION - END */
+
+        return size;
+    }
+
+    public int getCacheCapacity() {
         return cacheSize;
     }
 
     public boolean inCache(String key) {
+        /* GLOBAL CRITICAL REGION - START */
         gl.lock();
+
         boolean contains = _cache.containsKey(key);
+
         gl.unlock();
+        /* GLOBAL CRITICAL REGION - END */
+
         return contains;
     }
 
@@ -155,7 +175,7 @@ public class DSCache {
         /* GLOBAL CRITICAL REGION - START */
         gl.lock();
 
-        CacheElem entry = null;
+        CacheEntry entry = null;
         String data = null;
 
         if (Objects.nonNull(entry = _cache.get(key))) {
@@ -191,12 +211,12 @@ public class DSCache {
                 return data;
             }
 
-            entry = new CacheElem(key, data, n);
+            entry = new CacheEntry(key, data, n);
             n++;
             if (_cache.size() < cacheSize) {
                 _cache.put(key, entry);
             } else {
-                CacheElem evict = policy.evict(_cache, key);
+                CacheEntry evict = policy.evict(_cache, key);
 
                 try {
                     Disk.putKV(evict.key, evict.data);
@@ -246,7 +266,7 @@ public class DSCache {
         /* GLOBAL CRITICAL REGION - START */
         gl.lock();
 
-        CacheElem entry;
+        CacheEntry entry;
         if (_cache.size() < cacheSize) {
             /*
              * Cache has not yet been filled up. 2 cases:
@@ -271,7 +291,7 @@ public class DSCache {
             }
             // (2)
             else {
-                entry = new CacheElem(key, value, n);
+                entry = new CacheEntry(key, value, n);
                 n++;
                 _cache.put(key, entry);
 
@@ -314,7 +334,7 @@ public class DSCache {
          * entry to be evicted.
          */
         assert(_cache.size() == cacheSize);
-        CacheElem evict = policy.evict(_cache, key);
+        CacheEntry evict = policy.evict(_cache, key);
 
         /* ENTRY CRITICAL REGION - START */
         evict.l.lock();
@@ -336,7 +356,7 @@ public class DSCache {
         evict.l.unlock();
         /* ENTRY CRITICAL REGION - END */
 
-        entry = new CacheElem(key, value, n);
+        entry = new CacheEntry(key, value, n);
         n++;
         _cache.put(key, entry);
         assert(_cache.size() == cacheSize);

@@ -13,7 +13,7 @@ public class KVServer implements IKVServer {
 	 */
 	private DSCache cache;
 
-	public KVServer(int port, int cacheSize, String strategy) throws Exception {
+	public KVServer(int port, int cacheSize, String strategy) {
 		cache = new DSCache(cacheSize, strategy);
 	}
 	

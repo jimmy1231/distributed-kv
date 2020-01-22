@@ -1,7 +1,7 @@
 package app_kvServer.impl;
 
 import app_kvServer.DSCache;
-import app_kvServer.DSCache.CacheElem;
+import app_kvServer.DSCache.CacheEntry;
 
 import java.util.Map;
 import java.util.Objects;
@@ -18,12 +18,12 @@ public class PolicyFIFO implements DSCache.Policy {
      * @param key New key to be inserted
      */
     @Override
-    public CacheElem evict(Map<String, CacheElem> _cache, String key) {
+    public CacheEntry evict(Map<String, CacheEntry> _cache, String key) {
         assert(_cache.size() != 0);
 
-        CacheElem first = null;
+        CacheEntry first = null;
         long leastOrder = Long.MAX_VALUE;
-        for (CacheElem entry : _cache.values()) {
+        for (CacheEntry entry : _cache.values()) {
             if (Objects.isNull(first)) {
                 first = entry;
                 leastOrder = entry.order;
