@@ -19,6 +19,9 @@ public class AllTests {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		catch (Exception e){
+			// null for now to avoid compile error
+		}
 	}
 	
 	

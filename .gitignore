@@ -12,3 +12,7 @@ out/
 *.exe
 kv_store.txt
 
+
+*.MF
+*.class
+*.log

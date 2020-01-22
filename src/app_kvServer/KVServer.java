@@ -13,7 +13,7 @@ public class KVServer implements IKVServer {
 	 */
 	private DSCache cache;
 
-	public KVServer(int port, int cacheSize, String strategy) throws Exception {
+	public KVServer(int port, int cacheSize, String strategy) {
 		cache = new DSCache(cacheSize, strategy);
 	}
 	
@@ -54,7 +54,7 @@ public class KVServer implements IKVServer {
 	}
 
 	@Override
-    public String getKV(String key) throws Exception{
+    public String getKV(String key) throws Exception {
 		// TODO Auto-generated method stub
 		return "";
 	}
