@@ -33,7 +33,7 @@ public class DSCache {
         }
 
         void updateAccessTime() {
-            lastAccessed = System.currentTimeMillis();
+            lastAccessed = System.nanoTime();
         }
     }
 
@@ -266,38 +266,39 @@ public class DSCache {
         /* GLOBAL CRITICAL REGION - START */
         gl.lock();
 
+        /*
+         * 2 Cases in general:
+         * (1) Entry with 'key' already exists in cache -> update
+         * (2) Entry with 'key' does not yet exist in cache -> insert
+         */
+
+        // (1)
         CacheEntry entry;
+        if (Objects.nonNull(entry = _cache.get(key))) {
+            /* ENTRY CRITICAL REGION - START */
+            entry.l.lock();
+
+            gl.unlock();
+            /* GLOBAL CRITICAL REGION - END */
+
+            entry.data = value;
+            entry.accessFrequency++;
+            entry.updateAccessTime();
+
+            entry.l.unlock();
+            /* ENTRY CRITICAL REGION - END */
+
+            return;
+        }
+
+        // (2)
         if (_cache.size() < cacheSize) {
-            /*
-             * Cache has not yet been filled up. 2 cases:
-             * (1) Entry with 'key' already exists in cache -> update
-             * (2) Entry with 'key' does not yet exist in cache -> insert
-             */
+            entry = new CacheEntry(key, value, n);
+            n++;
+            _cache.put(key, entry);
 
-            // (1)
-            if (Objects.nonNull(entry = _cache.get(key))) {
-                /* ENTRY CRITICAL REGION - START */
-                entry.l.lock();
-
-                gl.unlock();
-                /* GLOBAL CRITICAL REGION - END */
-
-                entry.data = value;
-                entry.accessFrequency++;
-                entry.updateAccessTime();
-
-                entry.l.unlock();
-                /* ENTRY CRITICAL REGION - END */
-            }
-            // (2)
-            else {
-                entry = new CacheEntry(key, value, n);
-                n++;
-                _cache.put(key, entry);
-
-                gl.unlock();
-                /* GLOBAL CRITICAL REGION - END */
-            }
+            gl.unlock();
+            /* GLOBAL CRITICAL REGION - END */
 
             return;
         }
@@ -359,9 +360,32 @@ public class DSCache {
         entry = new CacheEntry(key, value, n);
         n++;
         _cache.put(key, entry);
+        if (_cache.size() != cacheSize) {
+            System.out.println(String.format(
+                "Expecting cache size to be: %d, actual: %d",
+                cacheSize, _cache.size()
+            ));
+        }
         assert(_cache.size() == cacheSize);
 
         gl.unlock();
         /* GLOBAL CRITICAL REGION - END */
+    }
+
+    public void dumpCache() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Key   Data                                     LastModified Frequency Order\n");
+        sb.append("-------------------------------------------------------------------------\n");
+        for (CacheEntry ce : _cache.values()) {
+            sb.append(dumpEntry(ce));
+        }
+        System.out.println(sb.toString());
+    }
+
+    private String dumpEntry(CacheEntry ce) {
+        return String.format("%-5s %-40s %-12d %-9d %d\n",
+            ce.key, ce.data, ce.lastAccessed,
+            ce.accessFrequency, ce.order
+        );
     }
 }

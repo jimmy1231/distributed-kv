@@ -143,6 +143,7 @@ public class Disk {
                 fw = new FileWriter(KV_STORE_FILE, true);
                 writer = new BufferedWriter(fw);
                 writer.write(formatKVPair(key, value));
+                writer.newLine();
             }
 
             writer.close();

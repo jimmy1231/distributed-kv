@@ -1,6 +1,8 @@
 package testing;
 
 import app_kvServer.DSCache;
+import app_kvServer.Disk;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -8,7 +10,6 @@ import junit.framework.TestCase;
 import org.junit.rules.Timeout;
 
 import java.util.*;
-import java.util.stream.IntStream;
 
 public class AdditionalTest extends TestCase {
 
@@ -19,6 +20,10 @@ public class AdditionalTest extends TestCase {
 
 	@Rule
 	public Timeout globalTimeout = new Timeout(10000);
+
+	public void tearDown() {
+		Disk.clearStorage();
+	}
 
 	@Test
 	public void testCacheFunc() throws Exception {
@@ -240,10 +245,9 @@ public class AdditionalTest extends TestCase {
 		// Choose arbitrary replacement strategy (any will do)
 		DSCache dsCache = new DSCache(1, "FIFO");
 		String key1 = "1";
-		String value1 = "asdclajdsflkjwerlkjac";
-
+		String value1 = UUID.randomUUID().toString();
 		String key2 = "2";
-		String value2 = "12341231231233141231";
+		String value2 = UUID.randomUUID().toString();
 
 		dsCache.putKV(key1, value1); // on disk
 		dsCache.putKV(key2, value2); // in cache
@@ -258,16 +262,33 @@ public class AdditionalTest extends TestCase {
 		 * iteration when this entry is brought back into cache).
 		 */
 		int i;
+		String _val;
 		for (i=0; i<1000; i++) {
 			if (!dsCache.inCache(key1)) {
-				assertEquals(dsCache.getKV(key1), value1);
+				_val = dsCache.getKV(key1);
+				if (!_val.equals(value1)) {
+					System.out.println(String.format(
+						"GET key: %s, Expecting: %s, Actual: %s",
+						key1, value1, _val
+					));
+				}
+				assertEquals(_val, value1);
 				assertTrue(dsCache.inCache(key1));
-				value1 += Integer.toString(i);
+				value1 = UUID.randomUUID().toString();
+
 				dsCache.putKV(key1, value1);
 			} else {
-				assertEquals(dsCache.getKV(key2), value2);
+				_val = dsCache.getKV(key2);
+				if (!_val.equals(value2)) {
+					System.out.println(String.format(
+						"GET key: %s, Expecting: %s, Actual: %s",
+						key2, value2, _val
+					));
+				}
+				assertEquals(_val, value2);
 				assertTrue(dsCache.inCache(key2));
-				value2 += Integer.toString(i);
+				value2 = UUID.randomUUID().toString();
+
 				dsCache.putKV(key2, value2);
 			}
 		}
@@ -288,17 +309,19 @@ public class AdditionalTest extends TestCase {
 		@Override
 		public void run() {
 			int i;
+			String key;
 			Random srand = new Random(RAND_SEED);
-			for (i = 0; i < 1000; i++) {
+			for (i = 0; i < 200; i++) {
 				try {
+					key = keys.get(srand.nextInt(keys.size()));
 					if (isRead) {
-						cache.getKV(keys.get(srand.nextInt(keys.size())));
+						cache.getKV(key);
 					} else {
-						cache.putKV(keys.get(srand.nextInt(keys.size())),
-							UUID.randomUUID().toString());
+						cache.putKV(key, UUID.randomUUID().toString());
 					}
-				} catch (Exception e) {
-					fail();
+				} catch (Exception | Error e) {
+					System.out.printf("Failure detected for Thread-%d\n", getId());
+					return;
 				}
 			}
 		}
@@ -317,11 +340,21 @@ public class AdditionalTest extends TestCase {
 		 * no real functionality is being tested here. Refer to
 		 * above test cases for functionality.
 		 */
-		DSCache cache = new DSCache(20, "FIFO");
+		DSCache cache = new DSCache(100, "FIFO");
 		List<String> keys = new ArrayList<>();
 		int i;
-		for (i=0; i<200; i++) {
+		for (i=0; i<1000; i++) {
 			keys.add(Integer.toString(i));
+		}
+
+		List<CacheWorker> workers = new ArrayList<>();
+
+		/* Writers */
+		CacheWorker writer;
+		for (i=0; i<20; i++) {
+			writer = new CacheWorker(cache, keys, false);
+			writer.start();
+			workers.add(writer);
 		}
 
 		/* Readers */
@@ -329,14 +362,18 @@ public class AdditionalTest extends TestCase {
 		for (i=0; i<20; i++) {
 			reader = new CacheWorker(cache, keys, true);
 			reader.start();
+			workers.add(reader);
 		}
 
-		/* Writers */
-		CacheWorker writer;
-		for (i=0; i<20; i++) {
-			writer = new CacheWorker(cache, keys, false);
-			writer.start();
-		}
+		/* Join */
+		workers.forEach(worker -> {
+			try {
+				worker.join();
+			} catch (InterruptedException e) {
+				System.out.println("failure detected");
+				fail();
+			}
+		});
 
 		assertTrue(true);
 	}
