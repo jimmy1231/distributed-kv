@@ -12,15 +12,16 @@ public class KVServer implements IKVServer {
 	 *           and "LFU".
 	 */
 	private DSCache cache;
+	private int port;
 
 	public KVServer(int port, int cacheSize, String strategy) {
 		cache = new DSCache(cacheSize, strategy);
+		this.port = port;
 	}
 	
 	@Override
 	public int getPort(){
-		// TODO Auto-generated method stub
-		return -1;
+		return port;
 	}
 
 	@Override
@@ -31,14 +32,12 @@ public class KVServer implements IKVServer {
 
 	@Override
     public CacheStrategy getCacheStrategy(){
-		// TODO Auto-generated method stub
-		return IKVServer.CacheStrategy.None;
+		return cache.getCacheStrategy();
 	}
 
 	@Override
     public int getCacheSize(){
-		// TODO Auto-generated method stub
-		return -1;
+		return cache.getCacheSize();
 	}
 
 	@Override
@@ -48,24 +47,27 @@ public class KVServer implements IKVServer {
 
 	@Override
     public boolean inCache(String key){
-		// TODO Auto-generated method stub
-		return false;
+		return cache.inCache(key);
 	}
 
 	@Override
     public String getKV(String key) throws Exception {
-		// TODO Auto-generated method stub
-		return "";
+		/* RETURNS NULL IF NOT FOUND */
+		return cache.getKV(key);
 	}
 
 	@Override
     public void putKV(String key, String value) throws Exception{
-		// TODO Auto-generated method stub
+		cache.putKV(key, value);
 	}
 
 	@Override
     public void clearCache(){
-		// TODO Auto-generated method stub
+		try {
+			cache.clearCache();
+		} catch (Exception e) {
+			// TODO: server log this
+		}
 	}
 
 	@Override

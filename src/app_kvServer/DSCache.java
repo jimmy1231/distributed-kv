@@ -95,11 +95,13 @@ public class DSCache {
         /* GLOBAL CRITICAL REGION - START */
         gl.lock();
 
-        /* Persist all to disk */
+        /* Flush all cache entries to disk */
         int cnt = 0;
         try {
             for (CacheEntry entry : _cache.values()) {
-                Disk.putKV(entry.key, entry.data);
+                if (entry.dirty) {
+                    Disk.putKV(entry.key, entry.data);
+                }
                 cnt++;
             }
         } catch (Exception e) {
@@ -144,8 +146,8 @@ public class DSCache {
         return contains;
     }
 
-    public String getCacheStrategy() {
-        return strategy.toString();
+    public IKVServer.CacheStrategy getCacheStrategy() {
+        return strategy;
     }
 
     /**
