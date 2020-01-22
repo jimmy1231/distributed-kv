@@ -54,7 +54,7 @@ public class KVServer implements IKVServer {
 	}
 
 	@Override
-    public String getKV(String key) throws Exception{
+    public String getKV(String key) throws Exception {
 		// TODO Auto-generated method stub
 		return "";
 	}
