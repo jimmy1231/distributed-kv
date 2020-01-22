@@ -393,7 +393,7 @@ public class DSCache {
         System.out.println(sb.toString());
     }
 
-    private String dumpEntry(CacheEntry ce) {
+    private static String dumpEntry(CacheEntry ce) {
         return String.format("%-5s %-40s %-12d %-9d %d\n",
             ce.key, ce.data, ce.lastAccessed,
             ce.accessFrequency, ce.order
