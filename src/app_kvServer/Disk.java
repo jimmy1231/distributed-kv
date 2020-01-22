@@ -165,12 +165,34 @@ public class Disk {
      * @param key
      * @return
      */
-    public static boolean inStorage(String key) { return false; }
+    public static boolean inStorage(String key) {
+        String val = getKV(key);
+        return val == null ? false : true;
+    }
 
     /**
      * Clears all contents of persistent storage
+     * Simply writes an empty string to the file.
      */
-    public static void clearStorage() { }
+    public static void clearStorage() {
+        // Create KV Store File if DNE
+        createKVStoreFile();
+
+        Lock writeLock = RW_LOCK.writeLock();
+        writeLock.lock();
+        try {
+            FileWriter fw = new FileWriter(KV_STORE_FILE);
+            BufferedWriter writer = new BufferedWriter(fw);
+            writer.write("");
+
+            writer.close();
+            fw.close();
+        } catch (Exception ex) {
+            // do nothing for now
+        } finally {
+            writeLock.unlock();
+        }
+    }
 
     /* For debugging */
     public static void main(String[] args) {
@@ -181,6 +203,6 @@ public class Disk {
         putKV("hello", "world how are you 38108301");
         System.out.println(getKV("hello"));
         System.out.println(getKV("goodbye"));
+        clearStorage();
     }
-
 }
