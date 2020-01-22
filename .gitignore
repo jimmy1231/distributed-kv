@@ -11,3 +11,5 @@ out/
 *.jar
 *.exe
 *.MF
+*.class
+*.log
