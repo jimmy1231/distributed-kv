@@ -22,13 +22,15 @@ public class DSCache {
         String key;
         String data;
         Lock l;
+        boolean dirty;
 
-        CacheEntry(String _key, String _data, int _order) {
+        CacheEntry(String _key, String _data, int _order, boolean _dirty) {
             updateAccessTime();
             accessFrequency = 1;
             key = _key;
             data = _data;
             order = _order;
+            dirty = _dirty;
             l = new ReentrantLock();
         }
 
@@ -211,24 +213,27 @@ public class DSCache {
                 return data;
             }
 
-            entry = new CacheEntry(key, data, n);
+            entry = new CacheEntry(key, data, n, false);
             n++;
             if (_cache.size() < cacheSize) {
                 _cache.put(key, entry);
             } else {
                 CacheEntry evict = policy.evict(_cache, key);
 
-                try {
-                    Disk.putKV(evict.key, evict.data);
-                } catch (Exception e) {
-                    n--;
-                    gl.unlock();
-                    /* GLOBAL CRITICAL REGION - END */
+                /* Only write to disk if disk data is stale */
+                if (evict.dirty) {
+                    try {
+                        Disk.putKV(evict.key, evict.data);
+                    } catch (Exception e) {
+                        n--;
+                        gl.unlock();
+                        /* GLOBAL CRITICAL REGION - END */
 
-                    throw new Exception(String.format(
-                        "Error upon evicting object with key %s -> %s",
-                        key, e.getMessage()
-                    ));
+                        throw new Exception(String.format(
+                            "Error upon evicting object with key %s -> %s",
+                            key, e.getMessage()
+                        ));
+                    }
                 }
 
                 _cache.remove(evict.key);
@@ -284,6 +289,7 @@ public class DSCache {
             entry.data = value;
             entry.accessFrequency++;
             entry.updateAccessTime();
+            entry.dirty = true;
 
             entry.l.unlock();
             /* ENTRY CRITICAL REGION - END */
@@ -293,7 +299,7 @@ public class DSCache {
 
         // (2)
         if (_cache.size() < cacheSize) {
-            entry = new CacheEntry(key, value, n);
+            entry = new CacheEntry(key, value, n, true);
             n++;
             _cache.put(key, entry);
 
@@ -340,24 +346,27 @@ public class DSCache {
         /* ENTRY CRITICAL REGION - START */
         evict.l.lock();
 
-        try {
-            Disk.putKV(evict.key, evict.data);
-        } catch (Exception e) {
-            evict.l.unlock();
-            gl.unlock();
-            /* GLOBAL/ENTRY CRITICAL REGION - END */
+        /* Only write to disk if disk data is stale */
+        if (evict.dirty) {
+            try {
+                Disk.putKV(evict.key, evict.data);
+            } catch (Exception e) {
+                evict.l.unlock();
+                gl.unlock();
+                /* GLOBAL/ENTRY CRITICAL REGION - END */
 
-            throw new Exception(String.format(
-                "Error evicting object: %s. %s",
-                key, e.getMessage()
-            ));
+                throw new Exception(String.format(
+                    "Error evicting object: %s. %s",
+                    key, e.getMessage()
+                ));
+            }
         }
 
         _cache.remove(evict.key);
         evict.l.unlock();
         /* ENTRY CRITICAL REGION - END */
 
-        entry = new CacheEntry(key, value, n);
+        entry = new CacheEntry(key, value, n, true);
         n++;
         _cache.put(key, entry);
         if (_cache.size() != cacheSize) {
