@@ -132,14 +132,14 @@ public class Disk {
             // If does not exist, just append to the file
             FileWriter fw;
             BufferedWriter  writer;
-            if (exists) {
+            if (exists) { // case 1: key already exists - need to overwrite all lines
                 fw = new FileWriter(KV_STORE_FILE);
                 writer = new BufferedWriter(fw);
                 for (String pair : kvPairs) {
                     writer.write(pair);
                     writer.newLine();
                 }
-            } else {
+            } else { // case 2: key DNE, just append to end of file
                 fw = new FileWriter(KV_STORE_FILE, true);
                 writer = new BufferedWriter(fw);
                 writer.write(formatKVPair(key, value));
@@ -147,7 +147,6 @@ public class Disk {
 
             writer.close();
             fw.close();
-
         } catch (Exception ex) {
             // do nothing for now
             System.out.println("AAH ERROR");
@@ -167,7 +166,7 @@ public class Disk {
      */
     public static boolean inStorage(String key) {
         String val = getKV(key);
-        return val == null ? false : true;
+        return val != null;
     }
 
     /**

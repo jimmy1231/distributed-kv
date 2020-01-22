@@ -43,8 +43,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public boolean inStorage(String key){
-		// TODO Auto-generated method stub
-		return false;
+		return Disk.inStorage(key);
 	}
 
 	@Override
@@ -71,7 +70,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public void clearStorage(){
-		// TODO Auto-generated method stub
+		Disk.clearStorage();
 	}
 
 	@Override
