@@ -10,3 +10,5 @@ out/
 *.tgz
 *.jar
 *.exe
+kv_store.txt
+
