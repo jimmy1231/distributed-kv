@@ -1,6 +1,21 @@
 package app_kvServer;
 
+import org.apache.log4j.Logger;
+import server.ClientConnection;
+
+import java.io.IOException;
+import java.net.BindException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
 public class KVServer implements IKVServer {
+	private static Logger logger = Logger.getRootLogger();
+
+	private ServerSocket serverSocket;
+	private DSCache cache;
+	private int port;
+	private boolean running;
+
 	/**
 	 * Start KV Server at given port
 	 * @param port given port for storage server to operate
@@ -11,12 +26,11 @@ public class KVServer implements IKVServer {
 	 *           currently not contained in the cache. Options are "FIFO", "LRU",
 	 *           and "LFU".
 	 */
-	private DSCache cache;
-	private int port;
-
 	public KVServer(int port, int cacheSize, String strategy) {
 		cache = new DSCache(cacheSize, strategy);
 		this.port = port;
+		running = false;
+		serverSocket = null;
 	}
 	
 	@Override
@@ -26,8 +40,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public String getHostname(){
-		// TODO Auto-generated method stub
-		return null;
+		return serverSocket.getInetAddress().getHostName();
 	}
 
 	@Override
@@ -75,18 +88,61 @@ public class KVServer implements IKVServer {
 		Disk.clearStorage();
 	}
 
-	@Override
-    public void run(){
-		// TODO Auto-generated method stub
+	private boolean initializeServer() {
+		logger.info("Initialize server ...");
+		try {
+			serverSocket = new ServerSocket(port);
+			logger.info("Server listening on port: "
+					+ serverSocket.getLocalPort());
+			return true;
+
+		} catch (IOException e) {
+			logger.error("Error! Cannot open server socket:");
+			if(e instanceof BindException){
+				logger.error("Port " + port + " is already bound!");
+			}
+			return false;
+		}
+	}
+
+	public void run() {
+
+		running = initializeServer();
+
+		if(serverSocket != null) {
+			while(running){
+				try {
+					Socket client = serverSocket.accept();
+					ClientConnection connection =
+							new ClientConnection(client);
+					new Thread(connection).start();
+
+					logger.info("Connected to "
+							+ client.getInetAddress().getHostName()
+							+  " on port " + client.getPort());
+				} catch (IOException e) {
+					logger.error("Error! " +
+							"Unable to establish connection. \n", e);
+				}
+			}
+		}
+		logger.info("Server stopped.");
 	}
 
 	@Override
     public void kill(){
-		// TODO Auto-generated method stub
+		running = false;
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			logger.error("Error! " +
+					"Unable to close socket on port: " + port, e);
+		}
 	}
 
 	@Override
     public void close(){
-		// TODO Auto-generated method stub
+		// TODO: add more actions to perform
+		kill();
 	}
 }
