@@ -531,6 +531,11 @@ public class AdditionalTest extends TestCase {
 		assertFalse(Disk.inStorage("4"));
 
 		/* Case 2: Key DNE - do nothing */
+		Disk.putKV("a", null);
+		Disk.putKV("b", null);
+		Disk.putKV("c", null);
+		Disk.putKV("d", null);
+
 		assertNull(Disk.getKV("a"));
 		assertNull(Disk.getKV("b"));
 		assertNull(Disk.getKV("c"));
