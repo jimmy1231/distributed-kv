@@ -1,17 +1,19 @@
 package client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import shared.messages.KVMessage;
+import shared.messages.Message;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class KVStore implements KVCommInterface {
 	private String serverAddress;
 	private int serverPort;
 	private Socket clientSocket;
-	private OutputStream output;
-	private InputStream input;
+	private PrintWriter output;
+	private Scanner input;
 
 	/**
 	 * Initialize KVStore with address and port of KVServer
@@ -29,8 +31,8 @@ public class KVStore implements KVCommInterface {
 	@Override
 	public void connect() throws Exception {
 		clientSocket = new Socket(this.serverAddress, this.serverPort);
-		output = clientSocket.getOutputStream();
-		input = clientSocket.getInputStream();
+		output = new PrintWriter(clientSocket.getOutputStream());
+		input = new Scanner(clientSocket.getInputStream());
 	}
 
 	@Override
@@ -46,19 +48,31 @@ public class KVStore implements KVCommInterface {
 			}
 		}
 		catch(IOException e){
-			//log as error
+			// TODO log as error
 		}
 	}
 
 	@Override
 	public KVMessage put(String key, String value) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		KVMessage requestMsg = new Message(key, value, KVMessage.StatusType.PUT);
+		sendMessage(requestMsg);
+		return requestMsg;
 	}
 
 	@Override
 	public KVMessage get(String key) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		KVMessage requestMsg = new Message(key, null, KVMessage.StatusType.GET);
+		sendMessage(requestMsg);
+		return requestMsg;
+	}
+
+	/**
+	 * Serialize the msg and send it over socket
+	 */
+	public void sendMessage(KVMessage msg) throws Exception{
+		// Convert KVMessage to JSON String
+		ObjectMapper serializer = new ObjectMapper();
+		String msgAsString = serializer.writeValueAsString(msg);
+		output.print(msgAsString);
 	}
 }

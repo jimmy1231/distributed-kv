@@ -1,31 +1,33 @@
 package shared.messages;
 
+import java.io.Serializable;
+
 /**
  * Represents a message format
  */
-public class Message implements KVMessage{
+public class Message implements KVMessage, Serializable{
     private String key;
     private String value;
     private StatusType status;
 
     public Message(String k, String v, StatusType s){
-        this.key = k;
-        this.value = v;
-        this.status = s;
+        key = k;
+        value = v;
+        status = s;
     }
 
     @Override
     public String getKey(){
-        return this.key;
+        return key;
     }
 
     @Override
     public String getValue(){
-        return this.value;
+        return value;
     }
 
     @Override
     public StatusType getStatus(){
-        return this.status;
+        return status;
     }
 }
