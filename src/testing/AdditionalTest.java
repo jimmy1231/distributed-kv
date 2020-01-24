@@ -377,4 +377,84 @@ public class AdditionalTest extends TestCase {
 
 		assertTrue(true);
 	}
+
+	@Test
+	public void testDiskPutCreate() {
+		/*
+		 * Tests key-value pair insertion
+		 * into persistent storage.
+		 */
+		String key;
+		String value, _value;
+		for (int i=0; i < 1000; i++) {
+			key = Integer.toString(i);
+			value = UUID.randomUUID().toString();
+
+			Disk.putKV(key, value);
+			_value = Disk.getKV(key);
+
+			assertEquals(value, _value);
+		}
+		return;
+	}
+
+	@Test
+	public void testDiskPutUpdate() {
+		/*
+		 * Tests key-value pair update requests
+		 * Creates a single key-value pair and
+		 * updates value for each iteration.
+		 * Verify getKV(key) gets updated value.
+		 */
+		String key = "key";
+		String value, _value;
+		for (int i=0; i < 1000; i++) {
+			value = UUID.randomUUID().toString();
+
+			Disk.putKV(key, value);
+			_value = Disk.getKV(key);
+
+			assertEquals(value, _value);
+		}
+		return;
+	}
+
+	@Test
+	public void testDiskGetNone() {
+		/*
+		 * Test Disk.getKV() for non-existent keys
+		 * in persistent storage.
+		 */
+		String key = "random_key";
+		String _value;
+		for (int i=0; i < 1000; i++) {
+			_value = Disk.getKV(key);
+
+			assertNull(_value);
+		}
+		return;
+	}
+
+	@Test
+	public void testClearCache() throws Exception {
+		/*
+		 * Verify all contents of cache are
+		 * flushed to disk when cleared.
+		 */
+		DSCache dsCache = new DSCache(4, "FIFO");
+
+		dsCache.putKV("1", "one");
+		dsCache.putKV("2", "one_two");
+		dsCache.putKV("3", "one_two_three");
+		dsCache.putKV("4", "one_two_three_four");
+
+		dsCache.clearCache();
+
+		assertEquals("one", Disk.getKV("1"));
+		assertEquals("one_two", Disk.getKV("2"));
+		assertEquals("one_two_three", Disk.getKV("3"));
+		assertEquals("one_two_three_four", Disk.getKV("4"));
+
+		return;
+	}
 }
