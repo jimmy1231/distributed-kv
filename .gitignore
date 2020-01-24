@@ -9,6 +9,7 @@ module_ece419-distributed-system.xml
 out/
 *.tgz
 *.jar
+!libs/**/*.jar
 *.exe
 kv_store.txt
 
