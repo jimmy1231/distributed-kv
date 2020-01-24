@@ -117,7 +117,7 @@ public class CLI {
         } else if(tokens[0].equals("logLevel")) {
             if(tokens.length == 2) {
                 String level = setLevel(tokens[1]);
-                if(level.equals(logging.LogSetup.UNKNOWN_LEVEL)) {
+                if(level.equals(LogSetup.UNKNOWN_LEVEL)) {
                     printError("No valid log level!");
                     printPossibleLogLevels();
                 } else {
@@ -175,7 +175,7 @@ public class CLI {
             logger.setLevel(Level.OFF);
             return Level.OFF.toString();
         } else {
-            return logging.LogSetup.UNKNOWN_LEVEL;
+            return LogSetup.UNKNOWN_LEVEL;
         }
     }
 

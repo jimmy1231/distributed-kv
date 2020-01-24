@@ -1,7 +1,8 @@
 package app_kvServer;
 
+import logger.LogSetup;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import server.ClientConnection;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -11,7 +12,7 @@ import java.net.Socket;
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
 
-	private ServerSocket serverSocket;
+	private ServerSocket listener;
 	private DSCache cache;
 	private int port;
 	private boolean running;
@@ -30,7 +31,7 @@ public class KVServer implements IKVServer {
 		cache = new DSCache(cacheSize, strategy);
 		this.port = port;
 		running = false;
-		serverSocket = null;
+		listener = null;
 	}
 	
 	@Override
@@ -40,7 +41,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public String getHostname(){
-		return serverSocket.getInetAddress().getHostName();
+		return listener.getInetAddress().getHostName();
 	}
 
 	@Override
@@ -91,9 +92,9 @@ public class KVServer implements IKVServer {
 	private boolean initializeServer() {
 		logger.info("Initialize server ...");
 		try {
-			serverSocket = new ServerSocket(port);
+			listener = new ServerSocket(port);
 			logger.info("Server listening on port: "
-					+ serverSocket.getLocalPort());
+					+ listener.getLocalPort());
 			return true;
 
 		} catch (IOException e) {
@@ -109,17 +110,17 @@ public class KVServer implements IKVServer {
 
 		running = initializeServer();
 
-		if(serverSocket != null) {
+		if(listener != null) {
 			while(running){
 				try {
-					Socket client = serverSocket.accept();
+					Socket communicationSocket = listener.accept();
 					ClientConnection connection =
-							new ClientConnection(client);
+							new ClientConnection(communicationSocket);
 					new Thread(connection).start();
 
 					logger.info("Connected to "
-							+ client.getInetAddress().getHostName()
-							+  " on port " + client.getPort());
+							+ communicationSocket.getInetAddress().getHostName()
+							+  " on port " + communicationSocket.getPort());
 				} catch (IOException e) {
 					logger.error("Error! " +
 							"Unable to establish connection. \n", e);
@@ -133,7 +134,7 @@ public class KVServer implements IKVServer {
     public void kill(){
 		running = false;
 		try {
-			serverSocket.close();
+			listener.close();
 		} catch (IOException e) {
 			logger.error("Error! " +
 					"Unable to close socket on port: " + port, e);
@@ -145,4 +146,32 @@ public class KVServer implements IKVServer {
 		// TODO: add more actions to perform
 		kill();
 	}
+
+	/**
+	 * Main entry point
+	 * @param args contains the port number at args[0].
+	 */
+	public static void main(String[] args) {
+		try {
+			new LogSetup("logs/server.log", Level.ALL);
+
+			//TODO: Add more args if necessary
+			if(args.length != 1) {
+				System.out.println("Error! Invalid number of arguments!");
+				System.out.println("Usage: Server <port>!");
+			} else {
+				int port = Integer.parseInt(args[0]);
+				new KVServer(port, 0, null).run();
+			}
+		} catch (IOException e) {
+			System.out.println("Error! Unable to initialize logger!");
+			e.printStackTrace();
+			System.exit(1);
+		} catch (NumberFormatException nfe) {
+			System.out.println("Error! Invalid argument <port>! Not a number!");
+			System.out.println("Usage: Server <port>!");
+			System.exit(1);
+		}
+	}
+
 }

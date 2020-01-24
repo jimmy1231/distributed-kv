@@ -6,14 +6,14 @@ import shared.messages.Message;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.Scanner;
 
 public class KVStore implements KVCommInterface {
 	private String serverAddress;
 	private int serverPort;
 	private Socket clientSocket;
 	private PrintWriter output;
-	private Scanner input;
+	private BufferedReader input;
+	private ObjectMapper objectMapper;
 
 	/**
 	 * Initialize KVStore with address and port of KVServer
@@ -26,19 +26,24 @@ public class KVStore implements KVCommInterface {
 		clientSocket = null;
 		output = null;
 		input = null;
+		objectMapper = null;
 	}
 
 	@Override
 	public void connect() throws Exception {
 		clientSocket = new Socket(this.serverAddress, this.serverPort);
 		output = new PrintWriter(clientSocket.getOutputStream());
-		input = new Scanner(clientSocket.getInputStream());
+		input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		objectMapper = new ObjectMapper();
 	}
 
 	@Override
 	public void disconnect() {
 		try{
 			if (clientSocket != null) {
+				input.close();
+				output.close();
+				objectMapper = null;
 				clientSocket.close();
 				serverAddress = null;
 				serverPort = -1;
@@ -71,8 +76,7 @@ public class KVStore implements KVCommInterface {
 	 */
 	public void sendMessage(KVMessage msg) throws Exception{
 		// Convert KVMessage to JSON String
-		ObjectMapper serializer = new ObjectMapper();
-		String msgAsString = serializer.writeValueAsString(msg);
+		String msgAsString = objectMapper.writeValueAsString(msg);
 		output.print(msgAsString);
 	}
 }

@@ -366,14 +366,14 @@ public class AdditionalTest extends TestCase {
 		}
 
 		/* Join */
-		workers.forEach(worker -> {
+		/*workers.forEach(worker -> {
 			try {
 				worker.join();
 			} catch (InterruptedException e) {
 				System.out.println("failure detected");
 				fail();
 			}
-		});
+		});*/
 
 		assertTrue(true);
 	}
