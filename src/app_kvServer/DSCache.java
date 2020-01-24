@@ -385,8 +385,10 @@ public class DSCache {
 
     public void dumpCache() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Key   Data                                     LastModified Frequency Order\n");
-        sb.append("-------------------------------------------------------------------------\n");
+        sb.append(String.format("%-5s %-40s %-20s %-9s %5s\n",
+            "Key", "Data", "LastModified", "Frequency", "Order"));
+        sb.append(new String((new char[85])).replace("\0", "-"));
+        sb.append("\n");
         for (CacheEntry ce : _cache.values()) {
             sb.append(dumpEntry(ce));
         }
@@ -394,7 +396,7 @@ public class DSCache {
     }
 
     private static String dumpEntry(CacheEntry ce) {
-        return String.format("%-5s %-40s %-12d %-9d %d\n",
+        return String.format("%-5s %-40s %-20d %-9d %-5d\n",
             ce.key, ce.data, ce.lastAccessed,
             ce.accessFrequency, ce.order
         );
