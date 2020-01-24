@@ -260,6 +260,8 @@ public class DSCache {
      * (1) Search _cache for matching key/entry
      * (2) If entry is present, update that entry
      * (3) If entry is not present, insert that entry
+     * (4) If entry is present, and value is NULL, delete that entry
+     *     from cache and disk.
      *
      * Note: Synchronization is guaranteed; The configured replacement
      * policy is respected when the cache is full.
@@ -270,12 +272,19 @@ public class DSCache {
      * !!CRASH THE PROGRAM!!
      */
     public void putKV(String key, String value) throws AssertionError, Exception {
+        if (key.equals("")) {
+            throw new Exception("Key cannot be empty string");
+        }
+        if (key.split(" ").length > 1) {
+            throw new Exception("Key cannot contain spaces");
+        }
+
         /* GLOBAL CRITICAL REGION - START */
         gl.lock();
 
         /*
          * 2 Cases in general:
-         * (1) Entry with 'key' already exists in cache -> update
+         * (1) Entry with 'key' already exists in cache -> update/delete
          * (2) Entry with 'key' does not yet exist in cache -> insert
          */
 
@@ -285,13 +294,38 @@ public class DSCache {
             /* ENTRY CRITICAL REGION - START */
             entry.l.lock();
 
-            gl.unlock();
-            /* GLOBAL CRITICAL REGION - END */
+            /* Value=={null, "null", ""} means DELETE operation */
+            if (Objects.isNull(value) || value.equals("null") ||
+                value.equals("")) {
+                assert(key.equals(entry.key));
 
-            entry.data = value;
-            entry.accessFrequency++;
-            entry.updateAccessTime();
-            entry.dirty = true;
+                try {
+                    Disk.putKV(key, null);
+                } catch (Exception e) {
+                    entry.l.unlock();
+                    gl.unlock();
+                    /* GLOBAL/ENTRY CRITICAL REGION - END */
+
+                    throw new Exception(String.format(
+                        "Error deleting disk object: %s. %s",
+                        key, e.getMessage()
+                    ));
+                }
+
+                _cache.remove(key);
+                gl.unlock();
+                /* GLOBAL CRITICAL REGION - END */
+            }
+            /* Update */
+            else {
+                gl.unlock();
+                /* GLOBAL CRITICAL REGION - END */
+
+                entry.data = value;
+                entry.accessFrequency++;
+                entry.updateAccessTime();
+                entry.dirty = true;
+            }
 
             entry.l.unlock();
             /* ENTRY CRITICAL REGION - END */
@@ -385,8 +419,10 @@ public class DSCache {
 
     public void dumpCache() {
         StringBuilder sb = new StringBuilder();
-        sb.append("Key   Data                                     LastModified Frequency Order\n");
-        sb.append("-------------------------------------------------------------------------\n");
+        sb.append(String.format("%-5s %-40s %-20s %-9s %5s\n",
+            "Key", "Data", "LastModified", "Frequency", "Order"));
+        sb.append(new String((new char[85])).replace("\0", "-"));
+        sb.append("\n");
         for (CacheEntry ce : _cache.values()) {
             sb.append(dumpEntry(ce));
         }
@@ -394,7 +430,7 @@ public class DSCache {
     }
 
     private static String dumpEntry(CacheEntry ce) {
-        return String.format("%-5s %-40s %-12d %-9d %d\n",
+        return String.format("%-5s %-40s %-20d %-9d %-5d\n",
             ce.key, ce.data, ce.lastAccessed,
             ce.accessFrequency, ce.order
         );

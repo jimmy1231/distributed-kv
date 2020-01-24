@@ -2,7 +2,6 @@ package testing;
 
 import app_kvServer.DSCache;
 import app_kvServer.Disk;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -22,7 +21,7 @@ public class AdditionalTest extends TestCase {
 	public Timeout globalTimeout = new Timeout(10000);
 
 	public void tearDown() {
-		Disk.clearStorage();
+//		Disk.clearStorage();
 	}
 
 	@Test
@@ -42,6 +41,46 @@ public class AdditionalTest extends TestCase {
 		assertEquals(dsCache.getKV("5"), "6853866846");
 		assertEquals(dsCache.getKV("6"), "0802567709");
 		assertEquals(dsCache.getCacheSize(), 6);
+	}
+
+	@Test
+	public void testCacheFlush() throws Exception {
+		DSCache dsCache = new DSCache(100, "FIFO");
+		dsCache.putKV("1", "1265309548");
+		dsCache.putKV("2", "9665117208");
+		dsCache.putKV("3", "3979847452");
+		dsCache.putKV("4", "6531077644");
+		dsCache.putKV("5", "6853866846");
+		dsCache.putKV("6", "0802567709");
+
+		dsCache.clearCache();
+		assertEquals(dsCache.getCacheSize(), 0);
+
+		assertEquals(dsCache.getKV("1"), "1265309548");
+		assertEquals(dsCache.getKV("2"), "9665117208");
+		assertEquals(dsCache.getKV("3"), "3979847452");
+		assertEquals(dsCache.getKV("4"), "6531077644");
+		assertEquals(dsCache.getKV("5"), "6853866846");
+		assertEquals(dsCache.getKV("6"), "0802567709");
+	}
+
+	@Test
+	public void testDelete() throws Exception {
+		DSCache dsCache = new DSCache(100, "FIFO");
+		dsCache.putKV("1", "1265309548");
+		dsCache.putKV("2", "9665117208");
+		dsCache.putKV("3", "3979847452");
+
+		dsCache.putKV("1", null);
+		dsCache.putKV("2", "null");
+		dsCache.putKV("3", "");
+
+		assertFalse(dsCache.inCache("1"));
+		assertFalse(dsCache.inCache("2"));
+		assertFalse(dsCache.inCache("3"));
+		assertNull(dsCache.getKV("1"));
+		assertNull(dsCache.getKV("2"));
+		assertNull(dsCache.getKV("3"));
 	}
 
 	@Test
@@ -299,22 +338,37 @@ public class AdditionalTest extends TestCase {
 		final List<String> keys;
 		static final int RAND_SEED = 10;
 		final boolean isRead; /* if false, then write */
+		final boolean isDelete;
+		final long sleepTimeMillis;
 
-		CacheWorker(final DSCache dsCache, List<String> _keys, boolean _isRead) {
+
+		CacheWorker(final DSCache dsCache, List<String> _keys,
+					boolean _isRead, boolean _isDelete,
+					long _sleepTimeMillis) {
 			cache = dsCache;
 			keys = _keys;
 			isRead = _isRead;
+			isDelete = _isDelete;
+			sleepTimeMillis = _sleepTimeMillis;
 		}
 
 		@Override
 		public void run() {
+			try {
+				sleep(sleepTimeMillis);
+			} catch (Exception e) {
+				return;
+			}
+
 			int i;
 			String key;
 			Random srand = new Random(RAND_SEED);
 			for (i = 0; i < 200; i++) {
 				try {
 					key = keys.get(srand.nextInt(keys.size()));
-					if (isRead) {
+					if (isDelete) {
+						cache.putKV(key, null);
+					} else if (isRead) {
 						cache.getKV(key);
 					} else {
 						cache.putKV(key, UUID.randomUUID().toString());
@@ -336,6 +390,9 @@ public class AdditionalTest extends TestCase {
 		 * Spawn 20 threads to concurrently evict that entry
 		 * being updated.
 		 *
+		 * Spawn 20 threads to concurrently delete any entries
+		 * from both cache and disk.
+		 *
 		 * We are just trying to test for any deadlock scenarios,
 		 * no real functionality is being tested here. Refer to
 		 * above test cases for functionality.
@@ -352,7 +409,8 @@ public class AdditionalTest extends TestCase {
 		/* Writers */
 		CacheWorker writer;
 		for (i=0; i<20; i++) {
-			writer = new CacheWorker(cache, keys, false);
+			writer = new CacheWorker(cache, keys, false,
+				false, 60-i);
 			writer.start();
 			workers.add(writer);
 		}
@@ -360,20 +418,30 @@ public class AdditionalTest extends TestCase {
 		/* Readers */
 		CacheWorker reader;
 		for (i=0; i<20; i++) {
-			reader = new CacheWorker(cache, keys, true);
+			reader = new CacheWorker(cache, keys, true,
+				true, 40-i);
 			reader.start();
 			workers.add(reader);
 		}
 
+		/* Deleter */
+		CacheWorker deleter;
+		for (i=0; i<20; i++) {
+			deleter = new CacheWorker(cache, keys, false,
+				true, 20-i);
+			deleter.start();
+			workers.add(deleter);
+		}
+
 		/* Join */
-		workers.forEach(worker -> {
+		for (i=0; i<workers.size(); i++) {
 			try {
-				worker.join();
+				workers.get(i).join();
 			} catch (InterruptedException e) {
 				System.out.println("failure detected");
 				fail();
 			}
-		});
+		}
 
 		assertTrue(true);
 	}
