@@ -49,6 +49,81 @@ public class Disk {
         }
     }
 
+    /**
+     * Updates KV-pair with key = /key/.
+     * kvPairs list will include all KV pairs to be written to persistent
+     * storage including the updated pair.
+     *
+     * Returns true if /key/ exists in storage.
+     *
+     * @param key
+     * @param kvPairs
+     * @return
+     */
+    private static boolean updateKV(String key, String value, List<String> kvPairs) {
+        boolean exists = false;
+        try {
+            FileReader fr = new FileReader(KV_STORE_FILE);
+            BufferedReader reader = new BufferedReader(fr);
+            String line;
+            String []kvPair;
+            while ((line = reader.readLine()) != null) {
+                // split line into [ key, value ]
+                kvPair = line.split(" ", 2);
+
+                // found a match
+                if (kvPair[0].equals(key)) {
+                    exists = true;
+                    line = formatKVPair(key, value);
+                }
+                kvPairs.add(line);
+            }
+            reader.close();
+            fr.close();
+        } catch (Exception ex) {
+            // do nothing
+        }
+        return exists;
+    }
+
+    /**
+     * Deletes /key/ pair from persistent storage.
+     * kvPairs will include all KV pairs to be written to
+     * persistent storage (excluding /key/).
+     *
+     * Returns true if /key/ exists in storage.
+     *
+     * @param key
+     * @param kvPairs
+     * @return
+     */
+    private static boolean deleteKV(String key, List<String> kvPairs) {
+        boolean exists = false;
+        try {
+            FileReader fr = new FileReader(KV_STORE_FILE);
+            BufferedReader reader = new BufferedReader(fr);
+            String line;
+            String []kvPair;
+            while ((line = reader.readLine()) != null) {
+                // split line into [ key, value ]
+                kvPair = line.split(" ", 2);
+
+                // only add kv-pair if it doesn't match key param
+                if (!kvPair[0].equals(key)) {
+                    kvPairs.add(line);
+                } else {
+                    exists = true;
+                }
+
+            }
+            reader.close();
+            fr.close();
+        } catch (Exception ex) {
+            // do nothing
+        }
+        return exists;
+    }
+
 
     /**
      * Given a key:
@@ -97,6 +172,7 @@ public class Disk {
      * Given a key, value pair:
      *  - Inserts new pair if key does not exist
      *  - Updates existing pair if key exists
+     *  - If value param is null, delete the KV pair if exists
      *
      * @param key
      * @param value
@@ -110,28 +186,27 @@ public class Disk {
         List<String> kvPairs = new ArrayList<String>();
         boolean exists = false;
         try {
-            FileReader fr = new FileReader(KV_STORE_FILE);
-            BufferedReader reader = new BufferedReader(fr);
-            String line;
-            String []kvPair;
-            while ((line = reader.readLine()) != null) {
-                // split line into [ key, value ]
-                kvPair = line.split(" ", 2);
-
-                // found a match
-                if (kvPair[0].equals(key)) {
-                    exists = true;
-                    line = formatKVPair(key, value);
-                }
-                kvPairs.add(line);
+            /*
+             * Determine whether a kv-pair exists.
+             * kvPairs stores a list of all of the kvPairs to
+             * be written to the persistent storage file.
+             *  (1) If pair is to be deleted, the pair will not be
+             *      included in the kvPairs list.
+             *  (2) If pair is to be updated, updated value will be
+             *      reflected in the kvPairs list.
+             */
+            if (value == null) {
+                exists = deleteKV(key, kvPairs);
+            } else {
+                exists = updateKV(key, value, kvPairs);
             }
-            reader.close();
-            fr.close();
 
-            // Write all lines to file if exists
-            // If does not exist, just append to the file
-            FileWriter fw;
-            BufferedWriter  writer;
+            /*
+             * Write all lines to file if exists
+             * If does not exist, just append to the file
+             */
+            FileWriter fw = null;
+            BufferedWriter  writer = null;
             if (exists) { // case 1: key already exists - need to overwrite all lines
                 fw = new FileWriter(KV_STORE_FILE);
                 writer = new BufferedWriter(fw);
@@ -139,18 +214,20 @@ public class Disk {
                     writer.write(pair);
                     writer.newLine();
                 }
-            } else { // case 2: key DNE, just append to end of file
+            } else if (value != null) { // case 2: key DNE, just append to end of file
                 fw = new FileWriter(KV_STORE_FILE, true);
                 writer = new BufferedWriter(fw);
                 writer.write(formatKVPair(key, value));
                 writer.newLine();
             }
 
-            writer.close();
-            fw.close();
+            /* Cleanup - close writers */
+            if (writer != null)
+                writer.close();
+            if (fw != null)
+                fw.close();
         } catch (Exception ex) {
             // do nothing for now
-            System.out.println("AAH ERROR");
         } finally {
             writeLock.unlock();
         }
@@ -202,7 +279,10 @@ public class Disk {
         System.out.println(getKV("key"));
         putKV("hello", "world how are you 38108301");
         System.out.println(getKV("hello"));
-        System.out.println(getKV("goodbye"));
+        putKV("hello", null);
+        System.out.println(getKV("hello"));
+        putKV("jello", null);
+        System.out.println(getKV("jello"));
         clearStorage();
     }
 }
