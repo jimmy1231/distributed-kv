@@ -395,7 +395,6 @@ public class AdditionalTest extends TestCase {
 
 			assertEquals(value, _value);
 		}
-		return;
 	}
 
 	@Test
@@ -416,7 +415,6 @@ public class AdditionalTest extends TestCase {
 
 			assertEquals(value, _value);
 		}
-		return;
 	}
 
 	@Test
@@ -432,7 +430,6 @@ public class AdditionalTest extends TestCase {
 
 			assertNull(_value);
 		}
-		return;
 	}
 
 	@Test
@@ -443,18 +440,19 @@ public class AdditionalTest extends TestCase {
 		 */
 		DSCache dsCache = new DSCache(4, "FIFO");
 
+		/* Fill up cache */
 		dsCache.putKV("1", "one");
 		dsCache.putKV("2", "one_two");
 		dsCache.putKV("3", "one_two_three");
 		dsCache.putKV("4", "one_two_three_four");
 
+		/* Clear contents */
 		dsCache.clearCache();
 
+		/* Verify contents are persisted */
 		assertEquals("one", Disk.getKV("1"));
 		assertEquals("one_two", Disk.getKV("2"));
 		assertEquals("one_two_three", Disk.getKV("3"));
 		assertEquals("one_two_three_four", Disk.getKV("4"));
-
-		return;
 	}
 }
