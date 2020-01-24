@@ -462,6 +462,7 @@ public class AdditionalTest extends TestCase {
 			_value = Disk.getKV(key);
 
 			assertEquals(value, _value);
+			assertTrue(Disk.inStorage(key));
 		}
 	}
 
@@ -482,6 +483,7 @@ public class AdditionalTest extends TestCase {
 			_value = Disk.getKV(key);
 
 			assertEquals(value, _value);
+			assertTrue(Disk.inStorage(key));
 		}
 	}
 
@@ -497,7 +499,47 @@ public class AdditionalTest extends TestCase {
 			_value = Disk.getKV(key);
 
 			assertNull(_value);
+			assertFalse(Disk.inStorage(key));
 		}
+	}
+
+	@Test
+	public void testDeleteDisk() {
+		/* Case 1: Key exists - should be removed from storage */
+		Disk.putKV("1", "abcdefghij");
+		Disk.putKV("2", "abc-123");
+		Disk.putKV("3", "a = 1, b = 2, c = 3");
+		Disk.putKV("4", "{a: 1}, {b: 2}, {c: 3}");
+
+		assertTrue(Disk.inStorage("1"));
+		assertTrue(Disk.inStorage("2"));
+		assertTrue(Disk.inStorage("3"));
+		assertTrue(Disk.inStorage("4"));
+
+		Disk.putKV("1", null);
+		Disk.putKV("2", null);
+		Disk.putKV("3", null);
+		Disk.putKV("4", null);
+
+		assertNull(Disk.getKV("1"));
+		assertNull(Disk.getKV("2"));
+		assertNull(Disk.getKV("3"));
+		assertNull(Disk.getKV("4"));
+		assertFalse(Disk.inStorage("1"));
+		assertFalse(Disk.inStorage("2"));
+		assertFalse(Disk.inStorage("3"));
+		assertFalse(Disk.inStorage("4"));
+
+		/* Case 2: Key DNE - do nothing */
+		assertNull(Disk.getKV("a"));
+		assertNull(Disk.getKV("b"));
+		assertNull(Disk.getKV("c"));
+		assertNull(Disk.getKV("d"));
+		assertFalse(Disk.inStorage("a"));
+		assertFalse(Disk.inStorage("b"));
+		assertFalse(Disk.inStorage("c"));
+		assertFalse(Disk.inStorage("d"));
+
 	}
 
 	@Test
