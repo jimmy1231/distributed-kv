@@ -365,14 +365,14 @@ public class AdditionalTest extends TestCase {
 		}
 
 		/* Join */
-		workers.forEach(worker -> {
+		for (i=0; i<workers.size(); i++) {
 			try {
-				worker.join();
+				workers.get(i).join();
 			} catch (InterruptedException e) {
 				System.out.println("failure detected");
 				fail();
 			}
-		});
+		}
 
 		assertTrue(true);
 	}
