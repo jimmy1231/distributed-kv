@@ -109,6 +109,10 @@ public class CLI {
         } else if(tokens[0].equals("disconnect")) {
             disconnect();
 
+            if (client == null){
+                System.out.println(PROMPT + "Successfully disconnected from the server");
+                logger.info("Client requested disconnection from the server");
+            }
         } else if(tokens[0].equals("logLevel")) {
             if(tokens.length == 2) {
                 String level = setLevel(tokens[1]);

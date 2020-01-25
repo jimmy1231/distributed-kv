@@ -53,19 +53,21 @@ public class ClientConnection implements Runnable {
             input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             objectMapper = new ObjectMapper();
 
-            String firstMessage = "Connection to KVServer established: "
+            String connectionAck = "Connection to KVServer established: "
                                   + clientSocket.getLocalAddress() + " / "
                                   + clientSocket.getLocalPort();
-            sendMessage(firstMessage);
+            output.println(connectionAck);
 
             while(isOpen) {
                 try {
-                    KVMessage latestMsg = receiveMessage();
-
+                    String latestMsg = input.readLine(); // receiveMessage();
+                    if (latestMsg != null) {
+                        receiveMessage();
+                    }
                     /* connection either terminated by the client or lost due to
                      * network problems*/
                 } catch (IOException ioe) {
-                    logger.error("Error! Connection lost!");
+                    logger.error("Error! Connection lost!"); //This message gets printed out when client disconnect
                     isOpen = false;
                 }
             }
@@ -97,15 +99,6 @@ public class ClientConnection implements Runnable {
         // Convert KVMessage to JSON String
         String msgAsString = objectMapper.writeValueAsString(msg);
         output.print(msgAsString);
-    }
-
-    /**
-     * function to use when a plain string message is being sent
-     * @param msg message in string format
-     * @throws IOException
-     */
-    private void sendMessage(String msg) throws IOException {
-        output.println(msg);
     }
 
     /**

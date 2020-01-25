@@ -9,13 +9,11 @@ import org.apache.log4j.Level;
 import java.io.IOException;
 
 public class KVClient implements IKVClient {
-    private KVCommInterface KVStoreInstance;
-    private boolean running = false;
+    private KVStore KVStoreInstance;
 
     @Override
     public void newConnection(String hostname, int port) throws Exception{
             KVStoreInstance = new KVStore(hostname, port);
-            running = true;
             KVStoreInstance.connect();
     }
 
@@ -25,7 +23,7 @@ public class KVClient implements IKVClient {
     }
 
     public boolean isRunning() {
-        return running;
+        return KVStoreInstance.isConnectionAlive();
     }
 
     public static void main(String[] args) {
