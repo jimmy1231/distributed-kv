@@ -38,4 +38,8 @@ public class Message implements KVMessage, Serializable{
     public void setStatus(StatusType newStatus) {
         status = newStatus;
     }
+
+    public void setValue(String newValue){
+        value = newValue;
+    }
 }

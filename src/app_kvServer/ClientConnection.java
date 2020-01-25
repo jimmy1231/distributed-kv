@@ -114,14 +114,14 @@ public class ClientConnection implements Runnable {
         try{
             if (msg.getStatus() == KVMessage.StatusType.GET){
                 String value = this.server.getKV(msg.getKey());
-                if (value != null){
-                    replyMsg.setStatus(KVMessage.StatusType.GET_SUCCESS);
-                }
+                replyMsg.setStatus(KVMessage.StatusType.GET_SUCCESS);
+                replyMsg.setValue(value);
             }
         }
         catch (Exception e){
             replyMsg.setStatus(KVMessage.StatusType.GET_ERROR);
-            logger.warn(MessageFormat.format("Failed to find the value for key <{0}>",
+            logger.warn(MessageFormat.format("{0} Failed to find the value for key <{1}>",
+                    msg.getStatus(),
                     msg.getKey()));
         }
 

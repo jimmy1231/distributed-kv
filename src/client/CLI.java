@@ -4,6 +4,7 @@ import app_kvClient.KVClient;
 import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import shared.messages.KVMessage;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,15 +65,15 @@ public class CLI {
                 printError("Invalid number of parameters! Expected connect <address> <port>");
             }
 
-        } else  if (tokens[0].equals("put")) {
+        } else if (tokens[0].equals("put")) {
             if (tokens.length == 3) {
                 if (client != null && client.isRunning()) {
                     String key = tokens[1];
                     String value = tokens[2];
+                    logger.info(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
 
                     try{
                         client.getStore().put(key, value);
-                        logger.info(MessageFormat.format("Sent PUT <{0}, {1}>", key, value));
                     }
                     catch(Exception e){
                         String error_msg = MessageFormat.format("Failed to send put request with ({0}, {1})",
@@ -95,12 +96,20 @@ public class CLI {
                 if(tokens.length == 2) {
                     if(client != null && client.isRunning()){
                         String key = tokens[1];
+                        logger.info(MessageFormat.format("Sending GET <{0}>", key));
+                        System.out.println(MessageFormat.format("Sending GET <{0}>", key));
 
                         try{
-                            client.getStore().get(key);
+                            KVMessage result = client.getStore().get(key);
+                            logger.info(MessageFormat.format("{0} retrieved <{1}, {2}>", result.getStatus(),
+                                    result.getKey(), result.getValue()));
+                            System.out.println(MessageFormat.format("{0} retrieved <{1}, {2}>",
+                                    result.getStatus(), result.getKey(), result.getValue()));
                         }
                         catch (Exception e){
-                            //TODO
+                            String error_msg = MessageFormat.format("Request failed: GET <{1}>", key);
+                            System.out.print(error_msg);
+                            logger.error(error_msg, e);
                         }
 
                     } else {

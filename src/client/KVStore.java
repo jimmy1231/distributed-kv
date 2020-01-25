@@ -94,23 +94,33 @@ public class KVStore implements KVCommInterface {
 	public KVMessage put(String key, String value) throws Exception {
 		KVMessage requestMsg = new Message(key, value, KVMessage.StatusType.PUT);
 		sendMessage(requestMsg);
-		return requestMsg;
+		KVMessage replyMSg = receiveMessage();
+		return replyMSg;
 	}
 
 	@Override
 	public KVMessage get(String key) throws Exception {
+		KVMessage replyMsg = null;
 		KVMessage requestMsg = new Message(key, null, KVMessage.StatusType.GET);
 		sendMessage(requestMsg);
-		return requestMsg;
+
+		// Wait for the response from the server
+		while (true){
+			replyMsg = receiveMessage();
+			if (replyMsg != null){
+				break;
+			}
+		}
+
+		return replyMsg;
 	}
 
 	/**
 	 * Serialize the msg and send it over socket
 	 */
-	public void sendMessage(KVMessage msg) throws Exception {
+	private void sendMessage(KVMessage msg) throws Exception {
 		// Convert KVMessage to JSON String
 		String msgAsString = objectMapper.writeValueAsString(msg);
-		System.out.print(msgAsString); //TODO delete this
 		output.println(msgAsString);
 	}
 
@@ -120,8 +130,19 @@ public class KVStore implements KVCommInterface {
 	 * @throws IOException
 	 */
 	private KVMessage receiveMessage() throws IOException {
-		String MsgAsString = input.readLine();
-		Message receivedMsg = objectMapper.readValue(MsgAsString, Message.class);
-		return receivedMsg;
+		KVMessage msg = null;
+		String msgString = null;
+		msgString = input.readLine();
+
+		if (msgString != null) {
+			try {
+				msg = objectMapper.readValue(msgString, Message.class);
+			}
+			catch (IOException e){
+				System.out.print("Failed to read from the socket");
+				logger.warn("Failed to convert byte stream to Message object");
+			}
+		}
+		return msg;
 	}
 }
