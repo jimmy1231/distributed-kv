@@ -1,5 +1,7 @@
 package shared.messages;
 
+import jdk.net.SocketFlow;
+
 public interface KVMessage {
 	
 	public enum StatusType {
@@ -31,7 +33,8 @@ public interface KVMessage {
 	 * response types and error types associated to the message.
 	 */
 	public StatusType getStatus();
-	
+
+	public void setStatus(StatusType newStatus);
 }
 
 

@@ -34,4 +34,8 @@ public class Message implements KVMessage, Serializable{
     public StatusType getStatus(){
         return status;
     }
+
+    public void setStatus(StatusType newStatus) {
+        status = newStatus;
+    }
 }

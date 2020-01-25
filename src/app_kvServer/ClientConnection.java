@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.text.MessageFormat;
 
 /**
  * Represents a connection end point for a particular client that is
@@ -19,7 +20,7 @@ import java.net.Socket;
  * is received it is going to be echoed back to the client.
  */
 public class ClientConnection implements Runnable {
-
+    private Integer id;
     private static Logger logger = Logger.getRootLogger();
 
     private boolean isOpen;
@@ -36,7 +37,8 @@ public class ClientConnection implements Runnable {
      * Constructs a new CientConnection object for a given TCP socket.
      * @param clientSocket the Socket object for the client connection.
      */
-    public ClientConnection(Socket clientSocket, KVServer server) {
+    public ClientConnection(int id, Socket clientSocket, KVServer server) {
+        this.id = id;
         this.clientSocket = clientSocket;
         this.server = server;
         input = null;
@@ -64,7 +66,8 @@ public class ClientConnection implements Runnable {
                 try {
                     KVMessage lastMsg = receiveMessage();
                     if (lastMsg != null){
-                        handleMessage(lastMsg);
+                        KVMessage response = handleMessage(lastMsg);
+                        sendMessage(response);
                     }
 
                     /* connection either terminated by the client or lost due to
@@ -72,6 +75,9 @@ public class ClientConnection implements Runnable {
                 } catch (IOException ioe) {
                     logger.error("Error! Connection lost!"); //This message gets printed out when client disconnect
                     isOpen = false;
+
+                } catch (Exception e) {
+                    logger.error("Failed to handle the request and send the reply");
                 }
             }
 
@@ -93,20 +99,33 @@ public class ClientConnection implements Runnable {
         }
     }
 
-    private void handleMessage(KVMessage msg) {
-        try{
-            if (msg.getStatus() == KVMessage.StatusType.PUT){
-                this.server.putKV(msg.getKey(), msg.getValue());
+    private KVMessage handleMessage(KVMessage msg) {
+        KVMessage replyMsg = msg;
 
-            }
-            else if (msg.getStatus() == KVMessage.StatusType.GET){
-                this.server.getKV(msg.getKey());
+        try {
+            if (msg.getStatus() == KVMessage.StatusType.PUT) {
+                this.server.putKV(msg.getKey(), msg.getValue());
             }
         }
         catch (Exception e){
-            System.out.print("ooops error!");
+
         }
 
+        try{
+            if (msg.getStatus() == KVMessage.StatusType.GET){
+                String value = this.server.getKV(msg.getKey());
+                if (value != null){
+                    replyMsg.setStatus(KVMessage.StatusType.GET_SUCCESS);
+                }
+            }
+        }
+        catch (Exception e){
+            replyMsg.setStatus(KVMessage.StatusType.GET_ERROR);
+            logger.warn(MessageFormat.format("Failed to find the value for key <{0}>",
+                    msg.getKey()));
+        }
+
+        return replyMsg;
     }
 
     /**
@@ -117,7 +136,7 @@ public class ClientConnection implements Runnable {
     public void sendMessage(KVMessage msg) throws Exception{
         // Convert KVMessage to JSON String
         String msgAsString = objectMapper.writeValueAsString(msg);
-        output.print(msgAsString);
+        output.println(msgAsString);
     }
 
     /**
@@ -129,7 +148,6 @@ public class ClientConnection implements Runnable {
         KVMessage msg = null;
         String msgString = null;
         msgString = input.readLine();
-        System.out.println(msgString);
 
         if (msgString != null) {
             try {

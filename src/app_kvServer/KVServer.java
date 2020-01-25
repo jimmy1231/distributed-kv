@@ -8,10 +8,11 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
-
+	private HashMap <Integer, ClientConnection> connectionStatusTable = new HashMap<Integer, ClientConnection>();
 	private ServerSocket listener;
 	private DSCache cache;
 	private int port;
@@ -75,6 +76,10 @@ public class KVServer implements IKVServer {
 		cache.putKV(key, value);
 	}
 
+	public void putKVWithReturnCode(Integer connId, String key, String value) throws Exception{
+		putKV(key, value);
+	}
+
 	@Override
     public void clearCache(){
 		try {
@@ -109,13 +114,20 @@ public class KVServer implements IKVServer {
 	public void run() {
 
 		running = initializeServer();
+		int nextAvailableId = 0;
 
 		if(listener != null) {
 			while(running){
 				try {
 					Socket communicationSocket = listener.accept();
-					ClientConnection connection =
-							new ClientConnection(communicationSocket, this);
+					Integer connectionId = new Integer(nextAvailableId);
+					ClientConnection connection = new ClientConnection(
+							connectionId,
+							communicationSocket,
+							this);
+					nextAvailableId++;
+					connectionStatusTable.put(connectionId, connection);
+
 					new Thread(connection).start();
 
 					logger.info("Connected to "
