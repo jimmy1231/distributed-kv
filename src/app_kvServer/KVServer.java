@@ -139,6 +139,7 @@ public class KVServer implements IKVServer {
 			logger.error("Error! " +
 					"Unable to close socket on port: " + port, e);
 		}
+
 	}
 
 	@Override
@@ -155,18 +156,20 @@ public class KVServer implements IKVServer {
 		try {
 			new LogSetup("logs/server.log", Level.ALL);
 
-			//TODO: Add more args if necessary
-			if(args.length != 1) {
+			if(args.length != 3) {
 				System.out.println("Error! Invalid number of arguments!");
-				System.out.println("Usage: Server <port>!");
+				System.out.println("Usage: Server <port> <cache size> <caching strategy>!");
 			} else {
 				int port = Integer.parseInt(args[0]);
-				new KVServer(port, 0, null).run();
+                int cacheSize = Integer.parseInt(args[1]);
+                String strategy = args[2];
+				new KVServer(port, cacheSize, strategy).run();
 			}
 		} catch (IOException e) {
 			System.out.println("Error! Unable to initialize logger!");
 			e.printStackTrace();
 			System.exit(1);
+
 		} catch (NumberFormatException nfe) {
 			System.out.println("Error! Invalid argument <port>! Not a number!");
 			System.out.println("Usage: Server <port>!");
