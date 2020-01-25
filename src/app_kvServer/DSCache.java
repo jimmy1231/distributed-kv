@@ -261,7 +261,10 @@ public class DSCache {
         gl.unlock();
         /* GLOBAL CRITICAL REGION - END */
 
-        return null;
+        logger.info(String.format("Key not found: %s", key));
+        throw new Exception(String.format(
+            "Object with key %s not found", key)
+        );
     }
 
     /**
