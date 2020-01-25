@@ -1,10 +1,12 @@
 package client;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
 
 import java.io.*;
+import java.net.ConnectException;
 import java.net.Socket;
 
 public class KVStore implements KVCommInterface {
@@ -14,6 +16,7 @@ public class KVStore implements KVCommInterface {
 	private PrintWriter output;
 	private BufferedReader input;
 	private ObjectMapper objectMapper;
+	private static Logger logger = Logger.getRootLogger();
 
 	/**
 	 * Initialize KVStore with address and port of KVServer
@@ -31,10 +34,17 @@ public class KVStore implements KVCommInterface {
 
 	@Override
 	public void connect() throws Exception {
-		clientSocket = new Socket(this.serverAddress, this.serverPort);
-		output = new PrintWriter(clientSocket.getOutputStream());
-		input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-		objectMapper = new ObjectMapper();
+		try{
+			clientSocket = new Socket(this.serverAddress, this.serverPort);
+			output = new PrintWriter(clientSocket.getOutputStream());
+			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			objectMapper = new ObjectMapper();
+		}
+		catch (ConnectException e){
+			System.out.println("Error! " +  "Connection refused. Check if server is running");
+			logger.error("Could not establish connection!", e);
+		}
+
 	}
 
 	@Override

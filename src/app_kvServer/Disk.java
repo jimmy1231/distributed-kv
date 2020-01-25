@@ -1,5 +1,7 @@
 package app_kvServer;
 
+import org.apache.log4j.Logger;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +12,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class Disk {
     private static final String KV_STORE_FILE = "kv_store.txt";
     private static ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
+    private static Logger logger = Logger.getLogger(Disk.class);
 
     public Disk() {
         // do nothing for now
@@ -43,7 +46,7 @@ public class Disk {
                 file.createNewFile();
             }
         } catch (Exception ex) {
-
+            logger.error("Cannot create persistent storage file!");
         } finally {
             writeLock.unlock();
         }
@@ -81,7 +84,7 @@ public class Disk {
             reader.close();
             fr.close();
         } catch (Exception ex) {
-            // do nothing
+            logger.error("Error reading kv_store.txt: " + ex.getMessage());
         }
         return exists;
     }
@@ -119,7 +122,7 @@ public class Disk {
             reader.close();
             fr.close();
         } catch (Exception ex) {
-            // do nothing
+            logger.error("Error reading kv_store.txt: " + ex.getMessage());
         }
         return exists;
     }
@@ -161,7 +164,7 @@ public class Disk {
             }
 
         } catch (Exception ex) {
-            // do nothing for now - write to ERROR log
+            logger.error("Error reading kv_store.txt: " + ex.getMessage());
         } finally {
             read_lock.unlock();
         }
@@ -178,6 +181,7 @@ public class Disk {
      * @param value
      */
     public static void putKV(String key, String value) {
+        logger.info("PUTKV REQUEST FOR: { " + key + ", " + value + " }");
         // Create KV Store File if DNE
         createKVStoreFile();
 
@@ -197,8 +201,12 @@ public class Disk {
              */
             if (value == null) {
                 exists = deleteKV(key, kvPairs);
+                if (exists)
+                    logger.debug("DELETING: { " + key + " }");
             } else {
                 exists = updateKV(key, value, kvPairs);
+                if (exists)
+                    logger.debug("UPDATING: { " + key + " } -> " + "{ " + key + ", " + value + " }");
             }
 
             /*
@@ -215,6 +223,8 @@ public class Disk {
                     writer.newLine();
                 }
             } else if (value != null) { // case 2: key DNE, just append to end of file
+                logger.debug("INSERTING: { " + key + ", " + value + " }");
+
                 fw = new FileWriter(KV_STORE_FILE, true);
                 writer = new BufferedWriter(fw);
                 writer.write(formatKVPair(key, value));
@@ -227,7 +237,7 @@ public class Disk {
             if (fw != null)
                 fw.close();
         } catch (Exception ex) {
-            // do nothing for now
+            logger.error("Error writing to kv_store.txt: " + ex.getMessage());
         } finally {
             writeLock.unlock();
         }
@@ -258,6 +268,8 @@ public class Disk {
         Lock writeLock = RW_LOCK.writeLock();
         writeLock.lock();
         try {
+            logger.info("Clearing kv_store.txt");
+
             FileWriter fw = new FileWriter(KV_STORE_FILE);
             BufferedWriter writer = new BufferedWriter(fw);
             writer.write("");
@@ -265,7 +277,7 @@ public class Disk {
             writer.close();
             fw.close();
         } catch (Exception ex) {
-            // do nothing for now
+            logger.error("Error clearing storage: " + ex.getMessage());
         } finally {
             writeLock.unlock();
         }

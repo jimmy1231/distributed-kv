@@ -20,16 +20,9 @@ public class CLI {
     private String serverAddress;
     private int serverPort;
 
-    private void connect(String address, int port)
-            throws UnknownHostException, IOException {
+    private void connect(String address, int port) throws Exception {
         client = new KVClient();
-
-        try {
-            client.newConnection(address, port);
-        }
-        catch (Exception e){
-            //TODO
-        }
+        client.newConnection(address, port);
     }
 
     private void disconnect() {
@@ -63,9 +56,11 @@ public class CLI {
                 } catch (IOException e) {
                     printError("Could not establish connection!");
                     logger.warn("Could not establish connection!", e);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             } else {
-                printError("Invalid number of parameters!");
+                printError("Invalid number of parameters! Expected connect <address> <port>");
             }
 
         } else  if (tokens[0].equals("put")) {
@@ -211,16 +206,5 @@ public class CLI {
                 + "Possible log levels are:");
         System.out.println(PROMPT
                 + "ALL | DEBUG | INFO | WARN | ERROR | FATAL | OFF");
-    }
-    public static void main(String[] args) {
-        try {
-            new LogSetup("logs/client.log", Level.OFF);
-            CLI app = new CLI();
-            app.run();
-        } catch (IOException e) {
-            System.out.println("Error! Unable to initialize logger!");
-            e.printStackTrace();
-            System.exit(1);
-        }
     }
 }
