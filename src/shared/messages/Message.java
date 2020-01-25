@@ -10,6 +10,10 @@ public class Message implements KVMessage, Serializable{
     private String value;
     private StatusType status;
 
+    public Message(){
+        super();
+    }
+
     public Message(String k, String v, StatusType s){
         key = k;
         value = v;

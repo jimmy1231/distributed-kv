@@ -8,6 +8,7 @@ import shared.messages.Message;
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.text.MessageFormat;
 
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
@@ -41,7 +42,7 @@ public class KVStore implements KVCommInterface {
 	public void connect() throws Exception {
 		try{
 			clientSocket = new Socket(this.serverAddress, this.serverPort);
-			output = new PrintWriter(clientSocket.getOutputStream());
+			output = new PrintWriter(clientSocket.getOutputStream(), true);
 			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 			objectMapper = new ObjectMapper();
 
@@ -106,10 +107,11 @@ public class KVStore implements KVCommInterface {
 	/**
 	 * Serialize the msg and send it over socket
 	 */
-	public void sendMessage(KVMessage msg) throws Exception{
+	public void sendMessage(KVMessage msg) throws Exception {
 		// Convert KVMessage to JSON String
 		String msgAsString = objectMapper.writeValueAsString(msg);
-		output.print(msgAsString);
+		System.out.print(msgAsString); //TODO delete this
+		output.println(msgAsString);
 	}
 
 	/**

@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
+import java.text.MessageFormat;
 
 public class CLI {
     private static Logger logger = Logger.getRootLogger();
@@ -71,9 +72,14 @@ public class CLI {
 
                     try{
                         client.getStore().put(key, value);
+                        logger.info(MessageFormat.format("Sent PUT <{0}, {1}>", key, value));
                     }
                     catch(Exception e){
-                        //TODO
+                        String error_msg = MessageFormat.format("Failed to send put request with ({0}, {1})",
+                                key,
+                                value);
+                        System.out.print(error_msg);
+                        logger.error(error_msg, e);
                     }
 
                 } else {

@@ -27,6 +27,7 @@ public class ClientConnection implements Runnable {
     private static final int DROP_SIZE = 128 * BUFFER_SIZE;
 
     private Socket clientSocket;
+    private KVServer server;
     private BufferedReader input;
     private PrintWriter output;
     private ObjectMapper objectMapper;
@@ -35,12 +36,13 @@ public class ClientConnection implements Runnable {
      * Constructs a new CientConnection object for a given TCP socket.
      * @param clientSocket the Socket object for the client connection.
      */
-    public ClientConnection(Socket clientSocket) {
+    public ClientConnection(Socket clientSocket, KVServer server) {
         this.clientSocket = clientSocket;
+        this.server = server;
         input = null;
         output = null;
         objectMapper = null;
-        this.isOpen = true;
+        isOpen = true;
     }
 
     /**
@@ -60,10 +62,11 @@ public class ClientConnection implements Runnable {
 
             while(isOpen) {
                 try {
-                    String latestMsg = input.readLine(); // receiveMessage();
-                    if (latestMsg != null) {
-                        receiveMessage();
+                    KVMessage lastMsg = receiveMessage();
+                    if (lastMsg != null){
+                        handleMessage(lastMsg);
                     }
+
                     /* connection either terminated by the client or lost due to
                      * network problems*/
                 } catch (IOException ioe) {
@@ -90,6 +93,22 @@ public class ClientConnection implements Runnable {
         }
     }
 
+    private void handleMessage(KVMessage msg) {
+        try{
+            if (msg.getStatus() == KVMessage.StatusType.PUT){
+                this.server.putKV(msg.getKey(), msg.getValue());
+
+            }
+            else if (msg.getStatus() == KVMessage.StatusType.GET){
+                this.server.getKV(msg.getKey());
+            }
+        }
+        catch (Exception e){
+            System.out.print("ooops error!");
+        }
+
+    }
+
     /**
      * Method sends a Message using this socket.
      * @param msg the message that is to be sent.
@@ -107,8 +126,20 @@ public class ClientConnection implements Runnable {
      * @throws IOException
      */
     private KVMessage receiveMessage() throws IOException {
-        String MsgAsString = input.readLine();
-        Message receivedMsg = objectMapper.readValue(MsgAsString, Message.class);
-        return receivedMsg;
+        KVMessage msg = null;
+        String msgString = null;
+        msgString = input.readLine();
+        System.out.println(msgString);
+
+        if (msgString != null) {
+            try {
+                msg = objectMapper.readValue(msgString, Message.class);
+            }
+            catch (IOException e){
+                System.out.print("readValue casued IO expcetion");
+            }
+
+        }
+        return msg;
     }
 }
