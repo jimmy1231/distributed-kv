@@ -84,6 +84,19 @@ public class AdditionalTest extends TestCase {
 	}
 
 	@Test
+	public void testPutKVReturnCodes() throws Exception {
+		DSCache dsCache = new DSCache(100, "FIFO");
+		assertEquals(dsCache.putKV("1", "abc"), DSCache.CODE_PUT_SUCCESS);
+		assertEquals(dsCache.putKV("2", "abc"), DSCache.CODE_PUT_SUCCESS);
+		assertEquals(dsCache.putKV("3", "abc"), DSCache.CODE_PUT_SUCCESS);
+
+		assertEquals(dsCache.putKV("1", "def"), DSCache.CODE_PUT_UPDATE);
+		assertEquals(dsCache.putKV("1", null), DSCache.CODE_DELETE_SUCCESS);
+		assertEquals(dsCache.putKV("2", "null"), DSCache.CODE_DELETE_SUCCESS);
+		assertEquals(dsCache.putKV("3", ""), DSCache.CODE_DELETE_SUCCESS);
+	}
+
+	@Test
 	public void testCacheLRU() throws Exception {
 		DSCache dsCache = new DSCache(4, "LRU");
 		// Fill up cache
@@ -250,7 +263,7 @@ public class AdditionalTest extends TestCase {
 		dsCache.putKV("5", "6853866846"); // t=15; should evict "4"
 
 		assertEquals(dsCache.getCacheSize(), 4);
-		assertTrue(!dsCache.inCache("1"));
+		assertTrue(!dsCache.inCache("4"));
 		assertTrue(dsCache.inCache("5"));
 
 		dsCache.putKV("6", "0802567709"); // t=16; should evict "5"
@@ -544,7 +557,6 @@ public class AdditionalTest extends TestCase {
 		assertFalse(Disk.inStorage("b"));
 		assertFalse(Disk.inStorage("c"));
 		assertFalse(Disk.inStorage("d"));
-
 	}
 
 	@Test

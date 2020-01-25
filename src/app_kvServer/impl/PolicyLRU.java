@@ -17,7 +17,7 @@ public class PolicyLRU implements DSCache.Policy {
      * @param key New key to be inserted
      */
     @Override
-    public DSCache.CacheEntry evict(Map<String, CacheEntry> _cache, String key) {
+    public CacheEntry evict(Map<String, CacheEntry> _cache, String key) {
         assert(_cache.size() != 0);
 
         CacheEntry oldest = null;

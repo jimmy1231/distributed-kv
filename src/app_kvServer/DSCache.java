@@ -4,17 +4,26 @@ import app_kvServer.impl.PolicyFIFO;
 import app_kvServer.impl.PolicyLFU;
 import app_kvServer.impl.PolicyLRU;
 import app_kvServer.impl.PolicyNoOp;
+import org.apache.log4j.Logger;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.LogManager;
 
 /**
  * This is the cache to be used. It is fully thread safe.
  */
 public class DSCache {
+    private static Logger logger = Logger.getLogger(DSCache.class);
+    public static final int CODE_PUT_SUCCESS = 2;
+    public static final int CODE_PUT_UPDATE = 3;
+    public static final int CODE_DELETE_SUCCESS = 4;
+    public static final int CODE_PUT_ERROR = -2;
+    public static final int CODE_DELETE_ERROR = -4;
+
     public class CacheEntry {
         public long lastAccessed;
         public int accessFrequency;
@@ -266,17 +275,19 @@ public class DSCache {
      * Note: Synchronization is guaranteed; The configured replacement
      * policy is respected when the cache is full.
      *
-     * @throws Exception Generic program runtime error. This should be
-     * handled gracefully
      * @throws AssertionError Assert returned false.
      * !!CRASH THE PROGRAM!!
      */
-    public void putKV(String key, String value) throws AssertionError, Exception {
+    public int putKV(String key, String value) throws AssertionError {
         if (key.equals("")) {
-            throw new Exception("Key cannot be empty string");
+            logger.info(String.format(
+                "Key: %s cannot be an empty string", key));
+            return CODE_PUT_ERROR;
         }
         if (key.split(" ").length > 1) {
-            throw new Exception("Key cannot contain spaces");
+            logger.info(String.format(
+                "Key: %s cannot contain spaces", key));
+            return CODE_PUT_ERROR;
         }
 
         /* GLOBAL CRITICAL REGION - START */
@@ -306,15 +317,19 @@ public class DSCache {
                     gl.unlock();
                     /* GLOBAL/ENTRY CRITICAL REGION - END */
 
-                    throw new Exception(String.format(
+                    logger.error(String.format(
                         "Error deleting disk object: %s. %s",
                         key, e.getMessage()
                     ));
+                    return CODE_DELETE_ERROR;
                 }
 
                 _cache.remove(key);
+                entry.l.unlock();
                 gl.unlock();
                 /* GLOBAL CRITICAL REGION - END */
+
+                return CODE_DELETE_SUCCESS;
             }
             /* Update */
             else {
@@ -330,7 +345,7 @@ public class DSCache {
             entry.l.unlock();
             /* ENTRY CRITICAL REGION - END */
 
-            return;
+            return CODE_PUT_UPDATE;
         }
 
         // (2)
@@ -342,7 +357,7 @@ public class DSCache {
             gl.unlock();
             /* GLOBAL CRITICAL REGION - END */
 
-            return;
+            return CODE_PUT_SUCCESS;
         }
 
         /*
@@ -354,16 +369,17 @@ public class DSCache {
             try {
                 Disk.putKV(key, value);
             } catch (Exception e) {
-                throw new Exception(String.format(
+                logger.error(String.format(
                     "Direct persistence to disk error: %s",
                     e.getMessage()
                 ));
+                return CODE_PUT_ERROR;
             } finally {
                 gl.unlock();
                 /* GLOBAL CRITICAL REGION - END */
             }
 
-            return;
+            return CODE_PUT_SUCCESS;
         }
 
         /*
@@ -375,6 +391,16 @@ public class DSCache {
          * IMPORTANT: Always lock the entry before evicting! Acquiring
          * the lock guarantees that no other threads are working on the
          * entry to be evicted.
+         *
+         * 01/24/2020: Requirements state that if the entry is either
+         * in disk or cache, it should be an UPDATE op, and differentiate
+         * to the caller if it's a PUT or UPDATE. However, in this case
+         * (when entry is not in cache), we have to seek disk to find
+         * whether the concerning 'key' exists in the system.
+         *
+         * This obviously poses significant performance overhead with no
+         * added functionality, so the team decided to tentatively
+         * exclude this "feature".
          */
         assert(_cache.size() == cacheSize);
         CacheEntry evict = policy.evict(_cache, key);
@@ -391,10 +417,11 @@ public class DSCache {
                 gl.unlock();
                 /* GLOBAL/ENTRY CRITICAL REGION - END */
 
-                throw new Exception(String.format(
+                logger.error(String.format(
                     "Error evicting object: %s. %s",
                     key, e.getMessage()
                 ));
+                return CODE_PUT_ERROR;
             }
         }
 
@@ -406,7 +433,7 @@ public class DSCache {
         n++;
         _cache.put(key, entry);
         if (_cache.size() != cacheSize) {
-            System.out.println(String.format(
+            logger.fatal(String.format(
                 "Expecting cache size to be: %d, actual: %d",
                 cacheSize, _cache.size()
             ));
@@ -415,6 +442,8 @@ public class DSCache {
 
         gl.unlock();
         /* GLOBAL CRITICAL REGION - END */
+
+        return CODE_PUT_SUCCESS;
     }
 
     public void dumpCache() {
