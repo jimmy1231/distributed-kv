@@ -48,6 +48,17 @@ public class KVServer implements IKVServer {
 		listener = null;
 
 		new KVServerDaemon(this).start();
+		Runtime.getRuntime().addShutdownHook(new Thread() {
+			@Override
+			public void run() {
+				try {
+					logger.info("sysexit detected, flushing cache");
+					cache.clearCache();
+				} catch (Exception e) {
+					logger.fatal("failed to flush cache on sysexit");
+				}
+			}
+		});
 	}
 	
 	@Override

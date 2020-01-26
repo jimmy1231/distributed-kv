@@ -134,15 +134,7 @@ public class DSCache {
     }
 
     public int getCacheSize() {
-        /* GLOBAL CRITICAL REGION - START */
-        gl.lock();
-
-        int size = _cache.size();
-
-        gl.unlock();
-        /* GLOBAL CRITICAL REGION - END */
-
-        return size;
+        return getCacheCapacity();
     }
 
     public int getCacheCapacity() {
@@ -302,9 +294,54 @@ public class DSCache {
         /* GLOBAL CRITICAL REGION - START */
         gl.lock();
 
+        /* DELETE */
+        if (Objects.isNull(value) || value.equals("null") ||
+            value.equals("")) {
+
+            CacheEntry deleteEntry = _cache.get(key);
+            if (Objects.nonNull(deleteEntry)) {
+                /* ENTRY CRITICAL REGION - START */
+                deleteEntry.l.lock();
+            }
+
+            try {
+                /* Do DELETE */
+                boolean result = Disk.putKV(key, null);
+                if (!result && Objects.isNull(deleteEntry)) {
+                    throw new Exception(String.format(
+                        "Key to delete: %s does not exist",
+                        key
+                    ));
+                }
+            } catch (Exception e) {
+                if (Objects.nonNull(deleteEntry)) {
+                    deleteEntry.l.unlock();
+                }
+                gl.unlock();
+                /* GLOBAL/ENTRY CRITICAL REGION - END */
+
+                logger.error(String.format(
+                    "Error deleting disk object: %s. %s",
+                    key, e.getMessage()
+                ));
+                return CODE_DELETE_ERROR;
+            }
+
+            if (Objects.nonNull(deleteEntry)) {
+                _cache.remove(key);
+                deleteEntry.l.unlock();
+                /* ENTRY CRITICAL REGION - END */
+            }
+
+            gl.unlock();
+            /* GLOBAL CRITICAL REGION - END */
+
+            return CODE_DELETE_SUCCESS;
+        }
+
         /*
          * 2 Cases in general:
-         * (1) Entry with 'key' already exists in cache -> update/delete
+         * (1) Entry with 'key' already exists in cache -> update
          * (2) Entry with 'key' does not yet exist in cache -> insert
          */
 
@@ -314,58 +351,30 @@ public class DSCache {
             /* ENTRY CRITICAL REGION - START */
             entry.l.lock();
 
-            /* Value=={null, "null", ""} means DELETE operation */
-            if (Objects.isNull(value) || value.equals("null") ||
-                value.equals("")) {
-                assert(key.equals(entry.key));
+            /* Update */
+            gl.unlock();
+            /* GLOBAL CRITICAL REGION - END */
 
+            /* Write-through to DISK */
+            if (writeThrough) {
                 try {
-                    Disk.putKV(key, null);
+                    Disk.putKV(key, value);
                 } catch (Exception e) {
                     entry.l.unlock();
-                    gl.unlock();
-                    /* GLOBAL/ENTRY CRITICAL REGION - END */
+                    /* ENTRY CRITICAL REGION - END */
 
                     logger.error(String.format(
-                        "Error deleting disk object: %s. %s",
-                        key, e.getMessage()
+                        "Error updating entry to disk: %s->%s. %s",
+                        key, value, e.getMessage()
                     ));
-                    return CODE_DELETE_ERROR;
+                    return CODE_PUT_ERROR;
                 }
-
-                _cache.remove(key);
-                entry.l.unlock();
-                gl.unlock();
-                /* GLOBAL CRITICAL REGION - END */
-
-                return CODE_DELETE_SUCCESS;
             }
-            /* Update */
-            else {
-                gl.unlock();
-                /* GLOBAL CRITICAL REGION - END */
 
-                /* Write-through to DISK */
-                if (writeThrough) {
-                    try {
-                        Disk.putKV(key, value);
-                    } catch (Exception e) {
-                        entry.l.unlock();
-                        /* ENTRY CRITICAL REGION - END */
-
-                        logger.error(String.format(
-                            "Error updating entry to disk: %s->%s. %s",
-                            key, value, e.getMessage()
-                        ));
-                        return CODE_PUT_ERROR;
-                    }
-                }
-
-                entry.data = value;
-                entry.accessFrequency++;
-                entry.updateAccessTime();
-                entry.dirty = true;
-            }
+            entry.data = value;
+            entry.accessFrequency++;
+            entry.updateAccessTime();
+            entry.dirty = true;
 
             entry.l.unlock();
             /* ENTRY CRITICAL REGION - END */

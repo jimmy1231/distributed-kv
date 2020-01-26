@@ -66,7 +66,7 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testDelete() throws Exception {
-		DSCache dsCache = new DSCache(100, "FIFO");
+		DSCache dsCache = new DSCache(100, "FIFO", true);
 		dsCache.putKV("1", "1265309548");
 		dsCache.putKV("2", "9665117208");
 		dsCache.putKV("3", "3979847452");
@@ -75,11 +75,22 @@ public class AdditionalTest extends TestCase {
 		dsCache.putKV("2", "null");
 		dsCache.putKV("3", "");
 
+		/*
+		 * Test if delete will delete from both cache and
+		 * disk. (1) Write to cache - set as write-through
+		 * config so all values will both be in disk and
+		 * cache. (2) Delete them all, check if values are
+		 * gone.
+		 */
 		assertFalse(dsCache.inCache("1"));
 		assertFalse(dsCache.inCache("2"));
 		assertFalse(dsCache.inCache("3"));
+        assertFalse(Disk.inStorage("1"));
+        assertFalse(Disk.inStorage("2"));
+        assertFalse(Disk.inStorage("3"));
 
-		boolean passed = false;
+
+        boolean passed = false;
 		try {
 			assertNull(dsCache.getKV("1"));
 		} catch (Exception e) {
