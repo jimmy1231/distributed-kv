@@ -51,8 +51,8 @@ public class KVServer implements IKVServer {
 		running = false;
 		listener = null;
 
-        daemon = new KVServerDaemon(this);
-        daemon.start();
+//        daemon = new KVServerDaemon(this);
+//        daemon.start();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -255,7 +255,7 @@ public class KVServer implements IKVServer {
 //			}
 
 			listener.close();
-			daemon.stop();
+//			daemon.stop();
 			logger.info("Daemon thread exited");
         } catch (IOException e) {
 			logger.error("Error! " +
@@ -285,7 +285,7 @@ public class KVServer implements IKVServer {
 //
 //			connectionStatusTable.clear();
 			listener.close();
-			daemon.stop();
+//			daemon.stop();
 		} catch (IOException e) {
 			logger.error("Error! " +
 				"Unable to close socket on port: " + port, e);
@@ -307,7 +307,7 @@ public class KVServer implements IKVServer {
 				int port = Integer.parseInt(args[0]);
                 int cacheSize = Integer.parseInt(args[1]);
                 String strategy = args[2];
-				new KVServer(port, cacheSize, strategy);
+				new KVServer(port, cacheSize, strategy).run();
 			}
 		} catch (IOException e) {
 			System.out.println("Error! Unable to initialize logger!");
