@@ -11,8 +11,7 @@ import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.Objects;
+import java.util.*;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
@@ -22,6 +21,7 @@ public class KVServer implements IKVServer {
 	private int port;
 	private volatile boolean running;
 	private KVServerDaemon daemon;
+	private final List<ClientConnection> connections;
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -47,6 +47,7 @@ public class KVServer implements IKVServer {
 	 */
 	public KVServer(int port, int cacheSize, String strategy) {
 		cache = new DSCache(cacheSize, strategy);
+		connections = new ArrayList<>();
 		this.port = port;
 		running = false;
 		listener = null;
@@ -215,7 +216,7 @@ public class KVServer implements IKVServer {
 			while(running){
 				try {
 					Socket communicationSocket = listener.accept();
-					Integer connectionId = new Integer(nextAvailableId);
+					Integer connectionId = nextAvailableId;
 					ClientConnection connection = new ClientConnection(
 							connectionId,
 							communicationSocket,
@@ -223,7 +224,10 @@ public class KVServer implements IKVServer {
 					nextAvailableId++;
 					connectionStatusTable.put(connectionId, connection);
 
-					new Thread(connection).start();
+					synchronized (connections) {
+						connections.add(connection);
+						connection.start();
+					}
 
 					logger.info("Connected to "
 							+ communicationSocket.getInetAddress().getHostName()
@@ -239,8 +243,14 @@ public class KVServer implements IKVServer {
 
 	@Override
     public void kill(){
+		/*
+		 * (1) Terminate all connections immediately
+		 */
 		running = false;
 		try {
+			for (Thread conn : connections)
+				conn.stop();
+
 			listener.close();
             daemon.stop();
             logger.info("Daemon thread exited");
@@ -252,7 +262,23 @@ public class KVServer implements IKVServer {
 
 	@Override
     public void close(){
-		kill();
+		running = false;
+		try {
+			for (ClientConnection conn : connections) {
+				conn.gracefulClose();
+				conn.join();
+			}
+
+			listener.close();
+			daemon.stop();
+			logger.info("Daemon thread exited");
+		} catch (IOException e) {
+			logger.error("Error! " +
+				"Unable to close socket on port: " + port, e);
+		} catch (InterruptedException e) {
+			logger.error("Error! " +
+				"Interrupted exception on thread join: ", e);
+		}
 		clearStorage();
 	}
 

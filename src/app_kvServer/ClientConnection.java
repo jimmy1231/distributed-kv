@@ -19,11 +19,11 @@ import java.text.MessageFormat;
  * The class also implements the echo functionality. Thus whenever a message
  * is received it is going to be echoed back to the client.
  */
-public class ClientConnection implements Runnable {
+public class ClientConnection extends Thread {
     private Integer id;
     private static Logger logger = Logger.getRootLogger();
 
-    private boolean isOpen;
+    private volatile boolean isOpen;
     private static final int BUFFER_SIZE = 1024;
     private static final int DROP_SIZE = 128 * BUFFER_SIZE;
 
@@ -171,6 +171,10 @@ public class ClientConnection implements Runnable {
         // Convert KVMessage to JSON String
         String msgAsString = objectMapper.writeValueAsString(msg);
         output.println(msgAsString);
+    }
+
+    public void gracefulClose() {
+        isOpen = false;
     }
 
     /**
