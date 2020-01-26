@@ -18,7 +18,7 @@ public class KVServer implements IKVServer {
 	private ServerSocket listener;
 	private DSCache cache;
 	private int port;
-	private boolean running;
+	private volatile boolean running;
 	private KVServerDaemon daemon;
 
 	class KVServerDaemon extends Thread {
@@ -205,16 +205,15 @@ public class KVServer implements IKVServer {
 		running = false;
 		try {
 			listener.close();
-//            daemon.join();
+            daemon.join();
             logger.info("Daemon thread exited");
         } catch (IOException e) {
 			logger.error("Error! " +
 					"Unable to close socket on port: " + port, e);
-		}
-//		catch (InterruptedException e) {
-//            logger.error("Error! " +
-//                "Unable to join daemon thread: THREAD-" + daemon.getId());
-//        }
+		} catch (InterruptedException e) {
+            logger.error("Error! " +
+                "Unable to join daemon thread: THREAD-" + daemon.getId());
+        }
 	}
 
 	@Override
