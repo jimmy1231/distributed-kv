@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
+import java.util.Arrays;
 
 public class CLI {
     private static Logger logger = Logger.getRootLogger();
@@ -66,10 +67,16 @@ public class CLI {
             }
 
         } else if (tokens[0].equals("put")) {
-            if (tokens.length == 3) {
+            if (tokens.length >= 2) {
+                String key = tokens[1];
+                String value;
+
+                if (tokens.length == 2) {
+                    System.out.println("No value for PUT request given. It may delete the entry you are looking for!");
+                }
                 if (client != null && client.isRunning()) {
-                    String key = tokens[1];
-                    String value = tokens[2];
+                    tokens = Arrays.copyOfRange(tokens, 2, tokens.length);
+                    value = String.join(" ", tokens);
                     logger.info(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
                     System.out.println(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
 

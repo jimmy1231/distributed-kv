@@ -100,36 +100,65 @@ public class ClientConnection implements Runnable {
     }
 
     private KVMessage handleMessage(KVMessage msg) {
+        String key = msg.getKey();
+        String value = msg.getValue();
+        KVMessage.StatusType status = null;
         KVMessage replyMsg = msg;
 
-        try {
-            MessageFormat.format("Received PUT <{0}, {1}>", msg.getKey(), msg.getValue());
-            if (msg.getStatus() == KVMessage.StatusType.PUT) {
-                this.server.putKV(msg.getKey(), msg.getValue());
+        if (msg.getStatus() == KVMessage.StatusType.PUT) {
+            String infoMsg = MessageFormat.format("Received PUT <{0}, {1}>", key, value);
+            logger.info(infoMsg);
+            System.out.print(infoMsg);
+
+            try{
+                status = server.putKVWithStatusCheck(key, value);
+                String successMsg = MessageFormat.format("{0} <{1}, {2}>", status, key, value);
+                logger.info(successMsg);
+                System.out.print(successMsg);
+            }
+            catch (Exception e){
+                // Delete scenario
+                if (value == null || value == "null" || value == "") {
+                    status = KVMessage.StatusType.DELETE_ERROR;
+                }
+                else{
+                    status =  KVMessage.StatusType.PUT_ERROR;
+                }
+
+                String failMsg = MessageFormat.format("{0} Failed to put <{1}, {2}>",
+                        msg.getStatus(),
+                        key,
+                        value);
+                logger.warn(failMsg);
+                System.out.print(failMsg);
             }
         }
-        catch (Exception e){
-            replyMsg.setStatus(KVMessage.StatusType.PUT_ERROR);
-            logger.warn(MessageFormat.format("{0} Failed to find the value for key <{1}>",
-                    msg.getStatus(),
-                    msg.getKey()));
-        }
 
-        try{
-            MessageFormat.format("Received GET <{0}>", msg.getKey());
-            if (msg.getStatus() == KVMessage.StatusType.GET){
-                String value = this.server.getKV(msg.getKey());
-                replyMsg.setStatus(KVMessage.StatusType.GET_SUCCESS);
-                replyMsg.setValue(value);
+        else if (msg.getStatus() == KVMessage.StatusType.GET){
+            String infoMsg = MessageFormat.format("Received GET <{0}>", msg.getKey());
+            logger.info(infoMsg);
+            System.out.print(infoMsg);
+
+            try{
+                String retrievedValue = this.server.getKV(key);
+                status = KVMessage.StatusType.GET_SUCCESS;
+                replyMsg.setValue(retrievedValue);
+
+                String successMsg = MessageFormat.format("{0} <{0}, {1}>", status, key, retrievedValue);
+                logger.info(successMsg);
+                System.out.print(successMsg);
+            }
+            catch (Exception e){
+                status = KVMessage.StatusType.GET_ERROR;
+                String failMsg = MessageFormat.format("{0} Failed to find the value for key <{1}>",
+                        msg.getStatus(),
+                        msg.getKey());
+                logger.warn(failMsg);
+                System.out.print(failMsg);
             }
         }
-        catch (Exception e){
-            replyMsg.setStatus(KVMessage.StatusType.GET_ERROR);
-            logger.warn(MessageFormat.format("{0} Failed to find the value for key <{1}>",
-                    msg.getStatus(),
-                    msg.getKey()));
-        }
 
+        replyMsg.setStatus(status);
         return replyMsg;
     }
 

@@ -3,12 +3,14 @@ package app_kvServer;
 import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import shared.messages.KVMessage;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
@@ -89,8 +91,36 @@ public class KVServer implements IKVServer {
 		cache.putKV(key, value);
 	}
 
-	public void putKVWithReturnCode(Integer connId, String key, String value) throws Exception{
-		putKV(key, value);
+	/**
+	 * Wrapper function for putKV. Because putKV given is a void function, status type cannot be determined in certain
+	 * cases (for example, PUT_UPDATE). Thus, this wrapper function provides "return code" to the communication layer
+	 * so that the server can send the client an appropriate message
+	 * @param key
+	 * @param value
+	 * @return
+	 * @throws Exception
+	 */
+	public KVMessage.StatusType putKVWithStatusCheck(String key, String value) throws Exception{
+		KVMessage.StatusType status;
+
+		if (inCache(key)){
+			// key exists in the cache. Either PUT_UPDATE/ERROR or DELETE_SUCCESS/ERROR
+			putKV(key, value);
+
+			// Delete scenario
+			if (value == null || value == "null" || value=="") {
+				status =  KVMessage.StatusType.DELETE_SUCCESS;
+			}
+			else {
+				status = KVMessage.StatusType.PUT_UPDATE;
+			}
+		}
+		else{ // fresh PUT case
+			putKV(key, value);
+			status = KVMessage.StatusType.PUT_SUCCESS;
+		}
+
+		return status;
 	}
 
 	@Override
