@@ -279,7 +279,7 @@ public class DSCache {
      * @throws AssertionError Assert returned false.
      * !!CRASH THE PROGRAM!!
      */
-    public int putKV(String key, String value) throws AssertionError {
+    public int putKV(String key, String value) throws AssertionError, Exception {
         if (key.equals("")) {
             logger.info(String.format(
                 "Key: %s cannot be an empty string", key));
@@ -324,7 +324,7 @@ public class DSCache {
                     "Error deleting disk object: %s. %s",
                     key, e.getMessage()
                 ));
-                return CODE_DELETE_ERROR;
+                throw e;
             }
 
             if (Objects.nonNull(deleteEntry)) {
@@ -367,7 +367,7 @@ public class DSCache {
                         "Error updating entry to disk: %s->%s. %s",
                         key, value, e.getMessage()
                     ));
-                    return CODE_PUT_ERROR;
+                    throw e;
                 }
             }
 
@@ -396,7 +396,7 @@ public class DSCache {
                         "Error write entry to disk: %s->%s. %s",
                         key, value, e.getMessage()
                     ));
-                    return CODE_PUT_ERROR;
+                    throw e;
                 }
             }
 
@@ -424,7 +424,7 @@ public class DSCache {
                     "Direct persistence to disk error: %s",
                     e.getMessage()
                 ));
-                return CODE_PUT_ERROR;
+                throw e;
             } finally {
                 gl.unlock();
                 /* GLOBAL CRITICAL REGION - END */

@@ -643,3 +643,5 @@ java.net.ConnectException: Connection refused: connect
 	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
 	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
 	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 14:33:17,179 ERROR [Thread-10] root: Maximum size of key (20 Bytes) exceeded. PUT_ERROR
+2020-01-26 14:33:17,207 ERROR [Thread-10] root: Maximum size of key (20 Bytes) exceeded. DELETE_ERROR
