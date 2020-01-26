@@ -268,15 +268,16 @@ public class KVServer implements IKVServer {
     public void close(){
 		System.out.println("CALLING CLOSE!!!!!!");
 		running = false;
+		cache.dumpCache();
 		try {
 //			for (ClientConnection conn : connectionStatusTable.values()) {
 //				System.out.println("Graceful close: THREAD_ID=" + conn.getId());
 //				if (conn.isOpen()) {
 //					conn.gracefulClose();
-//					conn.join(1000, 0);
+//					conn.stop();
 //				}
 //			}
-
+//
 //			connectionStatusTable.clear();
 			listener.close();
 			daemon.stop();
