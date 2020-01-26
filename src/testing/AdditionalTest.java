@@ -52,7 +52,6 @@ public class AdditionalTest extends TestCase {
 		assertEquals(dsCache.getKV("4"), "6531077644");
 		assertEquals(dsCache.getKV("5"), "6853866846");
 		assertEquals(dsCache.getKV("6"), "0802567709");
-		assertEquals(dsCache.getCacheSize(), 6);
 	}
 
 	@Test
@@ -66,7 +65,6 @@ public class AdditionalTest extends TestCase {
 		dsCache.putKV("6", "0802567709");
 
 		dsCache.clearCache();
-		assertEquals(dsCache.getCacheSize(), 0);
 
 		assertEquals(dsCache.getKV("1"), "1265309548");
 		assertEquals(dsCache.getKV("2"), "9665117208");
