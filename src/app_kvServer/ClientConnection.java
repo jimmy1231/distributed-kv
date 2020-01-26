@@ -108,13 +108,13 @@ public class ClientConnection implements Runnable {
         if (msg.getStatus() == KVMessage.StatusType.PUT) {
             String infoMsg = MessageFormat.format("Received PUT <{0}, {1}>", key, value);
             logger.info(infoMsg);
-            System.out.print(infoMsg);
+            System.out.println(infoMsg);
 
             try{
                 status = server.putKVWithStatusCheck(key, value);
                 String successMsg = MessageFormat.format("{0} <{1}, {2}>", status, key, value);
                 logger.info(successMsg);
-                System.out.print(successMsg);
+                System.out.println(successMsg);
             }
             catch (Exception e){
                 // Delete scenario
@@ -130,14 +130,14 @@ public class ClientConnection implements Runnable {
                         key,
                         value);
                 logger.warn(failMsg);
-                System.out.print(failMsg);
+                System.out.println(failMsg);
             }
         }
 
         else if (msg.getStatus() == KVMessage.StatusType.GET){
             String infoMsg = MessageFormat.format("Received GET <{0}>", msg.getKey());
             logger.info(infoMsg);
-            System.out.print(infoMsg);
+            System.out.println(infoMsg);
 
             try{
                 String retrievedValue = this.server.getKV(key);
@@ -146,7 +146,7 @@ public class ClientConnection implements Runnable {
 
                 String successMsg = MessageFormat.format("{0} <{0}, {1}>", status, key, retrievedValue);
                 logger.info(successMsg);
-                System.out.print(successMsg);
+                System.out.println(successMsg);
             }
             catch (Exception e){
                 status = KVMessage.StatusType.GET_ERROR;
@@ -154,7 +154,7 @@ public class ClientConnection implements Runnable {
                         msg.getStatus(),
                         msg.getKey());
                 logger.warn(failMsg);
-                System.out.print(failMsg);
+                System.out.println(failMsg);
             }
         }
 
@@ -188,7 +188,7 @@ public class ClientConnection implements Runnable {
                 msg = objectMapper.readValue(msgString, Message.class);
             }
             catch (IOException e){
-                System.out.print("readValue casued IO expcetion");
+                System.out.println("readValue casued IO expcetion");
             }
 
         }
