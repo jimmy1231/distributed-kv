@@ -52,7 +52,7 @@ public class KVServer implements IKVServer {
 	
 	@Override
 	public int getPort(){
-		return port;
+		return listener.getLocalPort();
 	}
 
 	@Override
@@ -218,7 +218,7 @@ public class KVServer implements IKVServer {
 				int port = Integer.parseInt(args[0]);
                 int cacheSize = Integer.parseInt(args[1]);
                 String strategy = args[2];
-				new KVServer(port, cacheSize, strategy).run();
+				new KVServer(port, cacheSize, strategy);
 			}
 		} catch (IOException e) {
 			System.out.println("Error! Unable to initialize logger!");
