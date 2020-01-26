@@ -292,7 +292,7 @@ public class KVServer implements IKVServer {
 			logger.error("Error! " +
 				"Unable to close socket on port: " + port, e);
 		}
-		clearStorage();
+		clearCache();
 	}
 
 	/**
