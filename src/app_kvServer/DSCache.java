@@ -296,7 +296,7 @@ public class DSCache {
 
         /* DELETE */
         if (Objects.isNull(value) || value.equals("null") ||
-            value.equals("")) {
+            value.trim().equals("")) {
 
             CacheEntry deleteEntry = _cache.get(key);
             if (Objects.nonNull(deleteEntry)) {
