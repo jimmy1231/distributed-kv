@@ -71,12 +71,17 @@ public class CLI {
                     String key = tokens[1];
                     String value = tokens[2];
                     logger.info(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
+                    System.out.println(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
 
                     try{
-                        client.getStore().put(key, value);
+                        KVMessage result = client.getStore().put(key, value);
+                        logger.info(MessageFormat.format("{0} Inserted <{1}, {2}>", result.getStatus(),
+                                result.getKey(), result.getValue()));
+                        System.out.println(MessageFormat.format("{0} Inserted <{1}, {2}>",
+                                result.getStatus(), result.getKey(), result.getValue()));
                     }
                     catch(Exception e){
-                        String error_msg = MessageFormat.format("Failed to send put request with ({0}, {1})",
+                        String error_msg = MessageFormat.format("Request failed: PUT <{1}, {2}>",
                                 key,
                                 value);
                         System.out.print(error_msg);

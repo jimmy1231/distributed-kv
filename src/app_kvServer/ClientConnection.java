@@ -103,15 +103,20 @@ public class ClientConnection implements Runnable {
         KVMessage replyMsg = msg;
 
         try {
+            MessageFormat.format("Received PUT <{0}, {1}>", msg.getKey(), msg.getValue());
             if (msg.getStatus() == KVMessage.StatusType.PUT) {
                 this.server.putKV(msg.getKey(), msg.getValue());
             }
         }
         catch (Exception e){
-
+            replyMsg.setStatus(KVMessage.StatusType.PUT_ERROR);
+            logger.warn(MessageFormat.format("{0} Failed to find the value for key <{1}>",
+                    msg.getStatus(),
+                    msg.getKey()));
         }
 
         try{
+            MessageFormat.format("Received GET <{0}>", msg.getKey());
             if (msg.getStatus() == KVMessage.StatusType.GET){
                 String value = this.server.getKV(msg.getKey());
                 replyMsg.setStatus(KVMessage.StatusType.GET_SUCCESS);
