@@ -649,12 +649,64 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testTooLongKey() throws Exception {
+		String longKey = "012345678901234567890123456789"; //length = 30
+		String value1 = "value1";
+		String value2 = "";
 
+		KVMessage response1 = null;
+		Exception ex = null;
+		KVMessage response2 = null;
+
+		try{
+			response1 = kvClient.put(longKey, value1); // Expect PUT ERROR
+			response2 = kvClient.put(longKey, value2); // Expect DELETE ERROR
+		}
+		catch(Exception e){
+			ex = e;
+		}
+
+		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR
+				&& response2.getStatus() == KVMessage.StatusType.DELETE_ERROR);
 	}
 
 	@Test
 	public void testTooLongValue() throws Exception {
+		String value = "";
+		for (int i=0; i < 50000; i++){
+			value = value.concat("0123456789");
+		}
 
+		KVMessage response1 = null;
+		Exception ex = null;
+
+		try{
+			response1 = kvClient.put("key", value); // Expect PUT ERROR
+		}
+		catch(Exception e){
+			ex = e;
+		}
+
+		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR);
+	}
+
+	@Test
+	public void testEmptyString() throws Exception {
+		String key = "";
+		String value = "val";
+		KVMessage response1 = null;
+		KVMessage response2 = null;
+		Exception ex = null;
+
+		try{
+			response1 = kvClient.put(key, value); // Expect PUT ERROR
+			response2 = kvClient.get(key); // Expect PUT ERROR
+		}
+		catch(Exception e){
+			ex = e;
+		}
+
+		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR
+						&& response2.getStatus() == KVMessage.StatusType.PUT_ERROR);
 	}
 
 	@Test

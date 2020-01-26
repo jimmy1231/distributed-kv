@@ -4,11 +4,13 @@ import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
+import shared.messages.Message;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -115,7 +117,12 @@ public class KVServer implements IKVServer {
 	 * @throws Exception
 	 */
 	public KVMessage.StatusType putKVWithStatusCheck(String key, String value) throws Exception{
-		KVMessage.StatusType status;
+		KVMessage.StatusType status = checkMessageFormat(key, value);
+
+		// If format is invalid, just return ERROR status right away
+		if (status != null){
+			return status;
+		}
 
 		if (inStorage(key)){
 			// key exists in the cache. Either PUT_UPDATE/ERROR or DELETE_SUCCESS/ERROR
@@ -136,7 +143,37 @@ public class KVServer implements IKVServer {
 
 		return status;
 	}
+	private KVMessage.StatusType checkMessageFormat(String key, String value){
+		KVMessage.StatusType status = null;
+		int keyLength = key.getBytes().length;
+		int valueLength = key.getBytes().length;
+		int KEY_MAXSIZE = 20; // in bytes
+		int VALUE_MAXSIZE = 120000; // in bytes
 
+
+		// Value exceeded 120KB - can't be delete request
+		if (valueLength >= VALUE_MAXSIZE){
+			status = KVMessage.StatusType.PUT_ERROR;
+			String errorMsg = MessageFormat.format("Maximum size of value (120KB) exceeded. {0}",
+					status);
+			logger.error(errorMsg);
+			System.out.print(errorMsg);
+		}
+		// check for empty key or max-exceeding key
+		else if (keyLength >= KEY_MAXSIZE || keyLength < 1) {
+			if (value == null || value.equals("null") || value.equals("")) {
+				status = KVMessage.StatusType.DELETE_ERROR;
+			} else {
+				status = KVMessage.StatusType.PUT_ERROR;
+			}
+			String errorMsg = MessageFormat.format("Maximum size of key (20 Bytes) exceeded. {0}",
+					status);
+			logger.error(errorMsg);
+			System.out.print(errorMsg);
+		}
+
+		return status;
+	}
 	@Override
     public void clearCache(){
 		try {
