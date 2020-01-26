@@ -264,10 +264,10 @@ public class KVServer implements IKVServer {
 	}
 
 	public void closeConnection(String connectionId) {
-//		synchronized (connectionStatusTable) {
-//			System.out.println("SERVER: closing connection with ID=" + connectionId);
-//			connectionStatusTable.remove(connectionId);
-//		}
+		synchronized (connectionStatusTable) {
+			System.out.println("SERVER: closing connection with ID=" + connectionId);
+			connectionStatusTable.remove(connectionId);
+		}
 	}
 
 	@Override
