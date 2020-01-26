@@ -12,6 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
@@ -109,9 +110,16 @@ public class KVServer implements IKVServer {
 	@Override
     public void putKV(String key, String value) throws Exception{
 		System.out.printf("PUTKV->REFLECT: %s -> %s\n", key, value);
-		cache.dumpCache();
+		try {
+			cache.putKV(key, value);
+		} catch (Exception e) {
+			/* Swallow */
+		}
+	}
+
+	public void putKVProd(String key, String value) throws Exception{
+		System.out.printf("PUTKV->REFLECT: %s -> %s\n", key, value);
 		cache.putKV(key, value);
-		cache.dumpCache();
 	}
 
 	/**
@@ -133,7 +141,7 @@ public class KVServer implements IKVServer {
 
 		if (inStorage(key)){
 			// key exists in the cache. Either PUT_UPDATE/ERROR or DELETE_SUCCESS/ERROR
-			putKV(key, value);
+			putKVProd(key, value);
 
 			// Delete scenario
 			if (value == null || value.equals("null") || value.equals("")) {
@@ -144,7 +152,7 @@ public class KVServer implements IKVServer {
 			}
 		}
 		else{ // fresh PUT case
-			putKV(key, value);
+			putKVProd(key, value);
 			status = KVMessage.StatusType.PUT_SUCCESS;
 		}
 
