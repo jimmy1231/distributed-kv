@@ -180,7 +180,7 @@ public class DSCache {
      *        policy and place the fetched data in cache.
      *
      * @throws Exception Generic program runtime error. This should be
-     * handled gracefully
+     * handled gracefully. Exception is thrown if key is not found.
      * @throws AssertionError Assert returned false.
      * !!CRASH THE PROGRAM!!
      */

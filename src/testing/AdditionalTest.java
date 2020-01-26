@@ -78,9 +78,30 @@ public class AdditionalTest extends TestCase {
 		assertFalse(dsCache.inCache("1"));
 		assertFalse(dsCache.inCache("2"));
 		assertFalse(dsCache.inCache("3"));
-		assertNull(dsCache.getKV("1"));
-		assertNull(dsCache.getKV("2"));
-		assertNull(dsCache.getKV("3"));
+
+		boolean passed = false;
+		try {
+			assertNull(dsCache.getKV("1"));
+		} catch (Exception e) {
+			passed = true;
+		}
+		assertTrue(passed);
+
+		passed = false;
+		try {
+			assertNull(dsCache.getKV("2"));
+		} catch (Exception e) {
+			passed = true;
+		}
+		assertTrue(passed);
+
+		passed = false;
+		try {
+			assertNull(dsCache.getKV("3"));
+		} catch (Exception e) {
+			passed = true;
+		}
+		assertTrue(passed);
 	}
 
 	@Test

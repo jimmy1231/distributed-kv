@@ -18,6 +18,17 @@ public class KVServer implements IKVServer {
 	private int port;
 	private boolean running;
 
+	class KVServerDaemon extends Thread {
+		KVServer server;
+		KVServerDaemon(KVServer server) {
+			this.server = server;
+		}
+
+		@Override public void run() {
+			server.run();
+		}
+	}
+
 	/**
 	 * Start KV Server at given port
 	 * @param port given port for storage server to operate
@@ -33,6 +44,8 @@ public class KVServer implements IKVServer {
 		this.port = port;
 		running = false;
 		listener = null;
+
+		new KVServerDaemon(this).start();
 	}
 	
 	@Override
