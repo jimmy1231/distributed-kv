@@ -108,7 +108,7 @@ public class KVServer implements IKVServer {
 			putKV(key, value);
 
 			// Delete scenario
-			if (value == null || value == "null" || value=="") {
+			if (value == null || value.equals("null") || value.equals("")) {
 				status =  KVMessage.StatusType.DELETE_SUCCESS;
 			}
 			else {
