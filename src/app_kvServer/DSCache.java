@@ -281,14 +281,14 @@ public class DSCache {
      */
     public int putKV(String key, String value) throws AssertionError, Exception {
         if (key.equals("")) {
-            logger.info(String.format(
-                "Key: %s cannot be an empty string", key));
-            return CODE_PUT_ERROR;
+            throw new Exception(String.format(
+                "Key: %s cannot be an empty string", key)
+            );
         }
         if (key.split(" ").length > 1) {
-            logger.info(String.format(
-                "Key: %s cannot contain spaces", key));
-            return CODE_PUT_ERROR;
+            throw new Exception(String.format(
+                "Key: %s cannot contain spaces", key)
+            );
         }
 
         /* GLOBAL CRITICAL REGION - START */
