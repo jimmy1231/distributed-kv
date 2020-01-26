@@ -236,6 +236,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public void kill(){
+		System.out.println("CALLING KILL!!!!!!");
 		/*
 		 * (1) Terminate all connections immediately
 		 */
@@ -264,6 +265,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public void close(){
+		System.out.println("CALLING CLOSE!!!!!!");
 		running = false;
 		try {
 			for (ClientConnection conn : connectionStatusTable.values()) {
