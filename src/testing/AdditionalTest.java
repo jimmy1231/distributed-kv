@@ -2,11 +2,14 @@ package testing;
 
 import app_kvServer.DSCache;
 import app_kvServer.Disk;
+import client.KVStore;
+import junit.framework.TestResult;
 import org.junit.Rule;
 import org.junit.Test;
 
 import junit.framework.TestCase;
 import org.junit.rules.Timeout;
+import shared.messages.KVMessage;
 
 import java.util.*;
 
@@ -19,9 +22,18 @@ public class AdditionalTest extends TestCase {
 
 	@Rule
 	public Timeout globalTimeout = new Timeout(10000);
+	private KVStore kvClient;
+
+	public void setUp() {
+		kvClient = new KVStore("localhost", 50000);
+		try {
+			kvClient.connect();
+		} catch (Exception e) {
+		}
+	}
 
 	public void tearDown() {
-//		Disk.clearStorage();
+		kvClient.disconnect();
 	}
 
 	@Test
@@ -628,5 +640,40 @@ public class AdditionalTest extends TestCase {
 		assertEquals("one_two", Disk.getKV("2"));
 		assertEquals("one_two_three", Disk.getKV("3"));
 		assertEquals("one_two_three_four", Disk.getKV("4"));
+	}
+
+	@Test
+	public void testMultiClientInteraction() throws Exception {
+
+	}
+
+	@Test
+	public void testTooLongKey() throws Exception {
+
+	}
+
+	@Test
+	public void testTooLongValue() throws Exception {
+
+	}
+
+	@Test
+	public void testValueWithSpaces() throws Exception {
+		String key = "key1";
+		String value = "value1 with spaces";
+
+		KVMessage response = null;
+		Exception ex = null;
+
+		try {
+			kvClient.put(key, value);
+			response = kvClient.get(key);
+
+		} catch (Exception e) {
+			ex = e;
+		}
+
+		assertTrue(ex == null && response.getStatus() == KVMessage.StatusType.GET_SUCCESS
+				&& response.getValue().equals(value));
 	}
 }
