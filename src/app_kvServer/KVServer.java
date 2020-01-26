@@ -15,13 +15,12 @@ import java.util.*;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
-	private HashMap <Integer, ClientConnection> connectionStatusTable = new HashMap<Integer, ClientConnection>();
+	private final HashMap <Integer, ClientConnection> connectionStatusTable = new HashMap<>();
 	private ServerSocket listener;
 	private DSCache cache;
 	private int port;
 	private volatile boolean running;
 	private KVServerDaemon daemon;
-	private final List<ClientConnection> connections;
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -47,7 +46,6 @@ public class KVServer implements IKVServer {
 	 */
 	public KVServer(int port, int cacheSize, String strategy) {
 		cache = new DSCache(cacheSize, strategy);
-		connections = new ArrayList<>();
 		this.port = port;
 		running = false;
 		listener = null;
@@ -221,12 +219,10 @@ public class KVServer implements IKVServer {
 							connectionId,
 							communicationSocket,
 							this);
-					nextAvailableId++;
-					connectionStatusTable.put(connectionId, connection);
-
-					synchronized (connections) {
-						connections.add(connection);
+					synchronized (connectionStatusTable) {
+						connectionStatusTable.put(connectionId, connection);
 						connection.start();
+						nextAvailableId++;
 					}
 
 					logger.info("Connected to "
@@ -248,7 +244,7 @@ public class KVServer implements IKVServer {
 		 */
 		running = false;
 		try {
-			for (Thread conn : connections) {
+			for (Thread conn : connectionStatusTable.values()) {
 				System.out.println("Kill");
 				conn.stop();
 			}
@@ -262,11 +258,18 @@ public class KVServer implements IKVServer {
 		}
 	}
 
+	public void closeConnection(int connectionId) {
+		synchronized (connectionStatusTable) {
+			System.out.println("SERVER: closing connection with ID=" + connectionId);
+			connectionStatusTable.remove(connectionId);
+		}
+	}
+
 	@Override
     public void close(){
 		running = false;
 		try {
-			for (ClientConnection conn : connections) {
+			for (ClientConnection conn : connectionStatusTable.values()) {
 				System.out.println("Graceful close: THREAD_ID=" + conn.getId());
 				conn.gracefulClose();
 				conn.join(1000, 0);

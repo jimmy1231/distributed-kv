@@ -86,6 +86,7 @@ public class ClientConnection extends Thread {
 
         } finally {
             System.out.printf("CLOSING THREAD=%s\n", getId());
+            server.closeConnection(id);
             try {
                 if (clientSocket != null) {
                     input.close();
