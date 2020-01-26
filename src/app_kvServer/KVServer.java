@@ -109,13 +109,9 @@ public class KVServer implements IKVServer {
 	@Override
     public void putKV(String key, String value) throws Exception{
 		System.out.printf("PUTKV->REFLECT: %s -> %s\n", key, value);
-		try {
-			cache.dumpCache();
-			cache.putKV(key, value);
-			cache.dumpCache();
-		} catch (Exception e) {
-			/* swallow it */
-		}
+		cache.dumpCache();
+		cache.putKV(key, value);
+		cache.dumpCache();
 	}
 
 	/**
@@ -294,7 +290,6 @@ public class KVServer implements IKVServer {
 			logger.error("Error! " +
 				"Unable to close socket on port: " + port, e);
 		}
-		clearCache();
 	}
 
 	/**
