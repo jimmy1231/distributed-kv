@@ -114,13 +114,6 @@ public class KVServer implements IKVServer {
 		}
 	}
 
-	public void putKV(String key, String value, boolean noTest) throws Exception{
-		System.out.printf("PUTKV: %s -> %s\n", key, value);
-		cache.dumpCache();
-		cache.putKV(key, value);
-		cache.dumpCache();
-	}
-
 	/**
 	 * Wrapper function for putKV. Because putKV given is a void function, status type cannot be determined in certain
 	 * cases (for example, PUT_UPDATE). Thus, this wrapper function provides "return code" to the communication layer
@@ -140,7 +133,7 @@ public class KVServer implements IKVServer {
 
 		if (inStorage(key)){
 			// key exists in the cache. Either PUT_UPDATE/ERROR or DELETE_SUCCESS/ERROR
-			putKV(key, value, true);
+			putKV(key, value);
 
 			// Delete scenario
 			if (value == null || value.equals("null") || value.equals("")) {
@@ -151,7 +144,7 @@ public class KVServer implements IKVServer {
 			}
 		}
 		else{ // fresh PUT case
-			putKV(key, value, true);
+			putKV(key, value);
 			status = KVMessage.StatusType.PUT_SUCCESS;
 		}
 
