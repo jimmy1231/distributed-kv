@@ -246,10 +246,10 @@ public class KVServer implements IKVServer {
 		 */
 		running = false;
 		try {
-			for (Thread conn : connectionStatusTable.values()) {
-				System.out.println("Kill");
-				conn.stop();
-			}
+//			for (Thread conn : connectionStatusTable.values()) {
+//				System.out.println("Kill");
+//				conn.stop();
+//			}
 
 			listener.close();
 			daemon.stop();
@@ -261,10 +261,10 @@ public class KVServer implements IKVServer {
 	}
 
 	public void closeConnection(String connectionId) {
-		synchronized (connectionStatusTable) {
-			System.out.println("SERVER: closing connection with ID=" + connectionId);
-			connectionStatusTable.remove(connectionId);
-		}
+//		synchronized (connectionStatusTable) {
+//			System.out.println("SERVER: closing connection with ID=" + connectionId);
+//			connectionStatusTable.remove(connectionId);
+//		}
 	}
 
 	@Override
@@ -272,23 +272,23 @@ public class KVServer implements IKVServer {
 		System.out.println("CALLING CLOSE!!!!!!");
 		running = false;
 		try {
-			for (ClientConnection conn : connectionStatusTable.values()) {
-				System.out.println("Graceful close: THREAD_ID=" + conn.getId());
-				if (conn.isOpen()) {
-					conn.gracefulClose();
-					conn.join(1000, 0);
-				}
-			}
+//			for (ClientConnection conn : connectionStatusTable.values()) {
+//				System.out.println("Graceful close: THREAD_ID=" + conn.getId());
+//				if (conn.isOpen()) {
+//					conn.gracefulClose();
+//					conn.join(1000, 0);
+//				}
+//			}
 
-			connectionStatusTable.clear();
+//			connectionStatusTable.clear();
 			listener.close();
 			daemon.stop();
 		} catch (IOException e) {
 			logger.error("Error! " +
 				"Unable to close socket on port: " + port, e);
-		} catch (InterruptedException e) {
-			logger.error("Error! " +
-				"Interrupted exception on thread join: ", e);
+//		} catch (InterruptedException e) {
+//			logger.error("Error! " +
+//				"Interrupted exception on thread join: ", e);
 		}
 	}
 
