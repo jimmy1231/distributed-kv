@@ -651,20 +651,23 @@ public class AdditionalTest extends TestCase {
 		String value1 = "value1";
 		String value2 = "";
 
-		KVMessage response1 = null;
 		Exception ex = null;
+		KVMessage response1 = null;
 		KVMessage response2 = null;
+		KVMessage response3 = null;
 
 		try{
 			response1 = kvClient.put(longKey, value1); // Expect PUT ERROR
 			response2 = kvClient.put(longKey, value2); // Expect DELETE ERROR
+			response2 = kvClient.get(longKey); // Expect GET ERROR
 		}
 		catch(Exception e){
 			ex = e;
 		}
 
 		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR
-				&& response2.getStatus() == KVMessage.StatusType.DELETE_ERROR);
+				&& response2.getStatus() == KVMessage.StatusType.DELETE_ERROR
+				&& response3.getStatus() == KVMessage.StatusType.GET_ERROR);
 	}
 
 	@Test
