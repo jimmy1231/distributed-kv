@@ -283,9 +283,6 @@ public class KVServer implements IKVServer {
 		} catch (IOException e) {
 			logger.error("Error! " +
 				"Unable to close socket on port: " + port, e);
-		} catch (InterruptedException e) {
-			logger.error("Error! " +
-				"Interrupted exception on thread join: ", e);
 		}
 		clearCache();
 	}
