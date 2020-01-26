@@ -270,10 +270,13 @@ public class KVServer implements IKVServer {
 		try {
 			for (ClientConnection conn : connectionStatusTable.values()) {
 				System.out.println("Graceful close: THREAD_ID=" + conn.getId());
-				conn.gracefulClose();
-				conn.join(1000, 0);
+				if (conn.isOpen()) {
+					conn.gracefulClose();
+					conn.join(1000, 0);
+				}
 			}
 
+			connectionStatusTable.clear();
 			listener.close();
 			daemon.stop();
 			logger.info("Daemon thread exited");

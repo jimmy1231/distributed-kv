@@ -179,6 +179,10 @@ public class ClientConnection extends Thread {
         isOpen = false;
     }
 
+    public boolean isOpen() {
+        return isOpen;
+    }
+
     /**
      * Receive a string message from socket and deserialize into Message object
      * @return Message received through socket
