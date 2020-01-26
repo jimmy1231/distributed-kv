@@ -104,6 +104,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public void putKV(String key, String value) throws Exception{
+		System.out.printf("PUTKV: %s -> %s\n", key, value);
 		cache.dumpCache();
 		cache.putKV(key, value);
 		cache.dumpCache();
