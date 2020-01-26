@@ -645,3 +645,533 @@ java.net.ConnectException: Connection refused: connect
 	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
 2020-01-26 14:33:17,179 ERROR [Thread-10] root: Maximum size of key (20 Bytes) exceeded. PUT_ERROR
 2020-01-26 14:33:17,207 ERROR [Thread-10] root: Maximum size of key (20 Bytes) exceeded. DELETE_ERROR
+2020-01-26 16:35:50,902 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.ConnectionTest.testConnectionSuccess(ConnectionTest.java:19)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at junit.framework.TestCase.runTest(TestCase.java:168)
+	at junit.framework.TestCase.runBare(TestCase.java:134)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:35:51,911 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:35:52,927 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:35:53,931 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:04,472 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.ConnectionTest.testConnectionSuccess(ConnectionTest.java:19)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at junit.framework.TestCase.runTest(TestCase.java:168)
+	at junit.framework.TestCase.runBare(TestCase.java:134)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:07,738 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:08,746 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:09,755 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:10,759 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:11,763 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:12,767 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.InteractionTest.setUp(InteractionTest.java:18)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:13,781 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.AdditionalTest.setUp(AdditionalTest.java:30)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:14,785 ERROR [main] root: Could not establish connection!
+java.net.ConnectException: Connection refused: connect
+	at java.net.DualStackPlainSocketImpl.connect0(Native Method)
+	at java.net.DualStackPlainSocketImpl.socketConnect(DualStackPlainSocketImpl.java:79)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.PlainSocketImpl.connect(PlainSocketImpl.java:172)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:589)
+	at java.net.Socket.connect(Socket.java:538)
+	at java.net.Socket.<init>(Socket.java:434)
+	at java.net.Socket.<init>(Socket.java:211)
+	at client.KVStore.connect(KVStore.java:44)
+	at testing.AdditionalTest.setUp(AdditionalTest.java:30)
+	at junit.framework.TestCase.runBare(TestCase.java:132)
+	at junit.framework.TestResult$1.protect(TestResult.java:110)
+	at junit.framework.TestResult.runProtected(TestResult.java:128)
+	at junit.framework.TestResult.run(TestResult.java:113)
+	at junit.framework.TestCase.run(TestCase.java:124)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at junit.framework.TestSuite.runTest(TestSuite.java:243)
+	at junit.framework.TestSuite.run(TestSuite.java:238)
+	at org.junit.internal.runners.JUnit38ClassRunner.run(JUnit38ClassRunner.java:83)
+	at org.junit.runner.JUnitCore.run(JUnitCore.java:157)
+	at com.intellij.junit4.JUnit4IdeaTestRunner.startRunnerWithArgs(JUnit4IdeaTestRunner.java:68)
+	at com.intellij.rt.execution.junit.IdeaTestRunner$Repeater.startRunnerWithArgs(IdeaTestRunner.java:47)
+	at com.intellij.rt.execution.junit.JUnitStarter.prepareStreamsAndStart(JUnitStarter.java:242)
+	at com.intellij.rt.execution.junit.JUnitStarter.main(JUnitStarter.java:70)
+2020-01-26 16:37:14,799 ERROR [Thread-60] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,800 ERROR [Thread-59] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,800 ERROR [Thread-55] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,801 ERROR [Thread-54] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,802 ERROR [Thread-58] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,803 ERROR [Thread-57] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,803 ERROR [Thread-56] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,804 ERROR [Thread-53] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,805 ERROR [Thread-52] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,806 ERROR [Thread-51] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,806 ERROR [Thread-49] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,807 ERROR [Thread-48] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,808 ERROR [Thread-50] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,808 ERROR [Thread-47] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,809 ERROR [Thread-46] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,810 ERROR [Thread-44] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,811 ERROR [Thread-45] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,812 ERROR [Thread-42] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,813 ERROR [Thread-41] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,813 ERROR [Thread-43] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,814 ERROR [Thread-40] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,814 ERROR [Thread-39] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,815 ERROR [Thread-38] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,816 ERROR [Thread-37] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,817 ERROR [Thread-36] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,818 ERROR [Thread-35] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,818 ERROR [Thread-34] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,819 ERROR [Thread-33] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,820 ERROR [Thread-32] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,821 ERROR [Thread-31] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,822 ERROR [Thread-30] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,823 ERROR [Thread-29] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,824 ERROR [Thread-28] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,825 ERROR [Thread-27] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,826 ERROR [Thread-26] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,827 ERROR [Thread-25] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,828 ERROR [Thread-23] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,828 ERROR [Thread-24] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,829 ERROR [Thread-22] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:14,833 ERROR [Thread-21] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,689 ERROR [Thread-70] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,692 ERROR [Thread-69] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,727 ERROR [Thread-68] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,761 ERROR [Thread-66] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,764 ERROR [Thread-65] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,769 ERROR [Thread-64] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,796 ERROR [Thread-63] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,798 ERROR [Thread-62] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,800 ERROR [Thread-61] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,809 ERROR [Thread-60] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,811 ERROR [Thread-59] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,815 ERROR [Thread-58] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,817 ERROR [Thread-53] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,818 ERROR [Thread-52] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,822 ERROR [Thread-51] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,824 ERROR [Thread-50] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,824 ERROR [Thread-49] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,828 ERROR [Thread-48] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,882 ERROR [Thread-47] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,887 ERROR [Thread-45] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,888 ERROR [Thread-46] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:46,889 ERROR [Thread-44] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,250 ERROR [Thread-41] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,250 ERROR [Thread-40] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,251 ERROR [Thread-38] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,251 ERROR [Thread-39] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,252 ERROR [Thread-37] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,252 ERROR [Thread-36] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,253 ERROR [Thread-35] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,253 ERROR [Thread-34] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,253 ERROR [Thread-33] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:47,254 ERROR [Thread-32] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:53,102 ERROR [Thread-67] app_kvServer.DSCache: Error deleting disk object: 290. Key to delete: 290 does not exist
+2020-01-26 16:37:53,103 ERROR [Thread-57] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:53,104 ERROR [Thread-56] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:53,105 ERROR [Thread-55] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:53,105 ERROR [Thread-54] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:53,106 ERROR [Thread-43] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:37:57,776 ERROR [Thread-71] app_kvServer.DSCache: Error deleting disk object: 135. Key to delete: 135 does not exist
+2020-01-26 16:38:09,975 ERROR [Thread-42] app_kvServer.DSCache: Error deleting disk object: 598. Key to delete: 598 does not exist
+2020-01-26 16:47:54,301 ERROR [Thread-9] root: Maximum size of key (20 Bytes) exceeded. PUT_ERROR
+2020-01-26 16:47:54,306 ERROR [Thread-9] root: Maximum size of key (20 Bytes) exceeded. DELETE_ERROR
+2020-01-26 16:47:55,983 ERROR [Thread-12] root: Maximum size of key (20 Bytes) exceeded. PUT_ERROR
+2020-01-26 16:53:18,584 ERROR [Thread-57] app_kvServer.DSCache: Error deleting disk object: 93. Key to delete: 93 does not exist
+2020-01-26 16:53:18,585 ERROR [Thread-56] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,585 ERROR [Thread-55] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,585 ERROR [Thread-54] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,586 ERROR [Thread-53] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,726 ERROR [Thread-52] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,858 ERROR [Thread-39] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,856 ERROR [Thread-40] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,828 ERROR [Thread-41] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,825 ERROR [Thread-42] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,824 ERROR [Thread-43] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,823 ERROR [Thread-44] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,795 ERROR [Thread-45] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,792 ERROR [Thread-46] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,789 ERROR [Thread-47] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,759 ERROR [Thread-48] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,758 ERROR [Thread-49] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,757 ERROR [Thread-50] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:18,727 ERROR [Thread-51] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 16:53:57,417 ERROR [Thread-38] app_kvServer.DSCache: Error deleting disk object: 108. Key to delete: 108 does not exist
+2020-01-26 16:58:17,914 ERROR [Thread-9] root: Maximum size of key (20 Bytes) exceeded. PUT_ERROR
+2020-01-26 16:58:17,918 ERROR [Thread-9] root: Maximum size of key (20 Bytes) exceeded. DELETE_ERROR
+2020-01-26 16:58:17,998 ERROR [Thread-10] root: Maximum size of key (20 Bytes) exceeded. PUT_ERROR
+2020-01-26 16:59:34,338 FATAL [Thread-1] root: failed to flush cache on sysexit
+2020-01-26 17:07:15,285 FATAL [Thread-1] root: failed to flush cache on sysexit
+2020-01-26 17:08:43,905 ERROR [Thread-9] root: Maximum size of key (20 Bytes) exceeded. PUT_ERROR
+2020-01-26 17:08:44,084 ERROR [Thread-40] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,085 ERROR [Thread-39] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,121 ERROR [Thread-34] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,119 ERROR [Thread-36] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,119 ERROR [Thread-37] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,119 ERROR [Thread-38] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,188 ERROR [Thread-33] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,118 ERROR [Thread-31] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,118 ERROR [Thread-35] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,234 ERROR [Thread-32] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,154 ERROR [Thread-22] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,442 ERROR [Thread-23] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,443 ERROR [Thread-24] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,477 ERROR [Thread-25] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,512 ERROR [Thread-27] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,548 ERROR [Thread-26] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,584 ERROR [Thread-28] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,619 ERROR [Thread-29] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:44,654 ERROR [Thread-30] app_kvServer.DSCache: Error deleting disk object: 113. Key to delete: 113 does not exist
+2020-01-26 17:08:45,187 FATAL [Thread-1] root: failed to flush cache on sysexit
+2020-01-26 17:09:11,698 FATAL [Thread-1] root: failed to flush cache on sysexit

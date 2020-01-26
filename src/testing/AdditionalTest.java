@@ -372,7 +372,7 @@ public class AdditionalTest extends TestCase {
 		 */
 		int i;
 		String _val;
-		for (i=0; i<1000; i++) {
+		for (i=0; i<200; i++) {
 			if (!dsCache.inCache(key1)) {
 				_val = dsCache.getKV(key1);
 				if (!_val.equals(value1)) {
@@ -433,7 +433,7 @@ public class AdditionalTest extends TestCase {
 			int i;
 			String key;
 			Random srand = new Random(RAND_SEED);
-			for (i = 0; i < 200; i++) {
+			for (i = 0; i < 50; i++) {
 				try {
 					key = keys.get(srand.nextInt(keys.size()));
 					if (isDelete) {
@@ -470,7 +470,7 @@ public class AdditionalTest extends TestCase {
 		DSCache cache = new DSCache(100, "FIFO");
 		List<String> keys = new ArrayList<>();
 		int i;
-		for (i=0; i<1000; i++) {
+		for (i=0; i<200; i++) {
 			keys.add(Integer.toString(i));
 		}
 
@@ -478,7 +478,7 @@ public class AdditionalTest extends TestCase {
 
 		/* Writers */
 		CacheWorker writer;
-		for (i=0; i<20; i++) {
+		for (i=0; i<10; i++) {
 			writer = new CacheWorker(cache, keys, false,
 				false, 60-i);
 			writer.start();
@@ -487,7 +487,7 @@ public class AdditionalTest extends TestCase {
 
 		/* Readers */
 		CacheWorker reader;
-		for (i=0; i<20; i++) {
+		for (i=0; i<10; i++) {
 			reader = new CacheWorker(cache, keys, true,
 				true, 40-i);
 			reader.start();
@@ -496,7 +496,7 @@ public class AdditionalTest extends TestCase {
 
 		/* Deleter */
 		CacheWorker deleter;
-		for (i=0; i<20; i++) {
+		for (i=0; i<10; i++) {
 			deleter = new CacheWorker(cache, keys, false,
 				true, 20-i);
 			deleter.start();
@@ -524,7 +524,7 @@ public class AdditionalTest extends TestCase {
 		 */
 		String key;
 		String value, _value;
-		for (int i=0; i < 1000; i++) {
+		for (int i=0; i < 200; i++) {
 			key = Integer.toString(i);
 			value = UUID.randomUUID().toString();
 
@@ -546,7 +546,7 @@ public class AdditionalTest extends TestCase {
 		 */
 		String key = "key";
 		String value, _value;
-		for (int i=0; i < 1000; i++) {
+		for (int i=0; i < 200; i++) {
 			value = UUID.randomUUID().toString();
 
 			Disk.putKV(key, value);
@@ -565,7 +565,7 @@ public class AdditionalTest extends TestCase {
 		 */
 		String key = "random_key";
 		String _value;
-		for (int i=0; i < 1000; i++) {
+		for (int i=0; i < 200; i++) {
 			_value = Disk.getKV(key);
 
 			assertNull(_value);
