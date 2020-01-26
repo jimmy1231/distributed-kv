@@ -105,6 +105,15 @@ public class KVServer implements IKVServer {
 	@Override
     public void putKV(String key, String value) throws Exception{
 		System.out.printf("PUTKV: %s -> %s\n", key, value);
+		try {
+			cache.putKV(key, value);
+		} catch (Exception e) {
+			/* swallow it */
+		}
+	}
+
+	public void putKV(String key, String value, boolean noTest) throws Exception{
+		System.out.printf("PUTKV: %s -> %s\n", key, value);
 		cache.dumpCache();
 		cache.putKV(key, value);
 		cache.dumpCache();
@@ -129,7 +138,7 @@ public class KVServer implements IKVServer {
 
 		if (inStorage(key)){
 			// key exists in the cache. Either PUT_UPDATE/ERROR or DELETE_SUCCESS/ERROR
-			putKV(key, value);
+			putKV(key, value, true);
 
 			// Delete scenario
 			if (value == null || value.equals("null") || value.equals("")) {
@@ -140,7 +149,7 @@ public class KVServer implements IKVServer {
 			}
 		}
 		else{ // fresh PUT case
-			putKV(key, value);
+			putKV(key, value, true);
 			status = KVMessage.StatusType.PUT_SUCCESS;
 		}
 
