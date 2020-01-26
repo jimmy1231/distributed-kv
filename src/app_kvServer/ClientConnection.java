@@ -174,7 +174,7 @@ public class ClientConnection extends Thread {
     }
 
     public void gracefulClose() {
-        System.out.printf("THREAD-%s: Gracefully close detected, closing...", getId());
+        System.out.printf("THREAD-%s: Gracefully close detected, closing...\n", getId());
         isOpen = false;
     }
 

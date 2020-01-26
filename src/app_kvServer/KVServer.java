@@ -269,7 +269,7 @@ public class KVServer implements IKVServer {
 			for (ClientConnection conn : connections) {
 				System.out.println("Graceful close: THREAD_ID=" + conn.getId());
 				conn.gracefulClose();
-				conn.join();
+				conn.join(1000, 0);
 			}
 
 			listener.close();
