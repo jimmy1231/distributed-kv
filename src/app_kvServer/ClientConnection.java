@@ -63,7 +63,6 @@ public class ClientConnection extends Thread {
             output.println(connectionAck);
 
             while(isOpen) {
-                System.out.println("isopen: " + isOpen);
                 try {
                     KVMessage lastMsg = receiveMessage();
                     if (lastMsg != null){
@@ -86,7 +85,7 @@ public class ClientConnection extends Thread {
             logger.error("Error! Connection could not be established!", ioe);
 
         } finally {
-
+            System.out.printf("CLOSING THREAD=%s\n", getId());
             try {
                 if (clientSocket != null) {
                     input.close();
