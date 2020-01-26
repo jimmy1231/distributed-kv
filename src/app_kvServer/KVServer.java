@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.server.ExportException;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -52,8 +53,8 @@ public class KVServer implements IKVServer {
 		running = false;
 		listener = null;
 
-//        daemon = new KVServerDaemon(this);
-//        daemon.start();
+        daemon = new KVServerDaemon(this);
+        daemon.start();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -103,6 +104,10 @@ public class KVServer implements IKVServer {
 
 	@Override
     public String getKV(String key) throws Exception {
+		if (key.getBytes().length < 1){
+			throw new Exception();
+		}
+
 		/* RETURNS NULL IF NOT FOUND */
 		return cache.getKV(key);
 	}
@@ -161,7 +166,7 @@ public class KVServer implements IKVServer {
 	private KVMessage.StatusType checkMessageFormat(String key, String value){
 		KVMessage.StatusType status = null;
 		int keyLength = key.getBytes().length;
-		int valueLength = key.getBytes().length;
+		int valueLength = value.getBytes().length;
 		int KEY_MAXSIZE = 20; // in bytes
 		int VALUE_MAXSIZE = 120000; // in bytes
 

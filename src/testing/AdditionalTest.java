@@ -502,7 +502,7 @@ public class AdditionalTest extends TestCase {
 			deleter.start();
 			workers.add(deleter);
 		}
-		
+
 		/* Join */
 		for (i=0; i<workers.size(); i++) {
 			try {
@@ -659,7 +659,7 @@ public class AdditionalTest extends TestCase {
 		try{
 			response1 = kvClient.put(longKey, value1); // Expect PUT ERROR
 			response2 = kvClient.put(longKey, value2); // Expect DELETE ERROR
-			response2 = kvClient.get(longKey); // Expect GET ERROR
+			response3 = kvClient.get(longKey); // Expect GET ERROR
 		}
 		catch(Exception e){
 			ex = e;
@@ -700,14 +700,14 @@ public class AdditionalTest extends TestCase {
 
 		try{
 			response1 = kvClient.put(key, value); // Expect PUT ERROR
-			response2 = kvClient.get(key); // Expect PUT ERROR
+			response2 = kvClient.get(key); // Expect GET ERROR
 		}
 		catch(Exception e){
 			ex = e;
 		}
 
 		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR
-						&& response2.getStatus() == KVMessage.StatusType.PUT_ERROR);
+						&& response2.getStatus() == KVMessage.StatusType.GET_ERROR);
 	}
 
 	@Test
