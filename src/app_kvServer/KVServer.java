@@ -252,16 +252,11 @@ public class KVServer implements IKVServer {
 			}
 
 			listener.close();
-			if (daemon.isRunning) {
-				daemon.join(0, 0);
-			}
-            logger.info("Daemon thread exited");
+			daemon.stop();
+			logger.info("Daemon thread exited");
         } catch (IOException e) {
 			logger.error("Error! " +
 					"Unable to close socket on port: " + port, e);
-		} catch (InterruptedException e) {
-			logger.error("Error! " +
-				"Interrupted exception on thread join: ", e);
 		}
 	}
 
@@ -287,9 +282,7 @@ public class KVServer implements IKVServer {
 
 			connectionStatusTable.clear();
 			listener.close();
-			if (daemon.isRunning) {
-				daemon.join(1000, 0);
-			}
+			daemon.stop();
 		} catch (IOException e) {
 			logger.error("Error! " +
 				"Unable to close socket on port: " + port, e);
@@ -297,7 +290,6 @@ public class KVServer implements IKVServer {
 			logger.error("Error! " +
 				"Interrupted exception on thread join: ", e);
 		}
-		clearCache();
 	}
 
 	/**
