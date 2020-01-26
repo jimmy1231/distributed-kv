@@ -180,7 +180,7 @@ public class Disk {
      * @param key
      * @param value
      */
-    public static void putKV(String key, String value) {
+    public static boolean putKV(String key, String value) {
         logger.info("PUTKV REQUEST FOR: { " + key + ", " + value + " }");
         // Create KV Store File if DNE
         createKVStoreFile();
@@ -241,7 +241,7 @@ public class Disk {
         } finally {
             writeLock.unlock();
         }
-
+        return exists;
     }
 
     /**
