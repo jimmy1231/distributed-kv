@@ -249,10 +249,10 @@ public class KVServer implements IKVServer {
 		 */
 		running = false;
 		try {
-//			for (Thread conn : connectionStatusTable.values()) {
-//				System.out.println("Kill");
-//				conn.stop();
-//			}
+			for (ClientConnection conn : connectionStatusTable.values()) {
+				System.out.println("Kill");
+				conn.gracefulClose();
+			}
 
 			listener.close();
 //			daemon.stop();
@@ -275,15 +275,14 @@ public class KVServer implements IKVServer {
 		System.out.println("CALLING CLOSE!!!!!!");
 		running = false;
 		try {
-//			for (ClientConnection conn : connectionStatusTable.values()) {
-//				System.out.println("Graceful close: THREAD_ID=" + conn.getId());
-//				if (conn.isOpen()) {
-//					conn.gracefulClose();
-//					conn.stop();
-//				}
-//			}
-//
-//			connectionStatusTable.clear();
+			for (ClientConnection conn : connectionStatusTable.values()) {
+				System.out.println("Graceful close: THREAD_ID=" + conn.getId());
+				if (conn.isOpen()) {
+					conn.gracefulClose();
+				}
+			}
+
+			connectionStatusTable.clear();
 			listener.close();
 //			daemon.stop();
 		} catch (IOException e) {
