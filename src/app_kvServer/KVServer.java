@@ -290,6 +290,7 @@ public class KVServer implements IKVServer {
 //			logger.error("Error! " +
 //				"Interrupted exception on thread join: ", e);
 		}
+		clearStorage();
 	}
 
 	/**
