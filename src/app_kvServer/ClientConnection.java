@@ -106,6 +106,7 @@ public class ClientConnection extends Thread {
         KVMessage.StatusType status = null;
         KVMessage replyMsg = msg;
 
+        System.out.println("Handling message: " + key + ", " + value);
         if (msg.getStatus() == KVMessage.StatusType.PUT) {
             String infoMsg = MessageFormat.format("Received PUT <{0}, {1}>", key, value);
             logger.info(infoMsg);
@@ -118,6 +119,7 @@ public class ClientConnection extends Thread {
                 System.out.println(successMsg);
             }
             catch (Exception e){
+                System.out.println("Exception!" + key + " " + value);
                 // Delete scenario
                 if (value == null || value == "null" || value == "") {
                     status = KVMessage.StatusType.DELETE_ERROR;
