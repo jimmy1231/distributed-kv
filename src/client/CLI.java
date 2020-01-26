@@ -71,6 +71,10 @@ public class CLI {
                 String key = tokens[1];
                 String value;
 
+                if (tokens.length == 2) {
+                    System.out.println("No value for PUT request given. It may delete the entry you are looking for!");
+                }
+
                 // Handle value with spaces
                 tokens = Arrays.copyOfRange(tokens, 2, tokens.length);
                 value = String.join(" ", tokens);
@@ -78,10 +82,6 @@ public class CLI {
                 // string of null should be considered an empty string
                 if (value.equals("null")){
                     value = null;
-                }
-
-                if (tokens.length == 2) {
-                    System.out.println("No value for PUT request given. It may delete the entry you are looking for!");
                 }
 
                 if (client != null && client.isRunning()) {

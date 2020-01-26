@@ -2,11 +2,14 @@ package testing;
 
 import app_kvServer.DSCache;
 import app_kvServer.Disk;
+import client.KVStore;
+import junit.framework.TestResult;
 import org.junit.Rule;
 import org.junit.Test;
 
 import junit.framework.TestCase;
 import org.junit.rules.Timeout;
+import shared.messages.KVMessage;
 
 import java.util.*;
 
@@ -19,9 +22,18 @@ public class AdditionalTest extends TestCase {
 
 	@Rule
 	public Timeout globalTimeout = new Timeout(10000);
+	private KVStore kvClient;
+
+	public void setUp() {
+		kvClient = new KVStore("localhost", 50000);
+		try {
+			kvClient.connect();
+		} catch (Exception e) {
+		}
+	}
 
 	public void tearDown() {
-//		Disk.clearStorage();
+		kvClient.disconnect();
 	}
 
 	@Test
@@ -628,5 +640,92 @@ public class AdditionalTest extends TestCase {
 		assertEquals("one_two", Disk.getKV("2"));
 		assertEquals("one_two_three", Disk.getKV("3"));
 		assertEquals("one_two_three_four", Disk.getKV("4"));
+	}
+
+	@Test
+	public void testMultiClientInteraction() throws Exception {
+
+	}
+
+	@Test
+	public void testTooLongKey() throws Exception {
+		String longKey = "012345678901234567890123456789"; //length = 30
+		String value1 = "value1";
+		String value2 = "";
+
+		KVMessage response1 = null;
+		Exception ex = null;
+		KVMessage response2 = null;
+
+		try{
+			response1 = kvClient.put(longKey, value1); // Expect PUT ERROR
+			response2 = kvClient.put(longKey, value2); // Expect DELETE ERROR
+		}
+		catch(Exception e){
+			ex = e;
+		}
+
+		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR
+				&& response2.getStatus() == KVMessage.StatusType.DELETE_ERROR);
+	}
+
+	@Test
+	public void testTooLongValue() throws Exception {
+		String value = "";
+		for (int i=0; i < 50000; i++){
+			value = value.concat("0123456789");
+		}
+
+		KVMessage response1 = null;
+		Exception ex = null;
+
+		try{
+			response1 = kvClient.put("key", value); // Expect PUT ERROR
+		}
+		catch(Exception e){
+			ex = e;
+		}
+
+		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR);
+	}
+
+	@Test
+	public void testEmptyString() throws Exception {
+		String key = "";
+		String value = "val";
+		KVMessage response1 = null;
+		KVMessage response2 = null;
+		Exception ex = null;
+
+		try{
+			response1 = kvClient.put(key, value); // Expect PUT ERROR
+			response2 = kvClient.get(key); // Expect PUT ERROR
+		}
+		catch(Exception e){
+			ex = e;
+		}
+
+		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR
+						&& response2.getStatus() == KVMessage.StatusType.PUT_ERROR);
+	}
+
+	@Test
+	public void testValueWithSpaces() throws Exception {
+		String key = "key1";
+		String value = "value1 with spaces";
+
+		KVMessage response = null;
+		Exception ex = null;
+
+		try {
+			kvClient.put(key, value);
+			response = kvClient.get(key);
+
+		} catch (Exception e) {
+			ex = e;
+		}
+
+		assertTrue(ex == null && response.getStatus() == KVMessage.StatusType.GET_SUCCESS
+				&& response.getValue().equals(value));
 	}
 }
