@@ -88,11 +88,13 @@ public class KVServer implements IKVServer {
 
 	@Override
     public boolean inStorage(String key){
+		System.out.println("IN STORAGE? " + key);
 		return Disk.inStorage(key);
 	}
 
 	@Override
     public boolean inCache(String key){
+		System.out.println("IN CACHE? " + key);
 		return cache.inCache(key);
 	}
 
