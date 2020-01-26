@@ -70,13 +70,14 @@ public class DSCache {
     private Map<String, CacheEntry> _cache;
     private Policy policy;
     private int cacheSize;
+    private boolean writeThrough;
     private IKVServer.CacheStrategy strategy;
     private Lock gl;
 
     /* Monotonically non-decreasing number -> enforces FIFO ordering */
     private int n = 0;
 
-    public DSCache(int size, String strategy) {
+    public DSCache(int size, String strategy, boolean writeThrough) {
         IKVServer.CacheStrategy strat = IKVServer.CacheStrategy.valueOf(strategy);
         switch (strat) {
             case LRU:
@@ -95,9 +96,14 @@ public class DSCache {
         }
 
         this.strategy = strat;
+        this.writeThrough = writeThrough;
         _cache = new HashMap<>();
         cacheSize = size;
         gl = new ReentrantLock();
+    }
+
+    public DSCache(int size, String strategy) {
+        this(size, strategy, true);
     }
 
     public void clearCache() throws Exception {
@@ -339,6 +345,22 @@ public class DSCache {
                 gl.unlock();
                 /* GLOBAL CRITICAL REGION - END */
 
+                /* Write-through to DISK */
+                if (writeThrough) {
+                    try {
+                        Disk.putKV(key, value);
+                    } catch (Exception e) {
+                        entry.l.unlock();
+                        /* ENTRY CRITICAL REGION - END */
+
+                        logger.error(String.format(
+                            "Error updating entry to disk: %s->%s. %s",
+                            key, value, e.getMessage()
+                        ));
+                        return CODE_PUT_ERROR;
+                    }
+                }
+
                 entry.data = value;
                 entry.accessFrequency++;
                 entry.updateAccessTime();
@@ -353,6 +375,23 @@ public class DSCache {
 
         // (2)
         if (_cache.size() < cacheSize) {
+            /* Write-through to DISK */
+            if (writeThrough) {
+                try {
+                    Disk.putKV(key, value);
+                } catch (Exception e) {
+                    gl.unlock();
+                    /* GLOBAL CRITICAL REGION - END */
+
+                    logger.error(String.format(
+                        "Error write entry to disk: %s->%s. %s",
+                        key, value, e.getMessage()
+                    ));
+                    return CODE_PUT_ERROR;
+                }
+            }
+
+            /* Only write CACHE after DISK success */
             entry = new CacheEntry(key, value, n, true);
             n++;
             _cache.put(key, entry);
@@ -431,6 +470,22 @@ public class DSCache {
         _cache.remove(evict.key);
         evict.l.unlock();
         /* ENTRY CRITICAL REGION - END */
+
+        /* Write-through to DISK */
+        if (writeThrough) {
+            try {
+                Disk.putKV(key, value);
+            } catch (Exception e) {
+                gl.unlock();
+                /* GLOBAL CRITICAL REGION - END */
+
+                logger.error(String.format(
+                    "Error evict write to disk: %s->%s. %s",
+                    key, value, e.getMessage()
+                ));
+                return CODE_PUT_ERROR;
+            }
+        }
 
         entry = new CacheEntry(key, value, n, true);
         n++;

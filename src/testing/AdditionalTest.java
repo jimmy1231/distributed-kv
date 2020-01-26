@@ -105,6 +105,21 @@ public class AdditionalTest extends TestCase {
 	}
 
 	@Test
+    public void testWriteThrough() throws Exception {
+        DSCache dsCache = new DSCache(100, "FIFO");
+        dsCache.putKV("1", "1265309548");
+        dsCache.putKV("2", "9665117208");
+        dsCache.putKV("3", "3979847452");
+
+        assertTrue(dsCache.inCache("1"));
+        assertTrue(dsCache.inCache("2"));
+        assertTrue(dsCache.inCache("3"));
+        assertTrue(Disk.inStorage("1"));
+        assertTrue(Disk.inStorage("2"));
+        assertTrue(Disk.inStorage("3"));
+    }
+
+	@Test
 	public void testPutKVReturnCodes() throws Exception {
 		DSCache dsCache = new DSCache(100, "FIFO");
 		assertEquals(dsCache.putKV("1", "abc"), DSCache.CODE_PUT_SUCCESS);

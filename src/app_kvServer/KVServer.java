@@ -47,7 +47,7 @@ public class KVServer implements IKVServer {
 		running = false;
 		listener = null;
 
-//		new KVServerDaemon(this).start();
+		new KVServerDaemon(this).start();
 	}
 	
 	@Override
