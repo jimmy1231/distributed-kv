@@ -145,6 +145,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public void clearStorage(){
+	    clearCache();
 		Disk.clearStorage();
 	}
 
