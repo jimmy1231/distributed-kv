@@ -114,7 +114,7 @@ public class KVServer implements IKVServer {
 	public KVMessage.StatusType putKVWithStatusCheck(String key, String value) throws Exception{
 		KVMessage.StatusType status;
 
-		if (inCache(key)){
+		if (inStorage(key)){
 			// key exists in the cache. Either PUT_UPDATE/ERROR or DELETE_SUCCESS/ERROR
 			putKV(key, value);
 
