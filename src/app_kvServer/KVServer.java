@@ -248,8 +248,10 @@ public class KVServer implements IKVServer {
 		 */
 		running = false;
 		try {
-			for (Thread conn : connections)
+			for (Thread conn : connections) {
+				System.out.println("Kill");
 				conn.stop();
+			}
 
 			listener.close();
             daemon.stop();
@@ -265,6 +267,7 @@ public class KVServer implements IKVServer {
 		running = false;
 		try {
 			for (ClientConnection conn : connections) {
+				System.out.println("Graceful close");
 				conn.gracefulClose();
 				conn.join();
 			}
