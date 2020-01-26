@@ -90,7 +90,7 @@ public class KVServer implements IKVServer {
     public boolean inStorage(String key){
 		boolean instorage = Disk.inStorage(key);
 		System.out.println("IN STORAGE? " + key + " " + instorage);
-		return instorage;
+		return false;
 	}
 
 	@Override
