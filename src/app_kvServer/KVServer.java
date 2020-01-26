@@ -29,6 +29,7 @@ public class KVServer implements IKVServer {
 
 		@Override public void run() {
 			server.run();
+			logger.info("KVServer Daemon Exit");
 		}
 	}
 
@@ -55,7 +56,7 @@ public class KVServer implements IKVServer {
 			public void run() {
 				try {
 					logger.info("sysexit detected, flushing cache");
-					cache.clearCache();
+					kill();
 				} catch (Exception e) {
 					logger.fatal("failed to flush cache on sysexit");
 				}
@@ -205,6 +206,7 @@ public class KVServer implements IKVServer {
 		try {
 			listener.close();
             daemon.join();
+            logger.info("Daemon thread exited");
         } catch (IOException e) {
 			logger.error("Error! " +
 					"Unable to close socket on port: " + port, e);
