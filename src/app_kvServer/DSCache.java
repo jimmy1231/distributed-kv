@@ -306,8 +306,6 @@ public class DSCache {
 
             try {
                 /* Do DELETE */
-                dumpCache();
-                System.out.println("DELETE: " + key);
                 boolean result = Disk.putKV(key, null);
                 if (!result && Objects.isNull(deleteEntry)) {
                     throw new Exception(String.format(
