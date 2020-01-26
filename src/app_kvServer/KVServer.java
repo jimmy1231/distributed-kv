@@ -279,7 +279,7 @@ public class KVServer implements IKVServer {
 
 //			connectionStatusTable.clear();
 			listener.close();
-			daemon.join(0, 0);
+			daemon.stop();
 		} catch (IOException e) {
 			logger.error("Error! " +
 				"Unable to close socket on port: " + port, e);
