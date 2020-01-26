@@ -63,6 +63,7 @@ public class ClientConnection extends Thread {
             output.println(connectionAck);
 
             while(isOpen) {
+                System.out.println("isopen: " + isOpen);
                 try {
                     KVMessage lastMsg = receiveMessage();
                     if (lastMsg != null){
@@ -174,6 +175,7 @@ public class ClientConnection extends Thread {
     }
 
     public void gracefulClose() {
+        System.out.println("Gracefully close detected, closing...");
         isOpen = false;
     }
 
