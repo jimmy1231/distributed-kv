@@ -20,7 +20,7 @@ import java.text.MessageFormat;
  * is received it is going to be echoed back to the client.
  */
 public class ClientConnection extends Thread {
-    private Integer id;
+    private String id;
     private static Logger logger = Logger.getRootLogger();
 
     private volatile boolean isOpen;
@@ -37,7 +37,7 @@ public class ClientConnection extends Thread {
      * Constructs a new CientConnection object for a given TCP socket.
      * @param clientSocket the Socket object for the client connection.
      */
-    public ClientConnection(int id, Socket clientSocket, KVServer server) {
+    public ClientConnection(String id, Socket clientSocket, KVServer server) {
         this.id = id;
         this.clientSocket = clientSocket;
         this.server = server;

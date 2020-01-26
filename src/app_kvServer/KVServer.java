@@ -15,7 +15,7 @@ import java.util.*;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
-	private final HashMap <Integer, ClientConnection> connectionStatusTable = new HashMap<>();
+	private final HashMap <String, ClientConnection> connectionStatusTable = new HashMap<>();
 	private ServerSocket listener;
 	private DSCache cache;
 	private int port;
@@ -208,22 +208,19 @@ public class KVServer implements IKVServer {
 	public void run() {
 
 		running = initializeServer();
-		int nextAvailableId = 0;
 
 		if(listener != null) {
 			while(running){
 				try {
+					String connectionId = UUID.randomUUID().toString();
 					Socket communicationSocket = listener.accept();
-					Integer connectionId = nextAvailableId;
 					ClientConnection connection = new ClientConnection(
 							connectionId,
 							communicationSocket,
 							this);
-					synchronized (connectionStatusTable) {
-						connectionStatusTable.put(connectionId, connection);
-						connection.start();
-						nextAvailableId++;
-					}
+
+					connectionStatusTable.put(connectionId, connection);
+					connection.start();
 
 					logger.info("Connected to "
 							+ communicationSocket.getInetAddress().getHostName()
@@ -258,7 +255,7 @@ public class KVServer implements IKVServer {
 		}
 	}
 
-	public void closeConnection(int connectionId) {
+	public void closeConnection(String connectionId) {
 		synchronized (connectionStatusTable) {
 			System.out.println("SERVER: closing connection with ID=" + connectionId);
 			connectionStatusTable.remove(connectionId);
