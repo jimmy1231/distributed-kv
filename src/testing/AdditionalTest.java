@@ -2,6 +2,7 @@ package testing;
 
 import app_kvServer.DSCache;
 import app_kvServer.Disk;
+import app_kvServer.KVServer;
 import client.KVStore;
 import junit.framework.TestResult;
 import org.junit.Rule;
@@ -502,7 +503,7 @@ public class AdditionalTest extends TestCase {
 			deleter.start();
 			workers.add(deleter);
 		}
-		
+
 		/* Join */
 		for (i=0; i<workers.size(); i++) {
 			try {
@@ -642,6 +643,39 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testMultiClientInteraction() throws Exception {
+		KVStore kvClient2;
+		KVStore kvClient3;
+
+		kvClient2 = new KVStore("localhost", 50000);
+		kvClient3 = new KVStore("localhost", 50000);
+
+		Exception ex = null;
+		KVMessage response1 = null;
+		KVMessage response2 = null;
+		KVMessage response3 = null;
+		KVMessage response4 = null;
+
+		try {
+
+			kvClient2.connect();
+			kvClient3.connect();
+
+			kvClient.put("hello", "world"); // Expect PUT SUCCESS
+			response2 = kvClient2.get("hello"); // Expect GET SUCCESS with value = world
+			response3 = kvClient3.put("hello", "WORLD"); // Expect PUT UPDATE
+			response4 = kvClient.get("hello"); // Expect GET SUCCESS with value = WORLD;
+
+		} catch (Exception e) {
+			ex = e;
+		}
+
+		assertTrue(ex == null);
+		assertTrue(response2.getStatus() == KVMessage.StatusType.GET_SUCCESS
+				&& response2.getValue().equals("world"));
+		assertTrue(response3.getStatus() == KVMessage.StatusType.PUT_UPDATE);
+		assertTrue(response4.getStatus() == KVMessage.StatusType.GET_SUCCESS
+				&& response4.getValue().equals("WORLD"));
+
 
 	}
 
@@ -659,7 +693,7 @@ public class AdditionalTest extends TestCase {
 		try{
 			response1 = kvClient.put(longKey, value1); // Expect PUT ERROR
 			response2 = kvClient.put(longKey, value2); // Expect DELETE ERROR
-			response2 = kvClient.get(longKey); // Expect GET ERROR
+			response3 = kvClient.get(longKey); // Expect GET ERROR
 		}
 		catch(Exception e){
 			ex = e;
@@ -700,14 +734,14 @@ public class AdditionalTest extends TestCase {
 
 		try{
 			response1 = kvClient.put(key, value); // Expect PUT ERROR
-			response2 = kvClient.get(key); // Expect PUT ERROR
+			response2 = kvClient.get(key); // Expect GET ERROR
 		}
 		catch(Exception e){
 			ex = e;
 		}
 
 		assertTrue(ex == null && response1.getStatus() == KVMessage.StatusType.PUT_ERROR
-						&& response2.getStatus() == KVMessage.StatusType.PUT_ERROR);
+						&& response2.getStatus() == KVMessage.StatusType.GET_ERROR);
 	}
 
 	@Test

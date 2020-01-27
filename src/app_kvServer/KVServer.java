@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.server.ExportException;
 import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -46,33 +47,14 @@ public class KVServer implements IKVServer {
 	 *           currently not contained in the cache. Options are "FIFO", "LRU",
 	 *           and "LFU".
 	 */
-	public KVServer(int port, int cacheSize, String strategy, boolean noDaemon) {
-		cache = new DSCache(cacheSize, strategy);
-		this.port = port;
-		running = false;
-		listener = null;
-
-		Runtime.getRuntime().addShutdownHook(new Thread() {
-			@Override
-			public void run() {
-				try {
-					logger.info("sysexit detected, flushing cache");
-					kill();
-				} catch (Exception e) {
-					logger.fatal("failed to flush cache on sysexit");
-				}
-			}
-		});
-	}
-
 	public KVServer(int port, int cacheSize, String strategy) {
 		cache = new DSCache(cacheSize, strategy);
 		this.port = port;
 		running = false;
 		listener = null;
 
-		daemon = new KVServerDaemon(this);
-		daemon.start();
+        daemon = new KVServerDaemon(this);
+        daemon.start();
 		Runtime.getRuntime().addShutdownHook(new Thread() {
 			@Override
 			public void run() {
@@ -122,12 +104,17 @@ public class KVServer implements IKVServer {
 
 	@Override
     public String getKV(String key) throws Exception {
+		if (key.getBytes().length < 1){
+			throw new Exception();
+		}
+
 		/* RETURNS NULL IF NOT FOUND */
 		return cache.getKV(key);
 	}
 
 	@Override
     public void putKV(String key, String value) throws Exception{
+		System.out.printf("PUTKV->REFLECT: %s -> %s\n", key, value);
 		try {
 			cache.putKV(key, value);
 		} catch (Exception e) {
@@ -136,6 +123,7 @@ public class KVServer implements IKVServer {
 	}
 
 	public void putKVProd(String key, String value) throws Exception{
+		System.out.printf("PUTKV->REFLECT: %s -> %s\n", key, value);
 		cache.putKV(key, value);
 	}
 
@@ -178,7 +166,7 @@ public class KVServer implements IKVServer {
 	private KVMessage.StatusType checkMessageFormat(String key, String value){
 		KVMessage.StatusType status = null;
 		int keyLength = key.getBytes().length;
-		int valueLength = key.getBytes().length;
+		int valueLength = value.getBytes().length;
 		int KEY_MAXSIZE = 20; // in bytes
 		int VALUE_MAXSIZE = 120000; // in bytes
 
@@ -331,7 +319,7 @@ public class KVServer implements IKVServer {
 				int port = Integer.parseInt(args[0]);
                 int cacheSize = Integer.parseInt(args[1]);
                 String strategy = args[2];
-				new KVServer(port, cacheSize, strategy, true).run();
+				new KVServer(port, cacheSize, strategy).run();
 			}
 		} catch (IOException e) {
 			System.out.println("Error! Unable to initialize logger!");
