@@ -1,0 +1,8 @@
+2020-01-28 13:46:20,311 INFO  [main] root: Sending GET <hellow>
+2020-01-28 13:46:20,360 INFO  [main] root: GET_SUCCESS retrieved <hellow, worlllddd>
+2020-01-28 13:46:36,006 INFO  [main] root: Sending PUT <something, something>
+2020-01-28 13:46:36,007 ERROR [main] root: Request failed: PUT <something, {2}>
+java.lang.NullPointerException
+	at client.CLI.handleCommand(CLI.java:93)
+	at client.CLI.run(CLI.java:180)
+	at app_kvClient.KVClient.main(KVClient.java:33)
