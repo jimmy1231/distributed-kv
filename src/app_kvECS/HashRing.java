@@ -122,9 +122,13 @@ public abstract class HashRing {
      * Example: The following predicate function would return all
      * servers in the HashRing with serverStatusType == 'STOPPED'.
      *
-     *      HashRing.filterServer((KVServerMetadata server) -> {
+     * <pre>
+     * HashRing.filterServer(
+     *      (KVServerMetadata server) -> {
      *          return server.serverStatusType == 'STOPPED'
-     *      });
+     *      }
+     * );
+     * </pre>
      *
      * @param pred A predicate. If return true, then the evaluating
      *             object is included in the output list.
