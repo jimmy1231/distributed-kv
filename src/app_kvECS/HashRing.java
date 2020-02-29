@@ -2,6 +2,7 @@ package app_kvECS;
 
 import org.apache.log4j.Logger;
 
+import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -43,12 +44,36 @@ public abstract class HashRing {
 
         @Override
         public int compareTo(Hash o) {
+            /*
+             * Most significant byte is at index 0. So we
+             * do byte-wise comparison, and return immediately
+             * if a byte is bigger/smaller.
+             * If bytes are equal, iterate to the next byte.
+             * If all bytes have been traversed, then 2 hashes
+             * are equal.
+             */
+            assert(hashBytes.length == o.hashBytes.length);
+            int numBytes = hashBytes.length;
+
+            byte b1, b2;
+            int i;
+            for (i=0; i<numBytes; i++) {
+                b1 = hashBytes[i];
+                b2 = o.hashBytes[i];
+
+                if (b1 < b2) {
+                    return -1;
+                } else if (b1 > b2) {
+                    return 1;
+                }
+            }
+
             return 0;
         }
 
         @Override
         public String toString() {
-            return null;
+            return DatatypeConverter.printHexBinary(hashBytes);
         }
     }
 
