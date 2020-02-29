@@ -763,4 +763,56 @@ public class AdditionalTest extends TestCase {
 		assertTrue(ex == null && response.getStatus() == KVMessage.StatusType.GET_SUCCESS
 				&& response.getValue().equals(value));
 	}
+
+	@Test
+	public void testPerformance() throws Exception {
+		Disk.clearStorage();
+		int NUM_PUT = 800;
+		int NUM_GET = 200;
+
+		kvClient = new KVStore("localhost", 50000);
+		try {
+			kvClient.connect();
+		} catch (Exception e) {
+		}
+
+		/*
+		 * Note: Separating put and get request into separate
+		 * 		 functions so that we can separate the latencies
+		 * 		 for PUT and GET when profiling.
+		 */
+		long startTime = System.nanoTime();
+		performancePutRequests(NUM_PUT);
+		long endTime = System.nanoTime();
+		long duration = (endTime - startTime)/1000000;
+		System.out.println("PUT REQUEST TOOK: " + duration + "ms");
+
+		startTime = System.nanoTime();
+		performanceGetRequests(NUM_GET);
+		endTime = System.nanoTime();
+		duration = (endTime - startTime)/1000000;
+		System.out.println("GET REQUEST TOOK: " + duration + "ms");
+
+	}
+
+	private void performancePutRequests(int num_requests) throws Exception {
+		String key;
+		String value;
+		for (int i=0; i < num_requests; i++) {
+			key = Integer.toString(i);
+			value = UUID.randomUUID().toString();
+
+			kvClient.put(key, value);
+		}
+	}
+
+	private void performanceGetRequests(int num_requests) throws Exception {
+		String key;
+		for (int i=0; i < num_requests; i++) {
+			key = Integer.toString(i);
+			kvClient.get(key);
+		}
+	}
 }
+
+
