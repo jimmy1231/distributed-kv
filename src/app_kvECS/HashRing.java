@@ -21,6 +21,10 @@ public abstract class HashRing {
         }
     }
 
+    public static byte[] md5(String stringToHash) {
+        return md.digest(stringToHash.getBytes());
+    }
+
     /**
      * Key: MD5 hash of server
      * Value: Server name (e.g. server1)
@@ -43,6 +47,10 @@ public abstract class HashRing {
      */
     public class Hash implements Comparable<Hash> {
         byte[] hashBytes;
+
+        public Hash(String stringToHash) {
+            hashBytes = md5(stringToHash);
+        }
 
         @Override
         public int compareTo(Hash o) {
@@ -104,13 +112,6 @@ public abstract class HashRing {
         super();
         this.ring = ring;
         this.servers = servers;
-    }
-
-    public static String md5(String stringToHash) {
-        byte[] bytes = stringToHash.getBytes();
-        byte[] hash = md.digest(bytes);
-
-        return Arrays.toString(hash);
     }
     /****************************************************/
 

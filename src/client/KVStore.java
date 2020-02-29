@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
-import app_kvECS.Metadata;
+import app_kvECS.KVServerMetadata;
 
 import java.io.*;
 import java.net.ConnectException;
@@ -22,7 +22,7 @@ public class KVStore implements KVCommInterface {
 	private ObjectMapper objectMapper;
 	private static Logger logger = Logger.getRootLogger();
 	private connectionStatus status;
-	private Metadata recentMetadata;
+	private KVServerMetadata recentMetadata;
 
 	/**
 	 * Initialize KVStore with address and port of KVServer
