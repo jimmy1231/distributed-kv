@@ -78,10 +78,21 @@ public class ECSClient implements IECSClient {
         return null;
     }
 
+    /**
+     * Prints out help text
+     */
     private static void printHelp() {
         System.out.println("HELP!");
     }
 
+    /**
+     * Helper function for handleCommand()
+     * Verifies number of parameters entered by client
+     *
+     * @param expected
+     * @param actual
+     * @return
+     */
     private static boolean assertNumParameters(int expected, int actual) {
         if (expected != actual) {
             System.out.format("ERROR: Expected %d parameters, received %d.\n",
@@ -91,6 +102,13 @@ public class ECSClient implements IECSClient {
         return true;
     }
 
+    /**
+     * Parses user input for command and executes desired
+     * ECSClient function
+     *
+     * @param input
+     * @return
+     */
     private static boolean handleCommand(String input) {
         String[] tokens = input.split("\\s+");
         String cmd = tokens[0];
