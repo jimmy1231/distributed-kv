@@ -1,7 +1,7 @@
 package shared.messages;
 
 import java.io.Serializable;
-
+import app_kvECS.Metadata;
 /**
  * Represents a message format
  */
@@ -45,7 +45,7 @@ public class Message implements KVMessage, Serializable{
         value = newValue;
     }
 
-    public void getMetadata() {
+    public Metadata getMetadata() {
 	return metadata;
     }
 

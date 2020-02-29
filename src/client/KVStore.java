@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
-//import Metadata class definition
+import app_kvECS.Metadata;
 
 import java.io.*;
 import java.net.ConnectException;
@@ -14,7 +14,7 @@ import java.text.MessageFormat;
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
 public class KVStore implements KVCommInterface {
-	private String serverAddress;
+	private String serverAddress; // The user is expected to know at least one server
 	private int serverPort;
 	private Socket clientSocket;
 	private PrintWriter output;
@@ -37,7 +37,7 @@ public class KVStore implements KVCommInterface {
 		input = null;
 		objectMapper = null;
 		status = connectionStatus.DISCONNECTED;
-		Metadata = null;
+		recentMetadata = null;
 	}
 
 	@Override
@@ -94,8 +94,9 @@ public class KVStore implements KVCommInterface {
 
 	@Override
 	public KVMessage put(String key, String value) throws Exception {
-  		// Compute hash of the key -> determine which server to send to
-		int dataHash = computeHash(key);
+  		// TODO: Change this with actual functions later
+		//  Compute hash of the key -> determine which server to send to
+		// int dataHash = computeHash(key);
 		KVMessage requestMsg = new Message(key, value, KVMessage.StatusType.PUT);
 		sendMessage(requestMsg);
 		KVMessage replyMSg = receiveMessage();
