@@ -4,6 +4,10 @@ import app_kvECS.KVServerMetadata;
 import app_kvServer.ServerStatusType;
 
 public class KVServerMetadataImpl extends KVServerMetadata {
+    public KVServerMetadataImpl(String name, String host, ServerStatusType serverStatusType) {
+        super(name, host, serverStatusType);
+    }
+
     @Override
     public String getName() {
         return null;

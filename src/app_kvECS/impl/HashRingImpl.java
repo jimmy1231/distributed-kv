@@ -11,7 +11,10 @@ import java.util.function.Predicate;
 
 public class HashRingImpl extends HashRing {
     public HashRingImpl() {
-        super(new TreeMap<>(), new HashMap<>());
+        super(
+            new TreeMap<Hash, String>(),
+            new HashMap<String, KVServerMetadata>()
+        );
     }
 
     /**
