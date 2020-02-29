@@ -1,6 +1,15 @@
 package ecs;
 
 public interface IECSNode {
+    public enum ECSNodeFlag {
+        STOP,               /* Node has stopped */
+        START,              /* Node has started */
+        STATE_CHANGE,       /* Node state has changed */
+        KV_TRANSFER,        /* Data transfer occurred */
+        SHUT_DOWN,          /* Node has shut down */
+        UPDATE,             /* Node has updated */
+        TRANSFER_FINISH     /* Data transfer operation finished */
+    }
 
     /**
      * @return  the name of the node (ie "Server 8.8.8.8")
