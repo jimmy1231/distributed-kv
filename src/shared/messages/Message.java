@@ -1,7 +1,7 @@
 package shared.messages;
 
 import java.io.Serializable;
-import app_kvECS.Metadata;
+import app_kvECS.zMetadata;
 /**
  * Represents a message format
  */
