@@ -1,5 +1,8 @@
 package ecs;
 
+import java.util.Collection;
+import java.util.Map;
+
 public class ECSNode implements IECSNode {
     String name = "";
     String host = "";
@@ -32,5 +35,51 @@ public class ECSNode implements IECSNode {
      */
     public String[] getNodeHashRange() {
         return range;
+    }
+
+    public boolean start() throws Exception {
+        return false;
+    }
+
+
+    public boolean stop() throws Exception {
+        return false;
+    }
+
+    public boolean shutdown() throws Exception {
+        return false;
+    }
+
+    public IECSNode addNode(String cacheStrategy, int cacheSize) {
+        return null;
+    }
+
+    public Collection<IECSNode> addNodes(int count, String cacheStrategy, int cacheSize) {
+        return null;
+    }
+
+    public Collection<IECSNode> setupNodes(int count, String cacheStrategy, int cacheSize) {
+        return null;
+    }
+
+    public boolean awaitNodes(int count, int timeout) throws Exception {
+        return false;
+    }
+
+
+    public boolean removeNodes(Collection<String> nodeNames) {
+        return false;
+    }
+
+    public Map<String, IECSNode> getNodes() {
+        return null;
+    }
+
+    public IECSNode getNodeByKey(String Key) {
+        return null;
+    }
+
+    public static void main(String[] args) {
+        // TODO
     }
 }
