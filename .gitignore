@@ -7,7 +7,6 @@ module_echoserver.xml
 module_ece419-distributed-system.xml
 .idea/
 out/
-bin/
 *.tgz
 *.jar
 !libs/**/*.jar
