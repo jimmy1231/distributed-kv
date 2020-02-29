@@ -15,4 +15,5 @@ kv_store.txt
 *.MF
 *.class
 *.log
-!/zookeeper/*
+!*/zookeeper-3.4/**/*.jar
+!zookeeper-3.4/**/*.jar
