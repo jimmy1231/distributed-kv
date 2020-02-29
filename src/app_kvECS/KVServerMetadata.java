@@ -6,6 +6,7 @@ import app_kvServer.ServerStatusType;
 public abstract class KVServerMetadata {
     protected String name;
     protected String host;
+    protected String port;
     protected ServerStatusType serverStatusType;
 
     /****************************************************/

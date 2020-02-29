@@ -6,7 +6,9 @@ import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 public abstract class HashRing {
     private static Logger logger = Logger.getLogger(HashRing.class);
@@ -113,17 +115,70 @@ public abstract class HashRing {
     /****************************************************/
 
     //////////////////////////////////////////////////////////////
-    public abstract KVServerMetadata getServerByHash(String hash);
+    /**
+     * Works like a filter function, except on the list of servers
+     * in the HashRing.
+     *
+     * Example: The following predicate function would return all
+     * servers in the HashRing with serverStatusType == 'STOPPED'.
+     *
+     *      HashRing.filterServer((KVServerMetadata server) -> {
+     *          return server.serverStatusType == 'STOPPED'
+     *      });
+     *
+     * @param pred A predicate. If return true, then the evaluating
+     *             object is included in the output list.
+     * @return A list of filtered KVServerMetadata.
+     */
+    public abstract List<KVServerMetadata> filterServer(Predicate<KVServerMetadata> pred);
+
+    /**
+     * {@link #getServerByHash(Hash)}
+     *      Gets nearest server -> traverse HashRing in CW order.
+     * {@link #getServerByName(String)}
+     *      Gets server by its server name
+     * {@link #getServerByObjectKey(String)}
+     *      Hashes objectKey using MD5, then takes the computed hash
+     *      and gets nearest server traversing CW order around HashRing
+     */
+    public abstract KVServerMetadata getServerByHash(Hash hash);
     public abstract KVServerMetadata getServerByName(String serverName);
     public abstract KVServerMetadata getServerByObjectKey(String objectKey);
 
-    public abstract void removeServerByHash(String hash);
+    /**
+     * {@link #removeServerByHash(Hash)}
+     *      Remove the server at the exact position of the hash.
+     *      Note that this is contrary to {@link #getServerByHash(Hash)},
+     *      where the hash matches with the nearest server.
+     * {@link #removeServerByName(String)}
+     *      Removes the server by its server name
+     * {@link #addServer(KVServerMetadata)}
+     *      Computes the hash for the server, then adds the server
+     *      to the HashRing according to ascending hash order.
+     */
+    public abstract void removeServerByHash(Hash hash);
     public abstract void removeServerByName(String serverName);
     public abstract void addServer(KVServerMetadata server);
 
+    /**
+     * {@link #getSuccessorServer(KVServerMetadata)}
+     *      Gets the server immediately succeeding the current
+     *      server in the HashRing (look "ahead of" the current server)
+     * {@link #getPredecessorServer(KVServerMetadata)}
+     *      Gets the server immediately preceding the current
+     *      server in the HashRing (look "behind" the current server)
+     */
     public abstract KVServerMetadata getSuccessorServer(KVServerMetadata server);
     public abstract KVServerMetadata getPredecessorServer(KVServerMetadata server);
 
+    /**
+     * {@link #getServerHashRange(KVServerMetadata)}
+     *      Gets the HashRange for the specified server given
+     *      the server object
+     * {@link #getServerHashRange(String)}
+     *      Gets the HashRange for the specified server given
+     *      the name of the server
+     */
     public abstract HashRange getServerHashRange(KVServerMetadata server);
     public abstract HashRange getServerHashRange(String serverName);
     //////////////////////////////////////////////////////////////
