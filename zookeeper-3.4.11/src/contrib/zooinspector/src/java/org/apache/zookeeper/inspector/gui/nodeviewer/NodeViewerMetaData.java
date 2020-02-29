@@ -67,7 +67,7 @@ public class NodeViewerMetaData extends ZooInspectorNodeViewer {
      */
     @Override
     public String getTitle() {
-        return "Node Metadata";
+        return "Node KVServerMetadata";
     }
 
     /*
