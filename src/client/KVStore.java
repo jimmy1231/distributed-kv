@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
+//import Metadata class definition
 
 import java.io.*;
 import java.net.ConnectException;
@@ -21,6 +22,7 @@ public class KVStore implements KVCommInterface {
 	private ObjectMapper objectMapper;
 	private static Logger logger = Logger.getRootLogger();
 	private connectionStatus status;
+	private Metadata recentMetadata;
 
 	/**
 	 * Initialize KVStore with address and port of KVServer
@@ -35,7 +37,7 @@ public class KVStore implements KVCommInterface {
 		input = null;
 		objectMapper = null;
 		status = connectionStatus.DISCONNECTED;
-
+		Metadata = null;
 	}
 
 	@Override
@@ -92,6 +94,8 @@ public class KVStore implements KVCommInterface {
 
 	@Override
 	public KVMessage put(String key, String value) throws Exception {
+  		// Compute hash of the key -> determine which server to send to
+		int dataHash = computeHash(key);
 		KVMessage requestMsg = new Message(key, value, KVMessage.StatusType.PUT);
 		sendMessage(requestMsg);
 		KVMessage replyMSg = receiveMessage();

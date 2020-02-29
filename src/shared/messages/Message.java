@@ -9,6 +9,7 @@ public class Message implements KVMessage, Serializable{
     private String key;
     private String value;
     private StatusType status;
+    private Metadata metadata;
 
     public Message(){
         super();
@@ -18,6 +19,7 @@ public class Message implements KVMessage, Serializable{
         key = k;
         value = v;
         status = s;
+        metadata = null;
     }
 
     @Override
@@ -41,5 +43,13 @@ public class Message implements KVMessage, Serializable{
 
     public void setValue(String newValue){
         value = newValue;
+    }
+
+    public void getMetadata() {
+	return metadata;
+    }
+
+    public void setMetadata(Metadata newMetadata) {
+	metadata = newMetadata;
     }
 }
