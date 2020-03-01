@@ -87,11 +87,11 @@ public class ECSClient implements IECSClient {
             host = server.getNodeHost();
             port = server.getNodePort();
             try {
-                socketModule = new GenericSocketsModule<>(host, port);
+                socketModule = new GenericSocketsModule<KVAdminRequest, KVAdminResponse>(host, port);
                 res = socketModule.doRequest(req, KVAdminResponse.class);
                 setServerStatus(server, requestType);
             } catch (Exception ex) {
-                System.out.format("ERROR: Could completing request for server - %s:%d\n", host, port);
+                System.out.format("ERROR: Could not complete request for server - %s:%d\n", host, port);
                 success = false;
             }
         }

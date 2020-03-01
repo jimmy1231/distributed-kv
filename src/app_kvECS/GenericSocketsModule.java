@@ -42,7 +42,7 @@ public class GenericSocketsModule<T extends SocketRequest, R extends SocketRespo
         R response = null;
 
         /* Do request */
-        byte[] requestBytes = request.toString().getBytes();
+        byte[] requestBytes = request.toJsonString().getBytes();
         output.write(requestBytes, 0, requestBytes.length);
         output.flush();
 
@@ -102,9 +102,9 @@ public class GenericSocketsModule<T extends SocketRequest, R extends SocketRespo
     private Socket connect(String host, int port) throws Exception {
         Socket _socket = null;
         try {
-            socket = new Socket(host, port);
+            _socket = new Socket(host, port);
             BufferedReader input = new BufferedReader(
-                new InputStreamReader(socket.getInputStream())
+                new InputStreamReader(_socket.getInputStream())
             );
             while (true) {
                 String msgString = input.readLine();
