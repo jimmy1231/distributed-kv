@@ -6,7 +6,7 @@ import app_kvECS.KVServerMetadata;
 import app_kvECS.impl.KVServerMetadataImpl;
 import ecs.ECSNode;
 import ecs.IECSNode;
-import javafx.util.Pair;
+import shared.Pair;
 import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;

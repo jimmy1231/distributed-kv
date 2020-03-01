@@ -4,7 +4,7 @@ import app_kvServer.impl.PolicyFIFO;
 import app_kvServer.impl.PolicyLFU;
 import app_kvServer.impl.PolicyLRU;
 import app_kvServer.impl.PolicyNoOp;
-import javafx.util.Pair;
+import shared.Pair;
 import org.apache.log4j.Logger;
 
 import java.util.*;

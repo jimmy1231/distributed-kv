@@ -1,7 +1,7 @@
 package app_kvServer;
 
 import app_kvECS.SocketRequest;
-import javafx.util.Pair;
+import shared.Pair;
 
 import java.util.List;
 
