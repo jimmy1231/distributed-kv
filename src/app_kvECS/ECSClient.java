@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.function.Predicate;
 
 import app_kvECS.impl.KVServerMetadataImpl;
+import com.google.gson.Gson;
 import com.google.gson.annotations.JsonAdapter;
 
 import app_kvECS.impl.HashRingImpl;
@@ -91,6 +92,7 @@ public class ECSClient implements IECSClient {
     private boolean sendFilteredRequest(Predicate<ECSNode> filter, KVMessage.StatusType requestType) {
         boolean success = true;
         List<ECSNode> servers = ring.filterServer(filter);
+        System.out.println(new Gson().toJson(servers));
 
         UnifiedRequestResponse req = new UnifiedRequestResponse.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
@@ -111,7 +113,7 @@ public class ECSClient implements IECSClient {
                 res = socketModule.doRequest(req);
                 setServerStatus(server, requestType);
             } catch (Exception ex) {
-                System.out.format("ERROR: Could not complete request for server - %s:%d\n", host, port);
+                System.out.printf("ERROR: Could not complete request for server - %s:%d\n", host, port);
                 success = false;
             }
         }
