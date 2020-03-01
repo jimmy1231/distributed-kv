@@ -59,6 +59,7 @@ public class ECSClient implements IECSClient {
                 host = serverData[1];
                 port = Integer.parseInt(serverData[2]);
 
+                System.out.printf("ADD SERVER: %s | %s:%d\n", name, host, port);
                 /* Create ECSNode and add to ring */
                 node = new ECSNode(name,host, port);
                 node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE);
