@@ -181,8 +181,13 @@ public class ClientConnection extends Thread {
 
     private KVMessage.StatusType handleAdminMessage(KVMessage msg) {
         KVMessage.StatusType status = msg.getStatus();
+        System.out.println(status);
         if (KVMessage.StatusType.START.equals(status)) {
             server.start();
+            status = KVMessage.StatusType.SUCCESS;
+        }
+        else if (KVMessage.StatusType.STOP.equals(status)) {
+            server.stop();
             status = KVMessage.StatusType.SUCCESS;
         }
         return status;
@@ -217,9 +222,9 @@ public class ClientConnection extends Thread {
         KVMessage msg = null;
         String msgString = null;
         msgString = input.readLine();
-
         if (msgString != null) {
             try {
+                System.out.println(msgString);
                 msg = objectMapper.readValue(msgString, Message.class);
             }
             catch (IOException e){

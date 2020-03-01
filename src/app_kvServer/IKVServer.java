@@ -93,4 +93,10 @@ public interface IKVServer {
      * Start the KVServer, all client requests and all ECS requests are processed.
      */
     public void start();
+
+    /**
+     * Stops the KVServer, all client requests are rejected and only ECS requests
+     * are processed.
+     */
+    public void stop();
 }

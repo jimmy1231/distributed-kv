@@ -53,7 +53,7 @@ public class ECSClient implements IECSClient {
                 ring.addServer(node);
 
                 /* Start server process */
-                proc = run.exec(new String[] {KVSERVER_START_FILE, host, serverData[2]});
+//                proc = run.exec(new String[] {KVSERVER_START_FILE, host, serverData[2]});
             }
             reader.close();
             fr.close();
@@ -90,7 +90,7 @@ public class ECSClient implements IECSClient {
                 System.out.format("ERROR: Could not start server - %s:%d\n", host, port);
             }
         }
-        return false;
+        return true;
     }
 
     @Override

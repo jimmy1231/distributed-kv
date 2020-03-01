@@ -16,7 +16,7 @@ public class KVServerMetadataImpl extends KVServerMetadata {
 
     @Override
     public IECSNode.ECSNodeFlag getEcsNodeFlag() {
-        return null;
+        return ecsNodeFlag;
     }
 
     @Override
