@@ -126,6 +126,7 @@ public class ECSClient implements IECSClient {
             @Override
             public boolean test(ECSNode ecsNode) {
                 return IECSNode.ECSNodeFlag.IDLE_START.equals(ecsNode.getEcsNodeFlag()) ||
+                        IECSNode.ECSNodeFlag.IDLE.equals(ecsNode.getEcsNodeFlag()) ||
                         IECSNode.ECSNodeFlag.STOP.equals(ecsNode.getEcsNodeFlag());
             }
         };
