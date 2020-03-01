@@ -43,7 +43,7 @@ public class GenericSocketsModule {
         UnifiedRequestResponse response = null;
 
         /* Do request */
-        byte[] requestBytes = request.toString().getBytes();
+        byte[] requestBytes = request.toJsonString().getBytes();
         output.write(requestBytes, 0, requestBytes.length);
         output.flush();
 
