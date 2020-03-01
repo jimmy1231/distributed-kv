@@ -12,6 +12,10 @@ public abstract class KVServerMetadata {
     protected HashRing hashRing;
 
     /****************************************************/
+    public KVServerMetadata() {
+        /* Default constructor */
+    }
+
     public KVServerMetadata(String name, String host, IECSNode.ECSNodeFlag ecsNodeFlag, HashRing hashRing) {
         this.name = name;
         this.host = host;

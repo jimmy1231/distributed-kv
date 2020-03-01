@@ -166,7 +166,6 @@ public class HashRingImpl extends HashRing {
             return;
         }
 
-        server.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
         servers.put(server.getNodeName(), server);
     }
 

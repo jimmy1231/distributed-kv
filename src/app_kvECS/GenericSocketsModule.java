@@ -3,12 +3,13 @@ package app_kvECS;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
+import shared.messages.UnifiedRequestResponse;
 
 import java.io.*;
 import java.net.Socket;
 import java.util.Objects;
 
-public class GenericSocketsModule<T extends SocketRequest, R extends SocketResponse> {
+public class GenericSocketsModule {
     private static Logger logger = Logger.getLogger(GenericSocketsModule.class);
     private static int MAX_READ_BYTES = 1024;
 
@@ -38,8 +39,8 @@ public class GenericSocketsModule<T extends SocketRequest, R extends SocketRespo
      *
      * @param request
      */
-    public R doRequest(T request, Class<R> type) throws Exception {
-        R response = null;
+    public UnifiedRequestResponse doRequest(UnifiedRequestResponse request) throws Exception {
+        UnifiedRequestResponse response = null;
 
         /* Do request */
         byte[] requestBytes = request.toString().getBytes();
@@ -52,7 +53,7 @@ public class GenericSocketsModule<T extends SocketRequest, R extends SocketRespo
                 String responseStr = recv();
                 if (Objects.nonNull(responseStr)) {
                     System.out.println(responseStr);
-                    response = objectMapper.readValue(responseStr, type);
+                    response = new UnifiedRequestResponse().deserialize(responseStr);
                     break;
                 }
             } catch (Exception e) {
@@ -102,9 +103,9 @@ public class GenericSocketsModule<T extends SocketRequest, R extends SocketRespo
     private Socket connect(String host, int port) throws Exception {
         Socket _socket = null;
         try {
-            socket = new Socket(host, port);
+            _socket = new Socket(host, port);
             BufferedReader input = new BufferedReader(
-                new InputStreamReader(socket.getInputStream())
+                new InputStreamReader(_socket.getInputStream())
             );
             while (true) {
                 String msgString = input.readLine();

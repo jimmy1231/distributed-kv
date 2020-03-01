@@ -26,6 +26,10 @@ public class KVServerMetadataImpl extends KVServerMetadata {
         String serializedHashRing;
     }
 
+    public KVServerMetadataImpl() {
+        /* Default constructor */
+    }
+
     public KVServerMetadataImpl(String name, String host, IECSNode.ECSNodeFlag ecsNodeFlag, HashRing hashRing) {
         super(name, host, ecsNodeFlag, hashRing);
     }

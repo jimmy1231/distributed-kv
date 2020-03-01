@@ -5,6 +5,7 @@ import ecs.IECSNode;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
+import shared.messages.UnifiedRequestResponse;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.text.MessageFormat;
+import java.util.Objects;
 
 /**
  * Represents a connection end point for a particular client that is
@@ -65,16 +67,26 @@ public class ClientConnection extends Thread {
 
             while(isOpen) {
                 try {
-                    KVMessage lastMsg = receiveMessage();
-                    if (lastMsg != null){
-                        KVMessage response = handleMessage(lastMsg);
-                        System.out.println("SENDING MESSAGE");
-
-                        sendMessage(response);
+                    UnifiedRequestResponse request = receiveMessage2();
+                    if (Objects.isNull(request)) {
+                        continue;
                     }
 
-                    /* connection either terminated by the client or lost due to
-                     * network problems*/
+                    UnifiedRequestResponse response;
+                    switch(request.getMessageType()) {
+                        case CLIENT_TO_SERVER:
+                        case SERVER_TO_CLIENT:
+                            response = handleMessage(request);
+                            break;
+                        case ECS_TO_SERVER:
+                        case SERVER_TO_ECES:
+                            response = handleAdminMessage(request);
+                            break;
+                        default:
+                            throw new Exception("Invalid message type");
+                    }
+
+                    sendMessage(response);
                 } catch (IOException ioe) {
                     logger.error("Error! Connection lost!"); //This message gets printed out when client disconnect
                     isOpen = false;
@@ -103,15 +115,14 @@ public class ClientConnection extends Thread {
         }
     }
 
-    private KVMessage handleMessage(KVMessage msg) {
+    private UnifiedRequestResponse handleMessage(UnifiedRequestResponse msg) {
         String key = msg.getKey();
         String value = msg.getValue();
         KVMessage.StatusType status = null;
-        KVMessage replyMsg = msg;
+        UnifiedRequestResponse replyMsg = msg;
         boolean started = IECSNode.ECSNodeFlag.START.equals(server.getStatus());
 
-//        System.out.println("Handling message: " + key + ", " + value);
-        if (msg.getStatus() == KVMessage.StatusType.PUT) {
+        if (msg.getStatusType() == KVMessage.StatusType.PUT) {
             if (!started) {
                 System.out.println("SERVER IS STOPPED!");
                 status = KVMessage.StatusType.SERVER_STOPPED;
@@ -137,7 +148,7 @@ public class ClientConnection extends Thread {
                     }
 
                     String failMsg = MessageFormat.format("{0} Failed to put <{1}, {2}>",
-                            msg.getStatus(),
+                            msg.getStatusType(),
                             key,
                             value);
                     logger.warn(failMsg);
@@ -146,7 +157,7 @@ public class ClientConnection extends Thread {
             }
         }
 
-        else if (msg.getStatus() == KVMessage.StatusType.GET){
+        else if (msg.getStatusType() == KVMessage.StatusType.GET){
             if (!started) {
                 status = KVMessage.StatusType.SERVER_STOPPED;
             } else {
@@ -166,23 +177,21 @@ public class ClientConnection extends Thread {
                 catch (Exception e){
                     status = KVMessage.StatusType.GET_ERROR;
                     String failMsg = MessageFormat.format("{0} Failed to find the value for key <{1}>",
-                            msg.getStatus(),
+                            msg.getStatusType(),
                             msg.getKey());
                     logger.warn(failMsg);
                     System.out.println(failMsg);
                 }
             }
         }
-        else {
-            status = handleAdminMessage(msg);
-        }
 
-        replyMsg.setStatus(status);
+        replyMsg.setStatusType(status);
         return replyMsg;
     }
 
-    private KVMessage.StatusType handleAdminMessage(KVMessage msg) {
-        KVMessage.StatusType status = msg.getStatus();
+    private UnifiedRequestResponse handleAdminMessage(UnifiedRequestResponse msg) {
+        UnifiedRequestResponse replyMsg = msg;
+        KVMessage.StatusType status = msg.getStatusType();
         System.out.println(status);
         if (KVMessage.StatusType.START.equals(status)) {
             server.start();
@@ -196,7 +205,9 @@ public class ClientConnection extends Thread {
             server.shutdown();
             status = KVMessage.StatusType.SUCCESS;
         }
-        return status;
+
+        replyMsg.setStatusType(status);
+        return replyMsg;
     }
 
     /**
@@ -204,9 +215,9 @@ public class ClientConnection extends Thread {
      * @param msg the message that is to be sent.
      * @throws IOException some I/O error regarding the output stream
      */
-    public void sendMessage(KVMessage msg) throws Exception{
+    public void sendMessage(UnifiedRequestResponse msg) throws Exception{
         // Convert KVMessage to JSON String
-        String msgAsString = objectMapper.writeValueAsString(msg);
+        String msgAsString = msg.serialize();
         System.out.println(msgAsString);
         output.println(msgAsString);
     }
@@ -235,6 +246,23 @@ public class ClientConnection extends Thread {
                 msg = objectMapper.readValue(msgString, Message.class);
             }
             catch (IOException e){
+                System.out.println("readValue casued IO expcetion");
+            }
+
+        }
+        return msg;
+    }
+
+    private UnifiedRequestResponse receiveMessage2() throws IOException {
+        UnifiedRequestResponse msg = new UnifiedRequestResponse();
+        String msgString = null;
+        msgString = input.readLine();
+        if (msgString != null) {
+            try {
+                System.out.println(msgString);
+                msg = new UnifiedRequestResponse().deserialize(msgString);
+            }
+            catch (Exception e){
                 System.out.println("readValue casued IO expcetion");
             }
 
