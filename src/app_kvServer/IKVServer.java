@@ -1,5 +1,7 @@
 package app_kvServer;
 
+import app_kvECS.KVServerMetadata;
+
 public interface IKVServer {
     public enum CacheStrategy {
         None,
@@ -86,4 +88,9 @@ public interface IKVServer {
      * Gracefully stop the server, can perform any additional actions
      */
     public void close();
+
+    /**
+     * Start the KVServer, all client requests and all ECS requests are processed.
+     */
+    public void start();
 }

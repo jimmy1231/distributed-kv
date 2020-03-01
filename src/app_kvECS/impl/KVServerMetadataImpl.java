@@ -33,4 +33,10 @@ public class KVServerMetadataImpl extends KVServerMetadata {
     public String serialize() {
         return null;
     }
+
+    @Override
+    public void setECSNodeFlag(IECSNode.ECSNodeFlag flag) {
+        this.ecsNodeFlag = flag;
+    }
+
 }

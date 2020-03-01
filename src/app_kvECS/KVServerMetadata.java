@@ -25,6 +25,7 @@ public abstract class KVServerMetadata {
     public abstract String getHost();
     public abstract HashRing getHashRing();
     public abstract IECSNode.ECSNodeFlag getEcsNodeFlag();
+    public abstract void setECSNodeFlag(IECSNode.ECSNodeFlag flag);
 
     public abstract String serialize();
     //////////////////////////////////////////////////////////////
