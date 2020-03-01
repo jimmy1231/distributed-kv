@@ -253,16 +253,16 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedRequestResponse receiveMessage2() throws IOException {
-        UnifiedRequestResponse msg = new UnifiedRequestResponse();
+        UnifiedRequestResponse msg = null;
         String msgString = null;
         msgString = GenericSocketsModule.recv(input);
         if (msgString != null) {
             try {
-                System.out.println(msgString);
+                logger.info(msgString);
                 msg = new UnifiedRequestResponse().deserialize(msgString);
             }
             catch (Exception e){
-                System.out.println("readValue casued IO expcetion");
+                logger.error("readValue casued IO expcetion", e);
             }
 
         }
