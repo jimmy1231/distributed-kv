@@ -261,11 +261,13 @@ public class ClientConnection extends Thread {
         msgString = GenericSocketsModule.recv(input);
         if (msgString != null) {
             try {
-                logger.info(msgString);
+                logger.info("Received message: " + msgString);
                 msg = new UnifiedRequestResponse().deserialize(msgString);
+                logger.info(String.format("Deserialized message: messageType=%s, statusType=%s",
+                    msg.getMessageType(), msg.getStatusType()));
             }
             catch (Exception e){
-                logger.error("readValue casued IO expcetion", e);
+                logger.error("readValue caused IO exception: " + e.getMessage());
             }
 
         }
