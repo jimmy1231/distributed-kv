@@ -108,6 +108,7 @@ public class UnifiedRequestResponse implements KVMessage {
     public UnifiedRequestResponse deserialize(String json) {
         __Serialized__ s = UNIFIED_GSON.fromJson(json, __Serialized__.class);
 
+        this.messageType = s.messageType;
         this.statusType = s.statusType;
         this.key = s.key;
         this.value = s.value;
