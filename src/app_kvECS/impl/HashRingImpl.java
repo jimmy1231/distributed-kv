@@ -1,11 +1,10 @@
 package app_kvECS.impl;
 
 import app_kvECS.HashRing;
-import app_kvECS.KVServerMetadata;
+import ecs.ECSNode;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 
@@ -13,7 +12,7 @@ public class HashRingImpl extends HashRing {
     public HashRingImpl() {
         super(
             new TreeMap<Hash, String>(),
-            new HashMap<String, KVServerMetadata>()
+            new HashMap<String, ECSNode>()
         );
     }
 
@@ -37,7 +36,7 @@ public class HashRingImpl extends HashRing {
      * @return A list of filtered KVServerMetadata.
      */
     @Override
-    public List<KVServerMetadata> filterServer(Predicate<KVServerMetadata> pred) {
+    public List<ECSNode> filterServer(Predicate<ECSNode> pred) {
         return null;
     }
 
@@ -53,17 +52,17 @@ public class HashRingImpl extends HashRing {
      * @param hash
      */
     @Override
-    public KVServerMetadata getServerByHash(Hash hash) {
+    public ECSNode getServerByHash(Hash hash) {
         return null;
     }
 
     @Override
-    public KVServerMetadata getServerByName(String serverName) {
+    public ECSNode getServerByName(String serverName) {
         return null;
     }
 
     @Override
-    public KVServerMetadata getServerByObjectKey(String objectKey) {
+    public ECSNode getServerByObjectKey(String objectKey) {
         return null;
     }
 
@@ -74,7 +73,7 @@ public class HashRingImpl extends HashRing {
      * where the hash matches with the nearest server.
      * {@link #removeServerByName(String)}
      * Removes the server by its server name
-     * {@link #addServer(KVServerMetadata)}
+     * {@link #addServer(ECSNode)}
      * Computes the hash for the server, then adds the server
      * to the HashRing according to ascending hash order.
      *
@@ -91,32 +90,37 @@ public class HashRingImpl extends HashRing {
     }
 
     @Override
-    public void addServer(KVServerMetadata server) {
+    public void addServer(ECSNode server) {
+
+    }
+
+    @Override
+    public void updateRing() {
 
     }
 
     /**
-     * {@link #getSuccessorServer(KVServerMetadata)}
+     * {@link #getSuccessorServer(ECSNode)}
      * Gets the server immediately succeeding the current
      * server in the HashRing (look "ahead of" the current server)
-     * {@link #getPredecessorServer(KVServerMetadata)}
+     * {@link #getPredecessorServer(ECSNode)}
      * Gets the server immediately preceding the current
      * server in the HashRing (look "behind" the current server)
      *
      * @param server
      */
     @Override
-    public KVServerMetadata getSuccessorServer(KVServerMetadata server) {
+    public ECSNode getSuccessorServer(ECSNode server) {
         return null;
     }
 
     @Override
-    public KVServerMetadata getPredecessorServer(KVServerMetadata server) {
+    public ECSNode getPredecessorServer(ECSNode server) {
         return null;
     }
 
     /**
-     * {@link #getServerHashRange(KVServerMetadata)}
+     * {@link #getServerHashRange(ECSNode)}
      * Gets the HashRange for the specified server given
      * the server object
      * {@link #getServerHashRange(String)}
@@ -126,7 +130,7 @@ public class HashRingImpl extends HashRing {
      * @param server
      */
     @Override
-    public HashRange getServerHashRange(KVServerMetadata server) {
+    public HashRange getServerHashRange(ECSNode server) {
         return null;
     }
 

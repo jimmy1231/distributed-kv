@@ -1,11 +1,23 @@
 package app_kvECS.impl;
 
+import app_kvECS.HashRing;
 import app_kvECS.KVServerMetadata;
 import app_kvServer.ServerStatusType;
+import ecs.IECSNode;
 
 public class KVServerMetadataImpl extends KVServerMetadata {
-    public KVServerMetadataImpl(String name, String host, ServerStatusType serverStatusType) {
-        super(name, host, serverStatusType);
+    public KVServerMetadataImpl(String name, String host, IECSNode.ECSNodeFlag ecsNodeFlag, HashRing hashRing) {
+        super(name, host, ecsNodeFlag, hashRing);
+    }
+
+    @Override
+    public HashRing getHashRing() {
+        return null;
+    }
+
+    @Override
+    public IECSNode.ECSNodeFlag getEcsNodeFlag() {
+        return null;
     }
 
     @Override
@@ -15,11 +27,6 @@ public class KVServerMetadataImpl extends KVServerMetadata {
 
     @Override
     public String getHost() {
-        return null;
-    }
-
-    @Override
-    public ServerStatusType getServerStatusType() {
         return null;
     }
 

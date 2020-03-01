@@ -1,15 +1,14 @@
 package client;
 
+import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
-import app_kvECS.KVServerMetadata;
 
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.text.MessageFormat;
 
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
