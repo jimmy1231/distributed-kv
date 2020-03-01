@@ -89,9 +89,8 @@ public class ClientConnection extends Thread {
                 } catch (IOException ioe) {
                     logger.error("Error! Connection lost!"); //This message gets printed out when client disconnect
                     isOpen = false;
-
                 } catch (Exception e) {
-                    logger.error("Failed to handle the request and send the reply");
+                    logger.error("Failed to handle the request and send the reply: ", e);
                 }
             }
 
