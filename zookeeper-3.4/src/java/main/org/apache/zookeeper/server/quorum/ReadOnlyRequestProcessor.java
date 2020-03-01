@@ -76,7 +76,7 @@ public class ReadOnlyRequestProcessor extends ZooKeeperCriticalThread implements
                     break;
                 }
 
-                // filter read requests
+                // findAndRemove read requests
                 switch (request.type) {
                 case OpCode.sync:
                 case OpCode.create:

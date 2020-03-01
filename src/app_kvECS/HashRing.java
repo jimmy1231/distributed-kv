@@ -30,8 +30,8 @@ public abstract class HashRing {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
     };
-    private Hash MIN_MD5_HASH = new Hash(MIN_MD5_HASH_BYTES);
-    private Hash MAX_MD5_HASH = new Hash(MAX_MD5_HASH_BYTES);
+    private static Hash MIN_MD5_HASH = new Hash(MIN_MD5_HASH_BYTES);
+    private static Hash MAX_MD5_HASH = new Hash(MAX_MD5_HASH_BYTES);
 
     static {
         try {
@@ -77,6 +77,11 @@ public abstract class HashRing {
 
         public Hash(byte[] bytes) {
             hashBytes = bytes;
+        }
+
+        public Hash(String hexString, boolean isHexString) {
+            assert(isHexString);
+            hashBytes = DatatypeConverter.parseHexBinary(hexString);
         }
 
         @Override
@@ -144,18 +149,25 @@ public abstract class HashRing {
     }
 
     /**
-     * Encapsulating class for the hash range.
+     * Encapsulating class for the hash range:
+     * (lower, upper]
      *
-     * Lower inclusive
-     * Upper exclusive
+     * Lower: exclusive
+     * Upper: inclusive
      */
-    public class HashRange {
+    public static class HashRange {
         private Hash lower;
         private Hash upper;
 
         public HashRange(Hash lower, Hash upper) {
             this.lower = lower;
             this.upper = upper;
+        }
+
+        public HashRange(String[] hexRange) {
+            assert(hexRange.length == 2);
+            this.lower = new Hash(hexRange[0], true);
+            this.upper = new Hash(hexRange[1], true);
         }
 
         public String[] toArray() {
@@ -166,7 +178,7 @@ public abstract class HashRing {
 
         public boolean inRange(Hash value) {
             if (upper.gt(lower)) {
-                return value.gte(lower) && value.lt(upper);
+                return value.gt(lower) && value.lte(upper);
             }
 
             /*
@@ -182,15 +194,15 @@ public abstract class HashRing {
              * As can be seen, lower and upper are "wrapped"
              * around the hashRing.
              *
-             * (1) Value is between [lower, MAX_RING_HASH]
-             * (2) Value is between [MIN_RING_HASH, upper)
+             * (1) Value is between (lower, MAX_RING_HASH]
+             * (2) Value is between [MIN_RING_HASH, upper]
              *
              * If either of those cases evaluate to true, then
              * return TRUE. Else, return false.
              */
             if (lower.gt(upper)) {
-                return (value.gte(lower) && value.lte(MAX_MD5_HASH))
-                    && (value.gte(MIN_MD5_HASH) && value.lt(upper));
+                return (value.gt(lower) && value.lte(MAX_MD5_HASH))
+                    || (value.gte(MIN_MD5_HASH) && value.lte(upper));
             }
 
             if (upper.equals(lower)) {
@@ -216,7 +228,7 @@ public abstract class HashRing {
 
     //////////////////////////////////////////////////////////////
     /**
-     * Works like a filter function, except on the list of servers
+     * Works like a findAndRemove function, except on the list of servers
      * in the HashRing.
      *
      * Example: The following predicate function would return all

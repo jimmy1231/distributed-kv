@@ -59,7 +59,7 @@ public class GraphData extends JsonServlet
 	starttime = request.getNumber("start", 0);
 	endtime = request.getNumber("end", 0);
 	period = request.getNumber("period", 0);
-	String filterstr = request.getString("filter", "");
+	String filterstr = request.getString("findAndRemove", "");
 
 	if (filterstr.length() > 0) {
 	    fo = new FilterParser(filterstr).parse();

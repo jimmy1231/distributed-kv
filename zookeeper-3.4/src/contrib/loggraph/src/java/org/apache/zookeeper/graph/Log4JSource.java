@@ -241,7 +241,7 @@ public class Log4JSource implements LogSource {
 	try {
 	    return iterator(starttime, endtime, null);
 	} catch (FilterException fe) {
-	    assert(false); //"This should never happen, you can't have a filter exception without a filter");
+	    assert(false); //"This should never happen, you can't have a findAndRemove exception without a findAndRemove");
 	    return null;
 	}
     }

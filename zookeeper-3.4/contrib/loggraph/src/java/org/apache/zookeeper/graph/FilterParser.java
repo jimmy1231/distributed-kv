@@ -118,7 +118,7 @@ public class FilterParser {
 		op.addArg(readSymbolArg());
 	    }
 	}
-	throw new FilterException("Incomplete filter");
+	throw new FilterException("Incomplete findAndRemove");
     }
 
     public static void main(String[] args) throws IOException, FilterException {

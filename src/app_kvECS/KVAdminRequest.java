@@ -2,7 +2,7 @@ package app_kvECS;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class KVAdminRequest {
+public class KVAdminRequest implements SocketRequest {
 	public enum StatusType {
 		START,		/* start() req */
 		STOP,		/* stop() req */
@@ -28,7 +28,8 @@ public class KVAdminRequest {
 		this.status = _status;
 	}
 
-	public String toString() {
+	@Override
+	public String toJsonString() {
 		String str = "";
 		try {
 			str = mapper.writeValueAsString(this);
@@ -37,6 +38,19 @@ public class KVAdminRequest {
 
 		}
 		return str;
+	}
 
+	@Override
+	public SocketRequest fromJsonString(String json) {
+		KVAdminRequest request = new KVAdminRequest(StatusType.ERROR);
+		try {
+			request = mapper.readValue(json, KVAdminRequest.class);
+		} catch (Exception e) {
+			System.err.printf("ERROR JACKSON DESERIALIZATION: %s",
+				e.getMessage());
+		}
+
+		this.status = request.status;
+		return this;
 	}
 }

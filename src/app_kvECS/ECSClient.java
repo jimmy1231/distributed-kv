@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.function.Predicate;
 
-import app_kvECS.impl.ECSSocketsModuleImpl;
 import app_kvECS.impl.HashRingImpl;
 import ecs.ECSNode;
 import ecs.IECSNode;
@@ -78,14 +77,14 @@ public class ECSClient implements IECSClient {
 
         String host;
         int port;
-        ECSSocketsModule socketModule;
+        GenericSocketsModule<KVAdminRequest, KVAdminResponse> socketModule;
         for (ECSNode server : servers) {
             assert(IECSNode.ECSNodeFlag.IDLE_START.equals(server.getEcsNodeFlag()));
             host = server.getNodeHost();
             port = server.getNodePort();
             try {
-                socketModule = new ECSSocketsModuleImpl(host, port);
-                res = socketModule.doRequest(req);
+                socketModule = new GenericSocketsModule<>(host, port);
+                res = socketModule.doRequest(req, KVAdminResponse.class);
             } catch (Exception ex) {
                 System.out.format("ERROR: Could not start server - %s:%d\n", host, port);
             }

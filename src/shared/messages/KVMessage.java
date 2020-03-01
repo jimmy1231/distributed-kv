@@ -17,6 +17,7 @@ public interface KVMessage {
 		DELETE_ERROR, 	/* Delete - request successful */
 
 		SERVER_STOPPED, 		/* Server is stopped, no requests are processed */
+		SERVER_STARTED, 		/* Server is started, processing all client & ECS requests */
 		SERVER_WRITE_LOCK, 		/* Server locked for out, only get possible */
 		SERVER_NOT_RESPONSIBLE, /* Requset not successful, server not responsible for key */
 

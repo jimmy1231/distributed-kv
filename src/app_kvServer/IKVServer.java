@@ -1,6 +1,7 @@
 package app_kvServer;
 
 import app_kvECS.KVServerMetadata;
+import ecs.ECSNode;
 
 public interface IKVServer {
     public enum CacheStrategy {
@@ -99,4 +100,35 @@ public interface IKVServer {
      * are processed.
      */
     public void stop();
+
+    /**
+     * Lock the KVServer for write operations.
+     */
+    public void lockWrite();
+
+    /**
+     * Unlock the KVServer from write operations.
+     */
+    public void unLockWrite();
+
+    /**
+     * Transfer a subset (range) of the KVServer's data to another
+     * KVServer (reallocation before removing this server or adding
+     * a new KVServer to the ring); send a notification to the ECS
+     * when data transfer is complete.
+     *
+     * Moves ALL objects that fall within this range to the other
+     * server.
+     *
+     * @param range
+     * @param server
+     */
+    public void moveData(String[] range, ECSNode server);
+
+    /**
+     * Update the metadata repository of this server.
+     *
+     * @param metadata
+     */
+    public void update(KVServerMetadata metadata);
 }

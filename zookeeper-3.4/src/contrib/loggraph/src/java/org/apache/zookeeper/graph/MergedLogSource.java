@@ -152,7 +152,7 @@ public class MergedLogSource implements LogSource {
 	try {
 	    return iterator(starttime, endtime, null);
 	} catch (FilterException fe) {
-	    assert(false); // shouldn't happen without filter
+	    assert(false); // shouldn't happen without findAndRemove
 	    return null;
 	}
     }

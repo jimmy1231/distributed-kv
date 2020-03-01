@@ -38,7 +38,7 @@ public class HashRingImpl extends HashRing {
     }
 
     /**
-     * Works like a filter function, except on the list of servers
+     * Works like a findAndRemove function, except on the list of servers
      * in the HashRing.
      * <p>
      * Example: The following predicate function would return all
@@ -334,13 +334,13 @@ public class HashRingImpl extends HashRing {
      */
     @Override
     public HashRange getServerHashRange(ECSNode server) {
-        ECSNode successor = getSuccessorServer(server);
-        if (Objects.isNull(successor)) {
-            successor = server;
+        ECSNode predecessor = getSuccessorServer(server);
+        if (Objects.isNull(predecessor)) {
+            predecessor = server;
         }
 
-        Hash lower = new Hash(server.getUuid());
-        Hash upper = new Hash(successor.getUuid());
+        Hash lower = new Hash(predecessor.getUuid());
+        Hash upper = new Hash(server.getUuid());
         return new HashRange(lower, upper);
     }
 

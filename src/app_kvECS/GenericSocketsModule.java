@@ -1,40 +1,45 @@
-package app_kvECS.impl;
+package app_kvECS;
 
-import app_kvECS.ECSSocketsModule;
-import app_kvECS.KVAdminRequest;
-import app_kvECS.KVAdminResponse;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
-import sun.nio.ch.IOUtil;
 
 import java.io.*;
+import java.net.Socket;
 import java.util.Objects;
 
-public class ECSSocketsModuleImpl extends ECSSocketsModule {
-    private static Logger logger = Logger.getLogger(ECSSocketsModuleImpl.class);
+public class GenericSocketsModule<T extends SocketRequest, R extends SocketResponse> {
+    private static Logger logger = Logger.getLogger(GenericSocketsModule.class);
     private static int MAX_READ_BYTES = 1024;
 
     private InputStream input;
     private OutputStream output;
     private ObjectMapper objectMapper;
+    private Socket socket;
 
-    public ECSSocketsModuleImpl(String host, int port) throws IOException {
-        super(host, port);
+    /****************************************************/
+    public GenericSocketsModule(String host, int port) throws Exception {
+        /* Establish socket connection */
+        socket = connect(host, port);
+
+        logger.info(String.format(
+            "ECSSocket connection established: %s:%d",
+            host, port));
+
         input = this.socket.getInputStream();
         output = this.socket.getOutputStream();
         objectMapper = new ObjectMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
+    /****************************************************/
 
     /**
      * Do request. Blocks until response is received.
      *
      * @param request
      */
-    @Override
-    public KVAdminResponse doRequest(KVAdminRequest request) throws Exception {
-        KVAdminResponse response = null;
+    public R doRequest(T request, Class<R> type) throws Exception {
+        R response = null;
 
         /* Do request */
         byte[] requestBytes = request.toString().getBytes();
@@ -47,9 +52,7 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
                 String responseStr = recv();
                 if (Objects.nonNull(responseStr)) {
                     System.out.println(responseStr);
-                    response = objectMapper.readValue(
-                        responseStr, KVAdminResponse.class
-                    );
+                    response = objectMapper.readValue(responseStr, type);
                     break;
                 }
             } catch (Exception e) {
@@ -60,6 +63,16 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
         }
 
         return response;
+    }
+
+    public void close() {
+        try {
+            input.close();
+            output.close();
+            socket.close();
+        } catch (Exception e) {
+            logger.error("Error closing Sockets Module connection", e);
+        }
     }
 
     private String recv() {
@@ -84,6 +97,28 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
         }
 
         return response;
+    }
 
+    private Socket connect(String host, int port) throws Exception {
+        Socket _socket = null;
+        try {
+            socket = new Socket(host, port);
+            BufferedReader input = new BufferedReader(
+                new InputStreamReader(socket.getInputStream())
+            );
+            while (true) {
+                String msgString = input.readLine();
+
+                if (msgString != null) {
+                    System.out.println(msgString);
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            logger.error("Error initializing sockets module", e);
+            throw e;
+        }
+
+        return _socket;
     }
 }

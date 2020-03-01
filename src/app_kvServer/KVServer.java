@@ -1,22 +1,24 @@
 package app_kvServer;
 
+import app_kvECS.GenericSocketsModule;
+import app_kvECS.HashRing;
 import app_kvECS.KVServerMetadata;
 import app_kvECS.impl.KVServerMetadataImpl;
+import ecs.ECSNode;
 import ecs.IECSNode;
+import javafx.util.Pair;
 import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
-import shared.messages.Message;
 
 import java.io.IOException;
 import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.rmi.server.ExportException;
 import java.text.MessageFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
+import java.util.function.Predicate;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
@@ -27,6 +29,7 @@ public class KVServer implements IKVServer {
 	private volatile boolean running;
 	private KVServerDaemon daemon;
 	private KVServerMetadata metadata;
+	private KVMessage.StatusType serverStatus;
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -56,6 +59,7 @@ public class KVServer implements IKVServer {
 		this.port = port;
 		running = false;
 		listener = null;
+		serverStatus = KVMessage.StatusType.SERVER_STOPPED;
 		metadata = new KVServerMetadataImpl(null, "localhost", IECSNode.ECSNodeFlag.IDLE, null);
 
         daemon = new KVServerDaemon(this);
@@ -175,6 +179,7 @@ public class KVServer implements IKVServer {
 
 		return status;
 	}
+
 	private KVMessage.StatusType checkMessageFormat(String key, String value){
 		KVMessage.StatusType status = null;
 		int keyLength = key.getBytes().length;
@@ -209,7 +214,7 @@ public class KVServer implements IKVServer {
 	@Override
     public void clearCache(){
 		try {
-			cache.clearCache();
+			cache.clearCache(false);
 		} catch (Exception e) {
 			// TODO: server log this
 		}
@@ -324,6 +329,87 @@ public class KVServer implements IKVServer {
 	}
 
 	public void stop() {
+
+	}
+
+	/**
+	 * Lock the KVServer for write operations.
+	 */
+	@Override
+	public void lockWrite() {
+		serverStatus = KVMessage.StatusType.SERVER_WRITE_LOCK;
+	}
+
+	/**
+	 * Unlock the KVServer from write operations.
+	 */
+	@Override
+	public void unLockWrite() {
+		if (serverStatus.equals(KVMessage.StatusType.SERVER_WRITE_LOCK)) {
+			serverStatus = KVMessage.StatusType.SERVER_STARTED;
+		}
+	}
+
+	/**
+	 * Transfer a subset (range) of the KVServer's data to another
+	 * KVServer (reallocation before removing this server or adding
+	 * a new KVServer to the ring); send a notification to the ECS
+	 * when data transfer is complete.
+	 * <p>
+	 * Moves ALL objects that fall within this range to the other
+	 * server.
+	 *
+	 * @param range
+	 * @param server
+	 */
+	@Override
+	public void moveData(String[] range, ECSNode server) {
+		HashRing.HashRange hashRange = new HashRing.HashRange(range);
+
+		List<Pair<String, String>> entries = new ArrayList<>();
+		try {
+			entries = cache.findAndRemove(
+				new Predicate<Pair<String, String>>() {
+					@Override
+					public boolean test(Pair<String, String> entry) {
+						return hashRange.inRange(
+							new HashRing.Hash(entry.getKey())
+						);
+					}
+				}
+			);
+		} catch (Exception e) {
+			logger.error(String.format(
+				"Error MoveData: %s", e.getMessage()), e);
+		}
+
+		/*
+		 * Move data to another server via socket request
+		 */
+		try {
+			GenericSocketsModule<
+				KVDataTransferRequest,
+				KVDataTransferResponse
+			> module = new GenericSocketsModule<>(
+				server.getNodeHost(), server.getNodePort()
+			);
+
+			KVDataTransferRequest request = new KVDataTransferRequest(entries);
+			module.doRequest(request, KVDataTransferResponse.class);
+		} catch (Exception e) {
+			logger.error(String.format(
+				"Unable to send MoveData request: %s",
+				e.getMessage()), e);
+		}
+	}
+
+	/**
+	 * Update the metadata repository of this server.
+	 *
+	 * @param metadata
+	 */
+	@Override
+	public void update(KVServerMetadata metadata) {
 
 	}
 

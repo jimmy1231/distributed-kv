@@ -1,5 +1,6 @@
 package app_kvServer;
 
+import javafx.util.Pair;
 import org.apache.log4j.Logger;
 
 import java.io.*;
@@ -125,6 +126,41 @@ public class Disk {
             logger.error("Error reading kv_store.txt: " + ex.getMessage());
         }
         return exists;
+    }
+
+    /**
+     * Returns all key-value pairs that are stored on disk
+     * in a List of Pairs.
+     *
+     * @return
+     */
+    public static List<Pair<String, String>> getAll() {
+        // Create KV Store File if DNE
+        createKVStoreFile();
+
+        Lock read_lock = RW_LOCK.readLock();
+        read_lock.lock();
+
+        List<Pair<String, String>> entries = new ArrayList<>();
+        String value = null;
+        try {
+            FileReader fr = new FileReader(KV_STORE_FILE);
+            BufferedReader reader = new BufferedReader(fr);
+            String line;
+            String []kvPair;
+            while ((line = reader.readLine()) != null) {
+                // split line into [ key, value ]
+                kvPair = line.split(" ", 2);
+                entries.add(new Pair<>(kvPair[0], kvPair[1]));
+            }
+
+        } catch (Exception ex) {
+            logger.error("Error reading kv_store.txt: " + ex.getMessage());
+        } finally {
+            read_lock.unlock();
+        }
+
+        return entries;
     }
 
 

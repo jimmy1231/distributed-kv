@@ -3,7 +3,7 @@ package app_kvECS;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class KVAdminResponse {
+public class KVAdminResponse implements SocketResponse {
 	public enum StatusType {
 		START,		/* start() req */
 		STOP,		/* stop() req */
@@ -37,7 +37,21 @@ public class KVAdminResponse {
 		this.status = _status;
 	}
 
-	public String toString() {
+	@Override
+	public String toJsonString() {
+		String json;
+		try {
+			json = mapper.writeValueAsString(this);
+		} catch (Exception e) {
+			System.err.printf("ERROR SERIALIZING USING JACKSON: %s",
+				e.getMessage());
+			return "{\"message\": \"could not serialize\"}";
+		}
+
+		return json;
+	}
+	@Override
+	public SocketResponse fromJsonString(String json) {
 		String str = "";
 		try {
 			str = mapper.writeValueAsString(this);
@@ -45,7 +59,7 @@ public class KVAdminResponse {
 		} catch(Exception ex) {
 
 		}
-		return str;
 
+		return this;
 	}
 }

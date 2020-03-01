@@ -78,7 +78,7 @@ abstract public class JsonServlet extends HttpServlet {
 	    response.getWriter().println(JSONValue.toJSONString(o));
 	} catch (java.lang.OutOfMemoryError oom) {
 	    JSONObject o = new JSONObject();
-	    o.put("error", "Out of memory. Perhaps you've requested too many logs. Try narrowing you're filter criteria.");
+	    o.put("error", "Out of memory. Perhaps you've requested too many logs. Try narrowing you're findAndRemove criteria.");
 	    response.getWriter().println(JSONValue.toJSONString(o));
 	}
     }

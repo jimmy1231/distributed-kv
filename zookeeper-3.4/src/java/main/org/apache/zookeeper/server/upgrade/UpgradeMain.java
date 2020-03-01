@@ -107,10 +107,10 @@ public class UpgradeMain {
     
     /**
      * copy files from srcdir to dstdir that have the string 
-     * filter in the srcdir filenames
+     * findAndRemove in the srcdir filenames
      * @param srcDir the source directory
      * @param dstDir the destination directory
-     * @param filter the filter of filenames that 
+     * @param filter the findAndRemove of filenames that
      * need to be copied.
      * @throws IOException
      */

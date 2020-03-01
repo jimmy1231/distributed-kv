@@ -4,14 +4,16 @@ import app_kvServer.impl.PolicyFIFO;
 import app_kvServer.impl.PolicyLFU;
 import app_kvServer.impl.PolicyLRU;
 import app_kvServer.impl.PolicyNoOp;
+import javafx.util.Pair;
 import org.apache.log4j.Logger;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 import java.util.logging.LogManager;
+import java.util.stream.Collectors;
 
 /**
  * This is the cache to be used. It is fully thread safe.
@@ -106,9 +108,11 @@ public class DSCache {
         this(size, strategy, true);
     }
 
-    public void clearCache() throws Exception {
+    public void clearCache(boolean isThreadSafe) throws Exception {
         /* GLOBAL CRITICAL REGION - START */
-        gl.lock();
+        if (!isThreadSafe) {
+            gl.lock();
+        }
 
         /* Flush all cache entries to disk */
         int cnt = 0;
@@ -120,6 +124,11 @@ public class DSCache {
                 cnt++;
             }
         } catch (Exception e) {
+            if (!isThreadSafe) {
+                gl.unlock();
+            }
+            /* GLOBAL CRITICAL REGION - END */
+
             throw new Exception(String.format(
                 "Deleted %d elements. Error: %s",
                 cnt, e.getMessage())
@@ -129,7 +138,9 @@ public class DSCache {
         assert(cnt == _cache.size());
         _cache.clear();
 
-        gl.unlock();
+        if (!isThreadSafe) {
+            gl.unlock();
+        }
         /* GLOBAL CRITICAL REGION - END */
     }
 
@@ -155,6 +166,48 @@ public class DSCache {
 
     public IKVServer.CacheStrategy getCacheStrategy() {
         return strategy;
+    }
+
+    public List<Pair<String, String>> findAndRemove(
+        Predicate<Pair<String, String>> pred) throws Exception {
+        /* GLOBAL CRITICAL REGION - START */
+        gl.lock();
+
+        /*
+         * (1) Clear all entries from cache
+         * (2) Find entries which evaluate to TRUE from the provided
+         *     predicate. Delete them, and return them as a list
+         *     IN MEMORY.
+         */
+        List<Pair<String, String>> entries;
+        try {
+            clearCache(true);
+            entries = Disk.getAll().stream().filter(
+                new Predicate<Pair<String, String>>() {
+                    @Override
+                    public boolean test(Pair<String, String> entry) {
+                        if (pred.test(entry)) {
+                            Disk.putKV(entry.getKey(), null);
+                            return true;
+                        }
+                        return false;
+                    }
+                }
+            ).collect(Collectors.toList());
+        } catch (Exception e) {
+            gl.unlock();
+            /* GLOBAL CRITICAL REGION - END */
+
+            throw new Exception(String.format(
+                "Error on findAndRemove. Error: %s",
+                e.getMessage())
+            );
+        }
+
+        gl.unlock();
+        /* GLOBAL CRITICAL REGION - END */
+
+        return entries;
     }
 
     /**
