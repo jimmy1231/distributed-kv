@@ -68,6 +68,8 @@ public class ClientConnection extends Thread {
                     KVMessage lastMsg = receiveMessage();
                     if (lastMsg != null){
                         KVMessage response = handleMessage(lastMsg);
+                        System.out.println("SENDING MESSAGE");
+
                         sendMessage(response);
                     }
 
@@ -201,6 +203,7 @@ public class ClientConnection extends Thread {
     public void sendMessage(KVMessage msg) throws Exception{
         // Convert KVMessage to JSON String
         String msgAsString = objectMapper.writeValueAsString(msg);
+        System.out.println(msgAsString);
         output.println(msgAsString);
     }
 

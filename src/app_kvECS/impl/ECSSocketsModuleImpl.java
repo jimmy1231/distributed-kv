@@ -3,6 +3,7 @@ package app_kvECS.impl;
 import app_kvECS.ECSSocketsModule;
 import app_kvECS.KVAdminRequest;
 import app_kvECS.KVAdminResponse;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import sun.nio.ch.IOUtil;
@@ -23,6 +24,7 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
         input = this.socket.getInputStream();
         output = this.socket.getOutputStream();
         objectMapper = new ObjectMapper();
+        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
     /**
@@ -44,12 +46,14 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
             try {
                 String responseStr = recv();
                 if (Objects.nonNull(responseStr)) {
+                    System.out.println(responseStr);
                     response = objectMapper.readValue(
                         responseStr, KVAdminResponse.class
                     );
                     break;
                 }
             } catch (Exception e) {
+                System.out.println("ERRORRRRR: " + e.toString());
                 logger.error("ECS do request error", e);
                 throw e;
             }
@@ -69,8 +73,9 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
             byte[] buf = new byte[MAX_READ_BYTES];
 
             int len;
-            while ((len = bis.read(buf, 0, MAX_READ_BYTES)) > 0) {
+            while ((len = bis.read(buf)) > 0) {
                 bas.write(buf, 0, len);
+                break;
             }
             response = bas.toString("UTF-8");
         } catch (IOException e) {
@@ -79,5 +84,6 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
         }
 
         return response;
+
     }
 }
