@@ -107,6 +107,7 @@ public class ECSClient implements IECSClient {
             port = server.getNodePort();
             try {
                 socketModule = new GenericSocketsModule(host, port);
+                System.out.println("Created generic sockets module");
                 res = socketModule.doRequest(req);
                 setServerStatus(server, requestType);
             } catch (Exception ex) {

@@ -58,10 +58,11 @@ public class ClientConnection extends Thread {
             input = clientSocket.getInputStream();
             objectMapper = new ObjectMapper();
 
-            String connectionAck = "Connection to KVServer established: "
-                                  + clientSocket.getLocalAddress() + " / "
-                                  + clientSocket.getLocalPort();
-            output.println(connectionAck);
+            output.println(String.format(
+                "Connection to KVServer established: %s:%s",
+                clientSocket.getLocalAddress(),
+                clientSocket.getLocalPort()
+            ));
 
             while(isOpen) {
                 try {
