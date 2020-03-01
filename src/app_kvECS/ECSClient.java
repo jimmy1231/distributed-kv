@@ -2,9 +2,12 @@ package app_kvECS;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.List;
 import java.util.Map;
 import java.util.Collection;
+import java.util.function.Predicate;
 
+import app_kvECS.impl.ECSSocketsModuleImpl;
 import app_kvECS.impl.HashRingImpl;
 import ecs.ECSNode;
 import ecs.IECSNode;
@@ -15,7 +18,8 @@ public class ECSClient implements IECSClient {
     private static final String CONFIG_DIR_PATH = "./src/app_kvECS/config/";
     private static final String KVSERVER_START_FILE = "./run_kvserver.sh";
     private static final String ECS_CONFIG_FILE = CONFIG_DIR_PATH + "ecs.config";
-    private HashRing ring = null;
+
+    private HashRing ring;
 
     public ECSClient() {
         ring = new HashRingImpl();
@@ -45,7 +49,7 @@ public class ECSClient implements IECSClient {
 
                 /* Create ECSNode and add to ring */
                 node = new ECSNode(name,host, port);
-                node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE);
+                node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
                 ring.addServer(node);
 
                 /* Start server process */
@@ -60,7 +64,32 @@ public class ECSClient implements IECSClient {
 
     @Override
     public boolean start() {
-        // TODO
+        Predicate<ECSNode> pred = new Predicate<ECSNode>() {
+            @Override
+            public boolean test(ECSNode ecsNode) {
+                return IECSNode.ECSNodeFlag.IDLE_START.equals(ecsNode.getEcsNodeFlag());
+            }
+        };
+
+        List<ECSNode> servers = ring.filterServer(pred);
+
+        KVAdminRequest req = new KVAdminRequest(KVAdminRequest.StatusType.START);
+        KVAdminResponse res;
+
+        String host;
+        int port;
+        ECSSocketsModule socketModule;
+        for (ECSNode server : servers) {
+            assert(IECSNode.ECSNodeFlag.IDLE_START.equals(server.getEcsNodeFlag()));
+            host = server.getNodeHost();
+            port = server.getNodePort();
+            try {
+                socketModule = new ECSSocketsModuleImpl(host, port);
+                res = socketModule.doRequest(req);
+            } catch (Exception ex) {
+                System.out.format("ERROR: Could not start server - %s:%d\n", host, port);
+            }
+        }
         return false;
     }
 

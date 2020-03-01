@@ -1,5 +1,8 @@
 package app_kvServer;
 
+import app_kvECS.KVServerMetadata;
+import app_kvECS.impl.KVServerMetadataImpl;
+import ecs.IECSNode;
 import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -23,6 +26,7 @@ public class KVServer implements IKVServer {
 	private int port;
 	private volatile boolean running;
 	private KVServerDaemon daemon;
+	private KVServerMetadata metadata;
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -52,6 +56,7 @@ public class KVServer implements IKVServer {
 		this.port = port;
 		running = false;
 		listener = null;
+		metadata = new KVServerMetadataImpl(null, "localhost", IECSNode.ECSNodeFlag.IDLE, null);
 
         daemon = new KVServerDaemon(this);
         daemon.start();
@@ -67,7 +72,14 @@ public class KVServer implements IKVServer {
 			}
 		});
 	}
-	
+
+	public IECSNode.ECSNodeFlag getStatus() {
+		return metadata.getEcsNodeFlag();
+	}
+	public KVServerMetadata getMetdata() {
+		return metadata;
+	}
+
 	@Override
 	public int getPort(){
 		return listener.getLocalPort();
@@ -302,6 +314,11 @@ public class KVServer implements IKVServer {
 			logger.error("Error! " +
 				"Unable to close socket on port: " + port, e);
 		}
+	}
+
+	public void start() {
+		logger.info("STARTING SERVER!!");
+		metadata.setECSNodeFlag(IECSNode.ECSNodeFlag.START);
 	}
 
 	/**

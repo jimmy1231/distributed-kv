@@ -18,7 +18,15 @@ public interface KVMessage {
 
 		SERVER_STOPPED, 		/* Server is stopped, no requests are processed */
 		SERVER_WRITE_LOCK, 		/* Server locked for out, only get possible */
-		SERVER_NOT_RESPONSIBLE /* Requset not successful, server not responsible for key */
+		SERVER_NOT_RESPONSIBLE, /* Requset not successful, server not responsible for key */
+
+		START,				/* ECSClient sending a START request to Server */
+		STOP,				/* ECS sends STOP request to server */
+		SHUTDOWN,			/* ECS sends SHUTDOWN request to server */
+
+		SUCCESS,	/* ECS request was a success */
+		ERROR		/* ECS request failed */
+
 	}
 
 	/**
