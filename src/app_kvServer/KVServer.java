@@ -33,6 +33,7 @@ public class KVServer implements IKVServer {
 	private KVServerDaemon daemon;
 	private KVServerMetadata metadata;
 	private KVMessage.StatusType serverStatus;
+	private Disk disk;
 
 	class KVServerDaemon extends Thread {
 		KVServer server;

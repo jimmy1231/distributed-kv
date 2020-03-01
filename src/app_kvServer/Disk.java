@@ -6,12 +6,13 @@ import org.apache.log4j.Logger;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Disk {
-    private static final String KV_STORE_FILE = "kv_store.txt";
+    private static final String KV_STORE_FILE = String.format("kvstore_%s.txt", UUID.randomUUID().toString());
     private static ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
     private static Logger logger = Logger.getLogger(Disk.class);
 

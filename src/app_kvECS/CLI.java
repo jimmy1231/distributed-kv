@@ -118,6 +118,7 @@ public class CLI {
 		String cmd = tokens[0];
 
 		if (input.equals(QUIT)) {
+			handleShutdown();
 			return false;
 		}
 		if (cmd.equals(SETUP)) {
