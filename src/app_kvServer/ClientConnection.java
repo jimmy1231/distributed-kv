@@ -75,13 +75,16 @@ public class ClientConnection extends Thread {
                     switch(request.getMessageType()) {
                         case CLIENT_TO_SERVER:
                         case SERVER_TO_CLIENT:
+                            logger.info("SERVER_TO_CLIENT request: " + request.serialize());
                             response = handleMessage(request);
                             break;
                         case ECS_TO_SERVER:
                         case SERVER_TO_ECES:
+                            logger.info("ECS_TO_SERVER request: " + request.serialize());
                             response = handleAdminMessage(request);
                             break;
                         default:
+                            logger.info("UNKNOWN request: " + request.serialize());
                             throw new Exception("Invalid message type");
                     }
 
