@@ -192,6 +192,10 @@ public class ClientConnection extends Thread {
             server.stop();
             status = KVMessage.StatusType.SUCCESS;
         }
+        else if (KVMessage.StatusType.SHUTDOWN.equals(status)) {
+            server.shutdown();
+            status = KVMessage.StatusType.SUCCESS;
+        }
         return status;
     }
 
