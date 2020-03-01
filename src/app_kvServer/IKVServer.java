@@ -131,4 +131,6 @@ public interface IKVServer {
      * @param metadata
      */
     public void update(KVServerMetadata metadata);
+
+    public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy);
 }
