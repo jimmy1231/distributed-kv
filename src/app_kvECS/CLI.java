@@ -65,7 +65,8 @@ public class CLI {
 	}
 
 	private void handleRemoveNode(String nodeName) {
-		Collection<String> names = new ArrayList<String>(){{add(nodeName);}};
+		Collection<String> names = new ArrayList<String>();
+		names.add(nodeName);
 		if (client.removeNodes(names))
 			System.out.format("SUCCESS: Successfully removed node '%s'\n", nodeName);
 		else
