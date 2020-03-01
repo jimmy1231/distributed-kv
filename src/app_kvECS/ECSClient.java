@@ -18,6 +18,7 @@ import ecs.ECSNode;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
+import shared.messages.MessageType;
 import shared.messages.UnifiedRequestResponse;
 
 
@@ -91,6 +92,7 @@ public class ECSClient implements IECSClient {
         List<ECSNode> servers = ring.filterServer(filter);
 
         UnifiedRequestResponse req = new UnifiedRequestResponse.Builder()
+            .withMessageType(MessageType.ECS_TO_SERVER)
             .withStatusType(requestType)
             .build();
 

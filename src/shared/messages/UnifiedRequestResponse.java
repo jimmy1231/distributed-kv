@@ -8,7 +8,7 @@ import com.google.gson.annotations.Expose;
 
 import java.util.Objects;
 
-public class UnifiedRequestResponse {
+public class UnifiedRequestResponse implements KVMessage {
     private static Gson UNIFIED_GSON = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .excludeFieldsWithoutExposeAnnotation()
@@ -140,55 +140,62 @@ public class UnifiedRequestResponse {
         return statusType;
     }
 
-    public UnifiedRequestResponse setStatusType(KVMessage.StatusType statusType) {
+    public void setStatusType(KVMessage.StatusType statusType) {
         this.statusType = statusType;
-        return this;
     }
 
     public KVServerMetadata getMetadata() {
         return metadata;
     }
 
-    public UnifiedRequestResponse setMetadata(KVServerMetadata metadata) {
+    public void setMetadata(KVServerMetadata metadata) {
         this.metadata = metadata;
-        return this;
     }
 
     public KVDataSet getDataSet() {
         return dataSet;
     }
 
-    public UnifiedRequestResponse setDataSet(KVDataSet dataSet) {
+    public void setDataSet(KVDataSet dataSet) {
         this.dataSet = dataSet;
-        return this;
     }
 
     public String getKey() {
         return key;
     }
 
-    public UnifiedRequestResponse setKey(String key) {
+    public void setKey(String key) {
         this.key = key;
-        return this;
     }
 
     public String getValue() {
         return value;
     }
 
-    public UnifiedRequestResponse setValue(String value) {
+    public void setValue(String value) {
         this.value = value;
-        return this;
     }
 
     public MessageType getMessageType() {
         return messageType;
     }
 
-    public UnifiedRequestResponse setMessageType(MessageType messageType) {
+    public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
-        return this;
     }
 
+    /**
+     * @return a status string that is used to identify request types,
+     * response types and error types associated to the message.
+     */
+    @Override
+    public StatusType getStatus() {
+        return this.statusType;
+    }
+
+    @Override
+    public void setStatus(StatusType newStatus) {
+        this.statusType = newStatus;
+    }
     /////////////////////////////////////////////////////////////////////////////
 }

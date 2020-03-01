@@ -10,7 +10,10 @@ import javafx.util.Pair;
 import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
+import shared.messages.MessageType;
+import shared.messages.UnifiedRequestResponse;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -395,15 +398,16 @@ public class KVServer implements IKVServer {
 		 * Move data to another server via socket request
 		 */
 		try {
-			GenericSocketsModule<
-				KVDataTransferRequest,
-				KVDataTransferResponse
-			> module = new GenericSocketsModule<>(
+			GenericSocketsModule module = new GenericSocketsModule(
 				server.getNodeHost(), server.getNodePort()
 			);
 
-			KVDataTransferRequest request = new KVDataTransferRequest(entries);
-			module.doRequest(request, KVDataTransferResponse.class);
+			UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+				.withMessageType(MessageType.SERVER_TO_SERVER)
+				.withDataSet(new KVDataSet())
+				.build();
+
+			module.doRequest(request);
 		} catch (Exception e) {
 			logger.error(String.format(
 				"Unable to send MoveData request: %s",

@@ -7,6 +7,8 @@ import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
 import app_kvECS.HashRing;
+import shared.messages.MessageType;
+import shared.messages.UnifiedRequestResponse;
 
 import java.io.*;
 import java.net.ConnectException;
@@ -103,7 +105,13 @@ public class KVStore implements KVCommInterface {
 	public KVMessage put(String key, String value) throws Exception {
 		boolean retransmit = true;
 
-		KVMessage requestMsg = new Message(key, value, KVMessage.StatusType.PUT);
+		UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+			.withMessageType(MessageType.CLIENT_TO_SERVER)
+			.withKey(key)
+			.withValue(value)
+			.withStatusType(KVMessage.StatusType.PUT)
+			.build();
+
 		KVMessage replyMsg = null;
 
 		while (retransmit) {
@@ -115,7 +123,7 @@ public class KVStore implements KVCommInterface {
 				connect(); // connect to the "correct" server
 			}
 
-			sendMessage(requestMsg);
+			sendMessage(request);
 			replyMsg = receiveMessage();
 
 			// check if the message needs to be retransmitted
@@ -140,7 +148,12 @@ public class KVStore implements KVCommInterface {
 	public KVMessage get(String key) throws Exception {
 		boolean retransmit = true;
 		KVMessage replyMsg = null;
-		KVMessage requestMsg = new Message(key, null, KVMessage.StatusType.GET);
+		UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+			.withMessageType(MessageType.CLIENT_TO_SERVER)
+			.withKey(key)
+			.withValue(null)
+			.withStatusType(KVMessage.StatusType.GET)
+			.build();
 
 		while (retransmit) {
 			//  Compute hash of the key -> determine which server to send to
@@ -151,7 +164,7 @@ public class KVStore implements KVCommInterface {
 				connect(); // connect to the "correct" server
 			}
 
-			sendMessage(requestMsg);
+			sendMessage(request);
 
 			// Wait for the response from the server
 			while (true){
@@ -182,9 +195,9 @@ public class KVStore implements KVCommInterface {
 	/**
 	 * Serialize the msg and send it over socket
 	 */
-	private void sendMessage(KVMessage msg) throws Exception {
+	private void sendMessage(UnifiedRequestResponse msg) throws Exception {
 		// Convert KVMessage to JSON String
-		String msgAsString = objectMapper.writeValueAsString(msg);
+		String msgAsString = msg.serialize();
 		output.println(msgAsString);
 	}
 
@@ -194,15 +207,15 @@ public class KVStore implements KVCommInterface {
 	 * @throws IOException
 	 */
 	private KVMessage receiveMessage() throws IOException {
-		KVMessage msg = null;
+		UnifiedRequestResponse msg = null;
 		String msgString = null;
 		msgString = input.readLine();
 
 		if (msgString != null) {
 			try {
-				msg = objectMapper.readValue(msgString, Message.class);
+				msg = new UnifiedRequestResponse().deserialize(msgString);
 			}
-			catch (IOException e){
+			catch (Exception e){
 				System.out.print("Failed to read from the socket");
 				logger.warn("Failed to convert byte stream to Message object");
 			}
