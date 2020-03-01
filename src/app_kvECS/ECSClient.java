@@ -2,12 +2,19 @@ package app_kvECS;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Collection;
 import java.util.function.Predicate;
 
+import app_kvECS.impl.KVServerMetadataImpl;
+import com.google.gson.annotations.JsonAdapter;
+
+import app_kvECS.impl.ECSSocketsModuleImpl;
 import app_kvECS.impl.HashRingImpl;
+
+import app_kvServer.KVServer;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
@@ -18,6 +25,8 @@ public class ECSClient implements IECSClient {
     private static final String CONFIG_DIR_PATH = "./src/app_kvECS/config/";
     private static final String KVSERVER_START_FILE = "./run_kvserver.sh";
     private static final String ECS_CONFIG_FILE = CONFIG_DIR_PATH + "ecs.config";
+    private int poolSize; // max number of servers that can participate in the service
+    List<ECSNode> allNodes = new ArrayList<ECSNode>();
 
     private HashRing ring;
 
@@ -41,6 +50,7 @@ public class ECSClient implements IECSClient {
             Process proc;
             Runtime run = Runtime.getRuntime();
             while ((line = reader.readLine()) != null) {
+                poolSize++;
                 /* Parse server data */
                 serverData = line.split(" ");
                 name = serverData[0];
@@ -51,6 +61,7 @@ public class ECSClient implements IECSClient {
                 node = new ECSNode(name,host, port);
                 node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE);
                 ring.addServer(node);
+                allNodes.add(node);
 
                 /* Start server process */
                 proc = run.exec(new String[] {KVSERVER_START_FILE, host, serverData[2]});
@@ -144,7 +155,22 @@ public class ECSClient implements IECSClient {
 
     @Override
     public Collection<IECSNode> addNodes(int count, String cacheStrategy, int cacheSize) {
-        // TODO
+        for (int i = 0; i<allNodes.size(); i++){
+            ECSNode currNode = allNodes.get(i);
+            if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE){
+                KVServerMetadata metadata = new KVServerMetadataImpl(currNode.getNodeName(),
+                        currNode.getNodeHost(), IECSNode.ECSNodeFlag.STOP, ring); //update the state to stopped
+                count--;
+                 KVServer server = initKVServer(metadata, cacheSize, cacheStrategy);
+                 //server.start();
+                 ECSNode succssorNode = ring.getSuccessorServer(currNode);
+                 // TODO convert from ECSnode -> kvServer
+                 successorNode.lockWrite();
+                 succssorNode.moveData(server);
+                 ring.updateRing(); // "send metadata updates to all storage servers" -- hashring is used instead of metadata
+                 successorNode.unlockWrite();
+            }
+        }
         return null;
     }
 
