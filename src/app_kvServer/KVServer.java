@@ -324,7 +324,15 @@ public class KVServer implements IKVServer {
 	}
 
 	public void stop() {
+		if (metadata == null)
+			metadata = new KVServerMetadataImpl(null, "localhost", IECSNode.ECSNodeFlag.IDLE, null);
 
+		metadata.setECSNodeFlag(IECSNode.ECSNodeFlag.STOP);
+	}
+
+	public void shutdown() {
+		this.clearStorage();
+		this.kill();
 	}
 
 	/**

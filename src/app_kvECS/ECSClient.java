@@ -53,7 +53,7 @@ public class ECSClient implements IECSClient {
                 ring.addServer(node);
 
                 /* Start server process */
-//                proc = run.exec(new String[] {KVSERVER_START_FILE, host, serverData[2]});
+                proc = run.exec(new String[] {KVSERVER_START_FILE, host, serverData[2]});
             }
             reader.close();
             fr.close();
@@ -62,47 +62,78 @@ public class ECSClient implements IECSClient {
         }
     }
 
-    @Override
-    public boolean start() {
-        Predicate<ECSNode> pred = new Predicate<ECSNode>() {
-            @Override
-            public boolean test(ECSNode ecsNode) {
-                return IECSNode.ECSNodeFlag.IDLE_START.equals(ecsNode.getEcsNodeFlag());
-            }
-        };
+    private void setServerStatus(ECSNode server, KVAdminRequest.StatusType requestType) {
+        if (requestType.equals(KVAdminRequest.StatusType.START)) {
+            server.setEcsNodeFlag(IECSNode.ECSNodeFlag.START);
+        }
+        else if (requestType.equals(KVAdminRequest.StatusType.STOP)) {
+            server.setEcsNodeFlag(IECSNode.ECSNodeFlag.STOP);
+        }
+        else if (requestType.equals(KVAdminRequest.StatusType.SHUTDOWN)) {
+            server.setEcsNodeFlag(IECSNode.ECSNodeFlag.SHUT_DOWN);
+        }
+    }
 
-        List<ECSNode> servers = ring.filterServer(pred);
+    private boolean sendFilteredRequest(Predicate<ECSNode> filter, KVAdminRequest.StatusType requestType) {
+        boolean success = true;
+        List<ECSNode> servers = ring.filterServer(filter);
 
-        KVAdminRequest req = new KVAdminRequest(KVAdminRequest.StatusType.START);
+        KVAdminRequest req = new KVAdminRequest(requestType);
         KVAdminResponse res;
 
         String host;
         int port;
         ECSSocketsModule socketModule;
         for (ECSNode server : servers) {
-            assert(IECSNode.ECSNodeFlag.IDLE_START.equals(server.getEcsNodeFlag()));
             host = server.getNodeHost();
             port = server.getNodePort();
             try {
                 socketModule = new ECSSocketsModuleImpl(host, port);
                 res = socketModule.doRequest(req);
+                setServerStatus(server, requestType);
             } catch (Exception ex) {
-                System.out.format("ERROR: Could not start server - %s:%d\n", host, port);
+                System.out.format("ERROR: Could completing request for server - %s:%d\n", host, port);
+                success = false;
             }
         }
-        return true;
+        return success;
+    }
+
+    @Override
+    public boolean start() {
+        Predicate<ECSNode> pred = new Predicate<ECSNode>() {
+            @Override
+            public boolean test(ECSNode ecsNode) {
+                return IECSNode.ECSNodeFlag.IDLE_START.equals(ecsNode.getEcsNodeFlag()) ||
+                        IECSNode.ECSNodeFlag.STOP.equals(ecsNode.getEcsNodeFlag());
+            }
+        };
+
+        return sendFilteredRequest(pred, KVAdminRequest.StatusType.START);
     }
 
     @Override
     public boolean stop() {
-        // TODO
-        return false;
+        Predicate<ECSNode> pred = new Predicate<ECSNode>() {
+            @Override
+            public boolean test(ECSNode ecsNode) {
+                return IECSNode.ECSNodeFlag.START.equals(ecsNode.getEcsNodeFlag());
+            }
+        };
+
+        return sendFilteredRequest(pred, KVAdminRequest.StatusType.STOP);
     }
 
     @Override
     public boolean shutdown() {
-        // TODO
-        return false;
+        Predicate<ECSNode> pred = new Predicate<ECSNode>() {
+            @Override
+            public boolean test(ECSNode ecsNode) {
+                return IECSNode.ECSNodeFlag.START.equals(ecsNode.getEcsNodeFlag()) ||
+                        IECSNode.ECSNodeFlag.STOP.equals(ecsNode.getEcsNodeFlag());
+            }
+        };
+        return sendFilteredRequest(pred, KVAdminRequest.StatusType.SHUTDOWN);
     }
 
     @Override
