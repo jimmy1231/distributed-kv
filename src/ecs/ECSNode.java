@@ -1,14 +1,24 @@
 package ecs;
 
+import com.google.gson.Gson;
+import com.google.gson.annotations.Expose;
+
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 
 public class ECSNode implements IECSNode {
+    @Expose
     private String uuid = ""; // ${host}:${name}
+    @Expose
     private String name = "";
+    @Expose
     private String host = "";
+    @Expose
     private int port = -1;
+    @Expose
     private String[] range = null;
+    @Expose
     private ECSNodeFlag ecsNodeFlag;
 
     public ECSNode(String name, String host, int port) {
@@ -16,7 +26,7 @@ public class ECSNode implements IECSNode {
         this.name = name;
         this.host = host;
         this.port = port;
-        this.ecsNodeFlag = ECSNodeFlag.STOP;
+        this.ecsNodeFlag = ECSNodeFlag.IDLE;
     }
 
     public String getUuid() {
@@ -62,5 +72,20 @@ public class ECSNode implements IECSNode {
 
     public void setNodeHashRange(String[] range) {
         this.range = range;
+    }
+
+    @Override
+    public String toString() {
+        return new Gson().toJson(this);
+    }
+
+    public boolean compareTo(ECSNode o) {
+        return uuid.equals(o.uuid)
+            && name.equals(o.name)
+            && host.equals(o.host)
+            && port == o.port
+            && range[0].equals(o.range[0])
+            && range[1].equals(o.range[1])
+            && ecsNodeFlag.equals(o.ecsNodeFlag);
     }
 }

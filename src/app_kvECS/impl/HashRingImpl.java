@@ -1,13 +1,35 @@
 package app_kvECS.impl;
 
 import app_kvECS.HashRing;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
+import com.google.gson.reflect.TypeToken;
 import ecs.ECSNode;
 import ecs.IECSNode;
 
+import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Predicate;
 
 public class HashRingImpl extends HashRing {
+    /**
+     * For serialization/deserialization purposes
+     */
+    private Type ringType = new TypeToken<TreeMap<Hash, ECSNode>>() {}.getType();
+    private Type serversType = new TypeToken<Map<String, ECSNode>>() {}.getType();
+    private Gson HASH_RING_GSON = new GsonBuilder()
+        .enableComplexMapKeySerialization()
+        .excludeFieldsWithoutExposeAnnotation()
+        .create();
+
+    private class SerializedHashRing {
+        @Expose
+        String serializedRing;
+        @Expose
+        String serializedServers;
+    }
+
     public HashRingImpl() {
         super(
             new TreeMap<Hash, ECSNode>(),
@@ -149,13 +171,15 @@ public class HashRingImpl extends HashRing {
     }
 
     private void recomputeHashRanges() {
+        ECSNode server;
         Iterator<Map.Entry<Hash, ECSNode>> it = ring.entrySet().iterator();
-        it.forEachRemaining(entry -> {
-            ECSNode server = entry.getValue();
+        while (it.hasNext()) {
+            server = it.next().getValue();
 
             HashRange range = getServerHashRange(server);
+            assert(Objects.nonNull(range));
             server.setNodeHashRange(range.toArray());
-        });
+        }
     }
 
     @Override
@@ -172,12 +196,14 @@ public class HashRingImpl extends HashRing {
             ECSNode server;
             Iterator<Map.Entry<String, ECSNode>> it = servers.entrySet().iterator();
             IECSNode.ECSNodeFlag flag;
+            Hash hash;
             while (it.hasNext()) {
                 server = it.next().getValue();
                 flag = server.getEcsNodeFlag();
                 if (flag.equals(IECSNode.ECSNodeFlag.IDLE_START)) {
                     /* IMPORTANT: put to ring */
-                    ring.put(new Hash(server.getUuid()), server);
+                    hash = new Hash(server.getUuid());
+                    ring.put(hash, server);
                     server.setEcsNodeFlag(IECSNode.ECSNodeFlag.START);
                 }
             }
@@ -203,6 +229,7 @@ public class HashRingImpl extends HashRing {
                     /* IMPORTANT: remove from ring */
                     ECSNode removed = ring.remove(new Hash(server.getUuid()));
                     server.setEcsNodeFlag(IECSNode.ECSNodeFlag.STOP);
+                    server.setNodeHashRange(null);
 
                     assert(removed.getUuid().equals(server.getUuid()));
                 }
@@ -325,5 +352,56 @@ public class HashRingImpl extends HashRing {
         }
 
        return getServerHashRange(server);
+    }
+
+    /**
+     * {@link #serialize()}
+     * Serializes this class so that it can be passed through the
+     * network.
+     * {@link #deserialize(String)}
+     * Deserializes this class. First create an empty instance, then
+     * call this function with the JSON string. This will populate
+     * HashRing by deserializing the data in the JSON.
+     */
+    @Override
+    public String serialize() {
+        SerializedHashRing serialized = new SerializedHashRing();
+
+        serialized.serializedRing = HASH_RING_GSON.toJson(this.getRing());
+        serialized.serializedServers = HASH_RING_GSON.toJson(this.getServers());
+
+        return HASH_RING_GSON.toJson(serialized);
+    }
+
+    @Override
+    public HashRing deserialize(String json) {
+        SerializedHashRing serialized = HASH_RING_GSON.fromJson(
+            json, SerializedHashRing.class
+        );
+
+        this.ring = HASH_RING_GSON.fromJson(serialized.serializedRing, ringType);
+        this.servers = HASH_RING_GSON.fromJson(serialized.serializedServers, serversType);
+
+        return this;
+    }
+
+    @Override
+    public TreeMap<Hash, ECSNode> getRing() {
+        return this.ring;
+    }
+
+    @Override
+    public Map<String, ECSNode> getServers() {
+        return this.servers;
+    }
+
+    @Override
+    public void setRing(TreeMap<Hash, ECSNode> ring) {
+        this.ring = ring;
+    }
+
+    @Override
+    public void setServers(Map<String, ECSNode> servers) {
+        this.servers = servers;
     }
 }

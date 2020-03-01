@@ -24,7 +24,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * A misc place to verify toString methods - mainly to make sure they don't
+ * A misc place to verify toHexString methods - mainly to make sure they don't
  * fail.
  */
 public class ToStringTest extends ZKTestCase {

@@ -46,20 +46,20 @@ public class AsyncOps {
      * verify the expected value against the actual value.
      * 
      * Basic operation is that the subclasses will generate an "expected" value
-     * which is defined by the "toString" method of the subclass. This is
+     * which is defined by the "toHexString" method of the subclass. This is
      * passed through to the verify clause by specifying it as the ctx object
      * of each async call (processResult methods get the ctx as part of
      * the callback). Additionally the callback will also overwrite any
      * instance fields with matching parameter arguments to the processResult
      * method. The cb instance can then compare the expected to the
-     * actual value by again calling toString and comparing the two.
+     * actual value by again calling toHexString and comparing the two.
      * 
      * The format of each expected value differs (is defined) by subclass.
      * Generally the expected value starts with the result code (rc) and path
      * of the node being operated on, followed by the fields specific to
      * each operation type (cb subclass). For example ChildrenCB specifies
      * a list of the expected children suffixed onto the rc and path. See
-     * the toString() method of each subclass for details of it's format. 
+     * the toHexString() method of each subclass for details of it's format.
      */
     public static abstract class AsyncCB {
         protected final ZooKeeper zk;

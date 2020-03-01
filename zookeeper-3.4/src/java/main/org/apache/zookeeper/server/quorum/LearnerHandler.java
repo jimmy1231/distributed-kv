@@ -273,7 +273,7 @@ public class LearnerHandler extends ZooKeeperThread {
             TxnHeader hdr = new TxnHeader();
             try {
                 SerializeUtils.deserializeTxn(p.getData(), hdr);
-                // mess = "transaction: " + txn.toString();
+                // mess = "transaction: " + txn.toHexString();
             } catch (IOException e) {
                 LOG.warn("Unexpected exception",e);
             }

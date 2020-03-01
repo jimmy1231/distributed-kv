@@ -65,9 +65,9 @@ public final class StaticHostProvider implements HostProvider {
                     // If hostName is null but the address is not, we can tell that
                     // the hostName is an literal IP address. Then we can set the host string as the hostname
                     // safely to avoid reverse DNS lookup.
-                    // As far as i know, the only way to check if the hostName is null is use toString().
+                    // As far as i know, the only way to check if the hostName is null is use toHexString().
                     // Both the two implementations of InetAddress are final class, so we can trust the return value of
-                    // the toString() method.
+                    // the toHexString() method.
                     if (resolvedAddress.toString().startsWith("/")
                             && resolvedAddress.getAddress() != null) {
                         this.serverAddresses.add(

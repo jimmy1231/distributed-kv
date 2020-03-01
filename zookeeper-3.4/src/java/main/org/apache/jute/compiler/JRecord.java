@@ -478,7 +478,7 @@ public class JRecord extends JCompType {
             jj.write("    a_.endRecord(tag);\n");
             jj.write("}\n");
 
-            jj.write("  public String toString() {\n");
+            jj.write("  public String toHexString() {\n");
             jj.write("    try {\n");
             jj.write("      java.io.ByteArrayOutputStream s =\n");
             jj.write("        new java.io.ByteArrayOutputStream();\n");

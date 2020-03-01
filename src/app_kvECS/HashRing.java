@@ -1,12 +1,14 @@
 package app_kvECS;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.gson.annotations.Expose;
 import ecs.ECSNode;
 import org.apache.log4j.Logger;
 
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -28,9 +30,7 @@ public abstract class HashRing {
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
         (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
     };
-    @JsonIgnore
     private Hash MIN_MD5_HASH = new Hash(MIN_MD5_HASH_BYTES);
-    @JsonIgnore
     private Hash MAX_MD5_HASH = new Hash(MAX_MD5_HASH_BYTES);
 
     static {
@@ -49,6 +49,7 @@ public abstract class HashRing {
      * Key: MD5 hash of server
      * Value: Server name (e.g. server1)
      */
+    @Expose
     protected TreeMap<Hash, ECSNode> ring;
 
     /**
@@ -57,6 +58,7 @@ public abstract class HashRing {
      * Value: Server KVServerMetadata - port, IP, etc.
      * @see ECSNode
      */
+    @Expose
     protected Map<String, ECSNode> servers;
 
     /**
@@ -66,6 +68,7 @@ public abstract class HashRing {
      * be directly used as a key object for java.util.Map<K, V>
      */
     public static class Hash implements Comparable<Hash> {
+        @Expose
         byte[] hashBytes;
 
         public Hash(String stringToHash) {
@@ -107,6 +110,10 @@ public abstract class HashRing {
 
         @Override
         public String toString() {
+            return Arrays.toString(hashBytes);
+        }
+
+        public String toHexString() {
             return DatatypeConverter.printHexBinary(hashBytes);
         }
 
@@ -153,7 +160,7 @@ public abstract class HashRing {
 
         public String[] toArray() {
             return new String[]{
-                lower.toString(), upper.toString()
+                lower.toHexString(), upper.toHexString()
             };
         }
 
@@ -196,7 +203,11 @@ public abstract class HashRing {
     }
 
     /****************************************************/
-    protected HashRing(TreeMap<Hash, ECSNode> ring, Map<String, ECSNode> servers) {
+    public HashRing() {
+        /* Default constructor */
+    }
+
+    public HashRing(TreeMap<Hash, ECSNode> ring, Map<String, ECSNode> servers) {
         super();
         this.ring = ring;
         this.servers = servers;
@@ -305,5 +316,22 @@ public abstract class HashRing {
      */
     public abstract HashRange getServerHashRange(ECSNode server);
     public abstract HashRange getServerHashRange(String serverName);
+
+    public abstract TreeMap<Hash, ECSNode> getRing();
+    public abstract Map<String, ECSNode> getServers();
+    public abstract void setRing(TreeMap<Hash, ECSNode> ring);
+    public abstract  void setServers(Map<String, ECSNode> servers);
+
+    /**
+     * {@link #serialize()}
+     *      Serializes this class so that it can be passed through the
+     *      network.
+     * {@link #deserialize(String)}
+     *      Deserializes this class. First create an empty instance, then
+     *      call this function with the JSON string. This will populate
+     *      HashRing by deserializing the data in the JSON.
+     */
+    public abstract String serialize();
+    public abstract HashRing deserialize(String json);
     //////////////////////////////////////////////////////////////
 }

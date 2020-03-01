@@ -329,7 +329,7 @@ public class ClientCnxn {
             sb.append(" request:: " + request);
             sb.append(" response:: " + response);
 
-            // jute toString is horrible, remove unnecessary newlines
+            // jute toHexString is horrible, remove unnecessary newlines
             return sb.toString().replaceAll("\r*\n+", " ");
         }
     }
