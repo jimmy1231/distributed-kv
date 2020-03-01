@@ -65,7 +65,7 @@ public abstract class HashRing {
      * The object implements Comparable, which allows it to
      * be directly used as a key object for java.util.Map<K, V>
      */
-    public class Hash implements Comparable<Hash> {
+    public static class Hash implements Comparable<Hash> {
         byte[] hashBytes;
 
         public Hash(String stringToHash) {

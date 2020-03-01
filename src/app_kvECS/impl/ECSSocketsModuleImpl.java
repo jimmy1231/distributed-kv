@@ -15,11 +15,13 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
     private static int MAX_READ_BYTES = 1024;
 
     private InputStream input;
+    private OutputStream output;
     private ObjectMapper objectMapper;
 
     public ECSSocketsModuleImpl(String host, int port) throws IOException {
         super(host, port);
         input = this.socket.getInputStream();
+        output = this.socket.getOutputStream();
         objectMapper = new ObjectMapper();
     }
 
@@ -31,6 +33,13 @@ public class ECSSocketsModuleImpl extends ECSSocketsModule {
     @Override
     public KVAdminResponse doRequest(KVAdminRequest request) throws Exception {
         KVAdminResponse response = null;
+
+        /* Do request */
+        byte[] requestBytes = request.toString().getBytes();
+        output.write(requestBytes, 0, requestBytes.length);
+        output.flush();
+
+        /* Wait for response */
         while(true) {
             try {
                 String responseStr = recv();
