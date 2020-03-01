@@ -12,7 +12,11 @@ public interface IECSNode {
         SHUT_DOWN,          /* Node has shut down */
         UPDATE,             /* Node has updated */
         TRANSFER_FINISH,    /* Data transfer operation finished */
-        IDLE                /* Initial state of ECSNode */
+        IDLE,               /* Initial state of ECSNode */
+
+        /* Transition states */
+        IDLE_START,         /* In transition from IDLE to START */
+        START_STOP          /* In transition from START to STOP */
     }
 
     /**

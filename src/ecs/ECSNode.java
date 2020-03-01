@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Map;
 
 public class ECSNode implements IECSNode {
+    private String uuid = ""; // ${host}:${name}
     private String name = "";
     private String host = "";
     private int port = -1;
@@ -11,10 +12,15 @@ public class ECSNode implements IECSNode {
     private ECSNodeFlag ecsNodeFlag;
 
     public ECSNode(String name, String host, int port) {
+        this.uuid = String.format("%s:%d", host, port);
         this.name = name;
         this.host = host;
         this.port = port;
         this.ecsNodeFlag = ECSNodeFlag.STOP;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 
     /**
@@ -52,5 +58,9 @@ public class ECSNode implements IECSNode {
 
     public void setEcsNodeFlag(ECSNodeFlag ecsNodeFlag) {
         this.ecsNodeFlag = ecsNodeFlag;
+    }
+
+    public void setNodeHashRange(String[] range) {
+        this.range = range;
     }
 }

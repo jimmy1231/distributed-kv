@@ -1,5 +1,6 @@
 package app_kvECS;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import ecs.ECSNode;
 import org.apache.log4j.Logger;
 
@@ -8,11 +9,30 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Predicate;
 
 public abstract class HashRing {
     private static Logger logger = Logger.getLogger(HashRing.class);
     private static MessageDigest md;
+
+    private static byte[] MAX_MD5_HASH_BYTES = {
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF
+    };
+    private static byte[] MIN_MD5_HASH_BYTES = {
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00,
+        (byte) 0x00, (byte) 0x00, (byte) 0x00, (byte) 0x00
+    };
+    @JsonIgnore
+    private Hash MIN_MD5_HASH = new Hash(MIN_MD5_HASH_BYTES);
+    @JsonIgnore
+    private Hash MAX_MD5_HASH = new Hash(MAX_MD5_HASH_BYTES);
+
     static {
         try {
             md = MessageDigest.getInstance("MD5");
@@ -29,7 +49,7 @@ public abstract class HashRing {
      * Key: MD5 hash of server
      * Value: Server name (e.g. server1)
      */
-    protected Map<Hash, String> ring;
+    protected TreeMap<Hash, ECSNode> ring;
 
     /**
      * Separate data structure to store the server info
@@ -50,6 +70,10 @@ public abstract class HashRing {
 
         public Hash(String stringToHash) {
             hashBytes = md5(stringToHash);
+        }
+
+        public Hash(byte[] bytes) {
+            hashBytes = bytes;
         }
 
         @Override
@@ -85,6 +109,31 @@ public abstract class HashRing {
         public String toString() {
             return DatatypeConverter.printHexBinary(hashBytes);
         }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o instanceof Hash) {
+                return this.compareTo((Hash) o) == 0;
+            } else {
+                return false;
+            }
+        }
+
+        public boolean gt(Hash h) {
+            return compareTo(h) > 0;
+        }
+
+        public boolean lt(Hash h) {
+            return compareTo(h) < 0;
+        }
+
+        public boolean gte(Hash h) {
+            return compareTo(h) >= 0;
+        }
+
+        public boolean lte(Hash h) {
+            return compareTo(h) <= 0;
+        }
     }
 
     /**
@@ -94,21 +143,60 @@ public abstract class HashRing {
      * Upper exclusive
      */
     public class HashRange {
-        private Long lower;
-        private Long upper;
+        private Hash lower;
+        private Hash upper;
 
-        public HashRange(Long lower, Long upper) {
+        public HashRange(Hash lower, Hash upper) {
             this.lower = lower;
             this.upper = upper;
         }
 
-        public boolean inRange(Long value) {
-            return value >= lower && value < upper;
+        public String[] toArray() {
+            return new String[]{
+                lower.toString(), upper.toString()
+            };
+        }
+
+        public boolean inRange(Hash value) {
+            if (upper.gt(lower)) {
+                return value.gte(lower) && value.lt(upper);
+            }
+
+            /*
+             * Wrapped-around case. How to handle:
+             * There are 2 sub-cases of this case. Consider the
+             * following "flattened" hashRing:
+             *
+             *      ...  98 99 0 1 2  ...
+             * ----------------|----------------------
+             *        ^==================^
+             *     lower               upper
+             *
+             * As can be seen, lower and upper are "wrapped"
+             * around the hashRing.
+             *
+             * (1) Value is between [lower, MAX_RING_HASH]
+             * (2) Value is between [MIN_RING_HASH, upper)
+             *
+             * If either of those cases evaluate to true, then
+             * return TRUE. Else, return false.
+             */
+            if (lower.gt(upper)) {
+                return (value.gte(lower) && value.lte(MAX_MD5_HASH))
+                    && (value.gte(MIN_MD5_HASH) && value.lt(upper));
+            }
+
+            if (upper.equals(lower)) {
+                return true;
+            }
+
+            assert(false); // should never get here
+            return false;
         }
     }
 
     /****************************************************/
-    protected HashRing(Map<Hash, String> ring, Map<String, ECSNode> servers) {
+    protected HashRing(TreeMap<Hash, ECSNode> ring, Map<String, ECSNode> servers) {
         super();
         this.ring = ring;
         this.servers = servers;
@@ -141,7 +229,9 @@ public abstract class HashRing {
      * {@link #getServerByHash(Hash)}
      *      Gets nearest server -> traverse HashRing in CW order.
      * {@link #getServerByName(String)}
-     *      Gets server by its server name
+     *      Gets server by its server name. Return the server if it is
+     *      either in the ring or not in ring but in servers map. Returns
+     *      null if it doesn't exist in either data structures.
      * {@link #getServerByObjectKey(String)}
      *      Hashes objectKey using MD5, then takes the computed hash
      *      and gets nearest server traversing CW order around HashRing
@@ -156,7 +246,11 @@ public abstract class HashRing {
      *      Note that this is contrary to {@link #getServerByHash(Hash)},
      *      where the hash matches with the nearest server.
      * {@link #removeServerByName(String)}
-     *      Removes the server by its server name
+     *      Removes the server by its server name.
+     * {@link #removeServer(ECSNode)}
+     *      Removes the server by the server object.
+     *      IMPORTANT: this method only sets the ECSNode object to STOP,
+     *      it does NOT remove it from the hashRing.
      * {@link #addServer(ECSNode)}
      *      Computes the hash for the server, then adds the server to a Map
      *      structure.
@@ -186,6 +280,7 @@ public abstract class HashRing {
      */
     public abstract void removeServerByHash(Hash hash);
     public abstract void removeServerByName(String serverName);
+    public abstract void removeServer(ECSNode server);
     public abstract void addServer(ECSNode server);
     public abstract void updateRing();
 
