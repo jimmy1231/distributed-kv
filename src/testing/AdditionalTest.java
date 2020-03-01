@@ -65,7 +65,7 @@ public class AdditionalTest extends TestCase {
 		dsCache.putKV("5", "6853866846");
 		dsCache.putKV("6", "0802567709");
 
-		dsCache.clearCache();
+		dsCache.clearCache(false);
 
 		assertEquals(dsCache.getKV("1"), "1265309548");
 		assertEquals(dsCache.getKV("2"), "9665117208");
@@ -632,7 +632,7 @@ public class AdditionalTest extends TestCase {
 		dsCache.putKV("4", "one_two_three_four");
 
 		/* Clear contents */
-		dsCache.clearCache();
+		dsCache.clearCache(false);
 
 		/* Verify contents are persisted */
 		assertEquals("one", Disk.getKV("1"));
