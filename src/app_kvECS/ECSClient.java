@@ -8,6 +8,7 @@ import app_kvECS.impl.HashRingImpl;
 import ecs.IECSNode;
 
 public class ECSClient implements IECSClient {
+    private static final String ECS_CONFIG_FILE = "ecs.config";
     private HashRing ring = null;
 
     public ECSClient() {

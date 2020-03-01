@@ -11,7 +11,8 @@ public interface IECSNode {
         KV_TRANSFER,        /* Data transfer occurred */
         SHUT_DOWN,          /* Node has shut down */
         UPDATE,             /* Node has updated */
-        TRANSFER_FINISH     /* Data transfer operation finished */
+        TRANSFER_FINISH,    /* Data transfer operation finished */
+        IDLE                /* Initial state of ECSNode */
     }
 
     /**
