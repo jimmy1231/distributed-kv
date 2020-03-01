@@ -28,5 +28,6 @@ public abstract class KVServerMetadata {
     public abstract void setECSNodeFlag(IECSNode.ECSNodeFlag flag);
 
     public abstract String serialize();
+    public abstract KVServerMetadata deserialize(String string);
     //////////////////////////////////////////////////////////////
 }
