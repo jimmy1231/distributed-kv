@@ -55,7 +55,7 @@ public class ClientConnection extends Thread {
     public void run() {
         try {
             output = new PrintWriter(clientSocket.getOutputStream(), true);
-            input = new InputStreamReader(clientSocket.getInputStream();
+            input = clientSocket.getInputStream();
             objectMapper = new ObjectMapper();
 
             String connectionAck = "Connection to KVServer established: "
@@ -237,7 +237,8 @@ public class ClientConnection extends Thread {
     private KVMessage receiveMessage() throws IOException {
         KVMessage msg = null;
         String msgString = null;
-        msgString = input.readLine();
+        BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+        msgString = reader.readLine();
         if (msgString != null) {
             try {
                 System.out.println(msgString);
