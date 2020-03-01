@@ -15,6 +15,7 @@ public class CLI {
 	private static final String STOP = "stop";
 	private static final String SHUTDOWN = "shutdown";
 	private static final String REMOVE_NODE = "remove_node";
+	private static final String SETUP = "setup";
 	private static final String HELP = "help";
 
 	private ECSClient client = null;
@@ -71,6 +72,15 @@ public class CLI {
 			System.out.format("ERROR: Could not remove node '%s'\n", nodeName);
 	}
 
+	private void handleSetup(int numNodes, int cacheSize, String cacheStrategy) {
+		Collection<IECSNode> nodes = client.setupNodes(numNodes, cacheStrategy, cacheSize);
+		int count = nodes == null ? 0 : nodes.size();
+		if (count == 0)
+			System.out.println("ERROR: Setup failed.");
+		else
+			System.out.format("SUCCESS: Configured %d nodes with Zookeeper\n", count);
+	}
+
 	/**
 	 * Prints out help text
 	 */
@@ -109,7 +119,15 @@ public class CLI {
 		if (input.equals(QUIT)) {
 			return false;
 		}
-		if (cmd.equals(ADD_NODES)) {
+		if (cmd.equals(SETUP)) {
+			if (assertNumParameters(4, tokens.length)) {
+				int numNodes = Integer.parseInt(tokens[1]);
+				int cacheSize = Integer.parseInt(tokens[2]);
+				String cacheStrategy = tokens[3];
+				handleSetup(numNodes, cacheSize, cacheStrategy);
+			}
+		}
+		else if (cmd.equals(ADD_NODES)) {
 			if (assertNumParameters(4, tokens.length)) {
 				int numNodes = Integer.parseInt(tokens[1]);
 				int cacheSize = Integer.parseInt(tokens[2]);

@@ -4,10 +4,15 @@ import java.util.Map;
 import java.util.Collection;
 import java.util.Scanner;
 
+import app_kvECS.impl.HashRingImpl;
 import ecs.IECSNode;
 
 public class ECSClient implements IECSClient {
-    private IECSNode ecsNode = null;
+    private HashRing ring = null;
+
+    public ECSClient() {
+        ring = new HashRingImpl();
+    }
 
     @Override
     public boolean start() {
