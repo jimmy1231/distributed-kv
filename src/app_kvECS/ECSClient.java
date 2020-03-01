@@ -11,6 +11,7 @@ import app_kvECS.impl.HashRingImpl;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
+import shared.messages.KVMessage;
 
 public class ECSClient implements IECSClient {
     private static Logger logger = Logger.getLogger(ECSClient.class);
@@ -61,19 +62,19 @@ public class ECSClient implements IECSClient {
         }
     }
 
-    private void setServerStatus(ECSNode server, KVAdminRequest.StatusType requestType) {
-        if (requestType.equals(KVAdminRequest.StatusType.START)) {
+    private void setServerStatus(ECSNode server, KVMessage.StatusType requestType) {
+        if (requestType.equals(KVMessage.StatusType.START)) {
             server.setEcsNodeFlag(IECSNode.ECSNodeFlag.START);
         }
-        else if (requestType.equals(KVAdminRequest.StatusType.STOP)) {
+        else if (requestType.equals(KVMessage.StatusType.STOP)) {
             server.setEcsNodeFlag(IECSNode.ECSNodeFlag.STOP);
         }
-        else if (requestType.equals(KVAdminRequest.StatusType.SHUTDOWN)) {
+        else if (requestType.equals(KVMessage.StatusType.SHUTDOWN)) {
             server.setEcsNodeFlag(IECSNode.ECSNodeFlag.SHUT_DOWN);
         }
     }
 
-    private boolean sendFilteredRequest(Predicate<ECSNode> filter, KVAdminRequest.StatusType requestType) {
+    private boolean sendFilteredRequest(Predicate<ECSNode> filter, KVMessage.StatusType requestType) {
         boolean success = true;
         List<ECSNode> servers = ring.filterServer(filter);
 
@@ -108,7 +109,7 @@ public class ECSClient implements IECSClient {
             }
         };
 
-        return sendFilteredRequest(pred, KVAdminRequest.StatusType.START);
+        return sendFilteredRequest(pred, KVMessage.StatusType.START);
     }
 
     @Override
@@ -120,7 +121,7 @@ public class ECSClient implements IECSClient {
             }
         };
 
-        return sendFilteredRequest(pred, KVAdminRequest.StatusType.STOP);
+        return sendFilteredRequest(pred, KVMessage.StatusType.STOP);
     }
 
     @Override
@@ -132,7 +133,7 @@ public class ECSClient implements IECSClient {
                         IECSNode.ECSNodeFlag.STOP.equals(ecsNode.getEcsNodeFlag());
             }
         };
-        return sendFilteredRequest(pred, KVAdminRequest.StatusType.SHUTDOWN);
+        return sendFilteredRequest(pred, KVMessage.StatusType.SHUTDOWN);
     }
 
     @Override

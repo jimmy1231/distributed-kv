@@ -2,18 +2,10 @@ package app_kvECS;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import shared.messages.KVMessage;
 
 public class KVAdminResponse implements SocketResponse {
-	public enum StatusType {
-		START,		/* start() req */
-		STOP,		/* stop() req */
-		SHUTDOWN,	/* shutdown() req */
-
-		SUCCESS,
-		ERROR
-	}
-
-	KVAdminResponse.StatusType status;
+	KVMessage.StatusType status;
 	ObjectMapper mapper;
 
 	KVAdminResponse() {
@@ -23,17 +15,17 @@ public class KVAdminResponse implements SocketResponse {
 
 	}
 
-	KVAdminResponse(KVAdminResponse.StatusType _status) {
+	KVAdminResponse(KVMessage.StatusType _status) {
 		this.status = _status;
 		mapper = new ObjectMapper();
 		mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
 	}
 
-	public KVAdminResponse.StatusType getStatus() {
+	public KVMessage.StatusType getStatus() {
 		return status;
 	}
 
-	public void setStatus(KVAdminResponse.StatusType _status) {
+	public void setStatus(KVMessage.StatusType _status) {
 		this.status = _status;
 	}
 

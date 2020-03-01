@@ -1,30 +1,23 @@
 package app_kvECS;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import shared.messages.KVMessage;
 
 public class KVAdminRequest implements SocketRequest {
-	public enum StatusType {
-		START,		/* start() req */
-		STOP,		/* stop() req */
-		SHUTDOWN,	/* shutdown() req */
 
-		SUCCESS,
-		ERROR
-	}
-
-	StatusType status;
+	KVMessage.StatusType status;
 	ObjectMapper mapper;
 
-	KVAdminRequest(StatusType _status) {
+	KVAdminRequest(KVMessage.StatusType _status) {
 		this.status = _status;
 		mapper = new ObjectMapper();
 	}
 
-	public StatusType getStatus() {
+	public KVMessage.StatusType getStatus() {
 		return status;
 	}
 
-	public void setStatus(StatusType _status) {
+	public void setStatus(KVMessage.StatusType _status) {
 		this.status = _status;
 	}
 
@@ -42,7 +35,7 @@ public class KVAdminRequest implements SocketRequest {
 
 	@Override
 	public SocketRequest fromJsonString(String json) {
-		KVAdminRequest request = new KVAdminRequest(StatusType.ERROR);
+		KVAdminRequest request = new KVAdminRequest(KVMessage.StatusType.ERROR);
 		try {
 			request = mapper.readValue(json, KVAdminRequest.class);
 		} catch (Exception e) {
