@@ -1,5 +1,6 @@
 package shared.messages;
 
+import app_kvECS.KVServerMetadata;
 import jdk.net.SocketFlow;
 
 public interface KVMessage {
@@ -41,6 +42,10 @@ public interface KVMessage {
 	public void setStatus(StatusType newStatus);
 
 	public void setValue(String newValue);
+
+	public KVServerMetadata getMetadata();
+
+	public void setMetadata(KVServerMetadata newMetadata);
 }
 
 

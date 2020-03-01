@@ -2,13 +2,16 @@ package client;
 
 import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ecs.ECSNode;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
+import app_kvECS.HashRing;
 
 import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
+import java.rmi.server.ServerNotActiveException;
 
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
@@ -21,7 +24,7 @@ public class KVStore implements KVCommInterface {
 	private ObjectMapper objectMapper;
 	private static Logger logger = Logger.getRootLogger();
 	private connectionStatus status;
-	private KVServerMetadata recentMetadata;
+	private HashRing recentHashring;
 
 	/**
 	 * Initialize KVStore with address and port of KVServer
@@ -36,7 +39,7 @@ public class KVStore implements KVCommInterface {
 		input = null;
 		objectMapper = null;
 		status = connectionStatus.DISCONNECTED;
-		recentMetadata = null;
+		recentHashring = null;
 	}
 
 	@Override
@@ -91,31 +94,88 @@ public class KVStore implements KVCommInterface {
 		}
 	}
 
+	private void changeConnection(String newAddress, int newPort){
+		serverAddress = newAddress;
+		serverPort = newPort;
+	}
+
 	@Override
 	public KVMessage put(String key, String value) throws Exception {
-  		// TODO: Change this with actual functions later
-		//  Compute hash of the key -> determine which server to send to
-		// int dataHash = computeHash(key);
+		boolean retransmit = true;
+
 		KVMessage requestMsg = new Message(key, value, KVMessage.StatusType.PUT);
-		sendMessage(requestMsg);
-		KVMessage replyMSg = receiveMessage();
-		return replyMSg;
+		KVMessage replyMsg = null;
+
+		while (retransmit) {
+			//  Compute hash of the key -> determine which server to send to
+			if (recentHashring != null) {
+				ECSNode newServer = recentHashring.getServerByObjectKey(key);
+				disconnect(); //disconnect from the original server
+				changeConnection(newServer.getNodeHost(), newServer.getNodePort());
+				connect(); // connect to the "correct" server
+			}
+
+			sendMessage(requestMsg);
+			replyMsg = receiveMessage();
+
+			// check if the message needs to be retransmitted
+			if (replyMsg.getStatus() == Message.StatusType.SERVER_NOT_RESPONSIBLE) {
+				KVServerMetadata returnedMetadata = replyMsg.getMetadata();
+				recentHashring = returnedMetadata.getHashRing();
+			}
+			else if (replyMsg.getStatus() == Message.StatusType.SERVER_STOPPED) {
+				throw new ServerNotActiveException();
+			}
+			else if (replyMsg.getStatus() == Message.StatusType.SERVER_WRITE_LOCK) {
+				throw new ServerNotActiveException();
+			}
+			else {
+				retransmit = false;
+			}
+		}
+		return replyMsg;
 	}
 
 	@Override
 	public KVMessage get(String key) throws Exception {
+		boolean retransmit = true;
 		KVMessage replyMsg = null;
 		KVMessage requestMsg = new Message(key, null, KVMessage.StatusType.GET);
-		sendMessage(requestMsg);
 
-		// Wait for the response from the server
-		while (true){
-			replyMsg = receiveMessage();
-			if (replyMsg != null){
-				break;
+		while (retransmit) {
+			//  Compute hash of the key -> determine which server to send to
+			if (recentHashring != null) {
+				ECSNode newServer = recentHashring.getServerByObjectKey(key);
+				disconnect(); //disconnect from the original server
+				changeConnection(newServer.getNodeHost(), newServer.getNodePort());
+				connect(); // connect to the "correct" server
+			}
+
+			sendMessage(requestMsg);
+
+			// Wait for the response from the server
+			while (true){
+				replyMsg = receiveMessage();
+				if (replyMsg != null){
+					break;
+				}
+			}
+
+			// check if the message needs to be retransmitted
+			if (replyMsg.getStatus() == Message.StatusType.SERVER_NOT_RESPONSIBLE) {
+				KVServerMetadata returnedMetadata = replyMsg.getMetadata();
+				recentHashring = returnedMetadata.getHashRing();
+			}
+			else if (replyMsg.getStatus() == Message.StatusType.SERVER_STOPPED) {
+				throw new ServerNotActiveException();
+			}
+			else if (replyMsg.getStatus() == Message.StatusType.SERVER_WRITE_LOCK) {
+				throw new ServerNotActiveException();
+			}
+			else {
+				retransmit = false;
 			}
 		}
-
 		return replyMsg;
 	}
 
