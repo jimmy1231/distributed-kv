@@ -4,10 +4,18 @@ import java.util.Collection;
 import java.util.Map;
 
 public class ECSNode implements IECSNode {
-    String name = "";
-    String host = "";
-    int port = -1;
-    String[] range = null;
+    private String name = "";
+    private String host = "";
+    private int port = -1;
+    private String[] range = null;
+    private ECSNodeFlag ecsNodeFlag;
+
+    public ECSNode(String name, String host, int port) {
+        this.name = name;
+        this.host = host;
+        this.port = port;
+        this.ecsNodeFlag = ECSNodeFlag.STOP;
+    }
 
     /**
      * @return  the name of the node (ie "Server 8.8.8.8")
@@ -37,4 +45,12 @@ public class ECSNode implements IECSNode {
         return range;
     }
 
+
+    public ECSNodeFlag getEcsNodeFlag() {
+        return ecsNodeFlag;
+    }
+
+    public void setEcsNodeFlag(ECSNodeFlag ecsNodeFlag) {
+        this.ecsNodeFlag = ecsNodeFlag;
+    }
 }
