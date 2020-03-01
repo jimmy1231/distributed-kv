@@ -100,6 +100,30 @@ public class GenericSocketsModule {
         return response;
     }
 
+    public static String recv(InputStream input) {
+        String response = null;
+
+        BufferedInputStream bis;
+        ByteArrayOutputStream bas;
+        try {
+            bis = new BufferedInputStream(input);
+            bas = new ByteArrayOutputStream();
+            byte[] buf = new byte[MAX_READ_BYTES];
+
+            int len;
+            while ((len = bis.read(buf)) > 0) {
+                bas.write(buf, 0, len);
+                break;
+            }
+            response = bas.toString("UTF-8");
+        } catch (IOException e) {
+            logger.error("Error reading input stream", e);
+            response = null;
+        }
+
+        return response;
+    }
+
     private Socket connect(String host, int port) throws Exception {
         Socket _socket = null;
         try {

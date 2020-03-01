@@ -1,5 +1,6 @@
 package app_kvServer;
 
+import app_kvECS.GenericSocketsModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
@@ -7,10 +8,7 @@ import shared.messages.KVMessage;
 import shared.messages.Message;
 import shared.messages.UnifiedRequestResponse;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.text.MessageFormat;
 import java.util.Objects;
@@ -32,7 +30,7 @@ public class ClientConnection extends Thread {
 
     private Socket clientSocket;
     private KVServer server;
-    private BufferedReader input;
+    private InputStream input;
     private PrintWriter output;
     private ObjectMapper objectMapper;
 
@@ -57,7 +55,7 @@ public class ClientConnection extends Thread {
     public void run() {
         try {
             output = new PrintWriter(clientSocket.getOutputStream(), true);
-            input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+            input = new InputStreamReader(clientSocket.getInputStream();
             objectMapper = new ObjectMapper();
 
             String connectionAck = "Connection to KVServer established: "
@@ -256,7 +254,7 @@ public class ClientConnection extends Thread {
     private UnifiedRequestResponse receiveMessage2() throws IOException {
         UnifiedRequestResponse msg = new UnifiedRequestResponse();
         String msgString = null;
-        msgString = input.readLine();
+        msgString = GenericSocketsModule.recv(input);
         if (msgString != null) {
             try {
                 System.out.println(msgString);
