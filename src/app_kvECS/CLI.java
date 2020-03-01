@@ -16,6 +16,15 @@ public class CLI {
 	private ECSClient client = null;
 
 
+	/**
+	 * Handle START command
+	 */
+	private void handleStart() {
+		if (client.start())
+			System.out.println("SUCCESS: Started the servers.");
+		else
+			System.out.println("ERROR: Could not start the servers.");
+	}
 
 	/**
 	 * Prints out help text
@@ -64,12 +73,9 @@ public class CLI {
 				System.out.println("Adding a single node...");
 		}
 		else if (cmd.equals(START)) {
-			if (assertNumParameters(1, tokens.length)) {
-				if (client.start())
-					System.out.println("SUCCESS: Started the servers.");
-				else
-					System.out.println("ERROR: Could not start servers");
-			}
+			if (assertNumParameters(1, tokens.length))
+				handleStart();
+
 		}
 		else if (cmd.equals(STOP)) {
 			if (assertNumParameters(1, tokens.length))
