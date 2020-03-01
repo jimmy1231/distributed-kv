@@ -2,7 +2,6 @@ package app_kvECS.impl;
 
 import app_kvECS.HashRing;
 import app_kvECS.KVServerMetadata;
-import app_kvServer.ServerStatusType;
 import ecs.IECSNode;
 
 public class KVServerMetadataImpl extends KVServerMetadata {

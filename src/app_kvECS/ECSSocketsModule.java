@@ -1,5 +1,6 @@
 package app_kvECS;
 
+import app_kvECS.impl.ECSSocketsModuleImpl;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
@@ -27,6 +28,10 @@ public abstract class ECSSocketsModule {
 
 
     //////////////////////////////////////////////////////////////
+    public static ECSSocketsModule build(String host, int port) throws Exception {
+        return new ECSSocketsModuleImpl(host, port);
+    }
+
     /**
      * Do request. Blocks until response is received.
      *

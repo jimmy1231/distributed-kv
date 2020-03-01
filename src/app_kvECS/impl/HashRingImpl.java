@@ -53,6 +53,7 @@ public class HashRingImpl extends HashRing {
      */
     @Override
     public ECSNode getServerByHash(Hash hash) {
+
         return null;
     }
 
