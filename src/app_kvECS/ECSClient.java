@@ -48,7 +48,7 @@ public class ECSClient implements IECSClient {
 
                 /* Create ECSNode and add to ring */
                 node = new ECSNode(name,host, port);
-                node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+                node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE);
                 ring.addServer(node);
 
                 /* Start server process */
