@@ -1,5 +1,9 @@
 package app_kvECS;
 
+import ecs.IECSNode;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Scanner;
 
 public class CLI {
@@ -15,15 +19,56 @@ public class CLI {
 
 	private ECSClient client = null;
 
-
-	/**
-	 * Handle START command
+	/*
+	 * Methods used to handle the different commands.
+	 * One for each supported command
 	 */
 	private void handleStart() {
 		if (client.start())
-			System.out.println("SUCCESS: Started the servers.");
+			System.out.println("SUCCESS: Started all servers.");
 		else
 			System.out.println("ERROR: Could not start the servers.");
+	}
+
+	private void handleStop() {
+		if (client.stop())
+			System.out.println("SUCCESS: Stopped all servers.");
+		else
+			System.out.println("ERROR: Could not stop servers.");
+	}
+
+	private void handleShutdown() {
+		if (client.shutdown())
+			System.out.println("SUCCESS: Shutdown all servers.");
+		else
+			System.out.println("ERROR: Could not shutdown servers.");
+	}
+
+	private void handleAddNode(int cacheSize, String cacheStrategy) {
+		IECSNode node = client.addNode(cacheStrategy, cacheSize);
+		if (node == null)
+			System.out.println("ERROR: Could not add node.");
+		else {
+			// TODO print out new node info
+			System.out.println("Adding node...");
+		}
+	}
+
+	private void handleAddNodes(int numNodes, int cacheSize, String cacheStrategy) {
+		Collection<IECSNode> nodes = client.addNodes(numNodes, cacheStrategy, cacheSize);
+		int count = nodes == null ? 0 : nodes.size();
+		if (count == 0)
+			System.out.println("ERROR: Could not add any nodes.");
+		else
+			System.out.format("SUCCESS: Added %d nodes\n", count);
+	}
+
+	private void handleRemoveNode(String nodeName) {
+		Collection<String> names = new ArrayList<String>(){{add(nodeName);}};
+		if (client.removeNodes(names))
+			System.out.format("SUCCESS: Successfully removed node '%s'\n", nodeName);
+		else
+			System.out.format("ERROR: Could not remove node '%s'\n", nodeName);
 	}
 
 	/**
@@ -65,12 +110,19 @@ public class CLI {
 			return false;
 		}
 		if (cmd.equals(ADD_NODES)) {
-			if (assertNumParameters(4, tokens.length))
-				System.out.println("Adding nodes..");
+			if (assertNumParameters(4, tokens.length)) {
+				int numNodes = Integer.parseInt(tokens[1]);
+				int cacheSize = Integer.parseInt(tokens[2]);
+				String cacheStrategy = tokens[3];
+				handleAddNodes(numNodes, cacheSize, cacheStrategy);
+			}
 		}
 		else if (cmd.equals(ADD_NODE)) {
-			if (assertNumParameters(3, tokens.length))
-				System.out.println("Adding a single node...");
+			if (assertNumParameters(3, tokens.length)) {
+				int cacheSize = Integer.parseInt(tokens[1]);
+				String cacheStrategy = tokens[2];
+				handleAddNode(cacheSize, cacheStrategy);
+			}
 		}
 		else if (cmd.equals(START)) {
 			if (assertNumParameters(1, tokens.length))
@@ -79,15 +131,16 @@ public class CLI {
 		}
 		else if (cmd.equals(STOP)) {
 			if (assertNumParameters(1, tokens.length))
-				System.out.println("Stopping servers...");
+				handleStop();
 		}
 		else if (cmd.equals(REMOVE_NODE)) {
 			if (assertNumParameters(2, tokens.length))
-				System.out.println("Removing single node...");
+				handleRemoveNode(tokens[1]);
+
 		}
 		else if (cmd.equals(SHUTDOWN)) {
 			if (assertNumParameters(1, tokens.length))
-				System.out.println("Shutting down servers...");
+				handleShutdown();
 		}
 		else if (cmd.equals(HELP)) {
 			if (assertNumParameters(1, tokens.length))
@@ -113,7 +166,7 @@ public class CLI {
 			running = handleCommand(cmd);
 		}
 
-		System.out.println(PROMPT + "Exiting ECSClient!");
+		System.out.println(PROMPT + "Exiting ECSClient! Goodbye.");
 		command.close();
 	}
 }
