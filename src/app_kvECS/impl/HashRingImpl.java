@@ -242,8 +242,6 @@ public class HashRingImpl extends HashRing {
             }
             recomputeHashRanges();
         }
-
-        printHashRing();
     }
 
     /**
