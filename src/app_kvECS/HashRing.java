@@ -152,6 +152,10 @@ public abstract class HashRing {
      * Encapsulating class for the hash range:
      * (lower, upper]
      *
+     * Upper is the hash of the server, lower is the hash of the
+     * predecessor server + 1 (as in +1 of the least significant
+     * bit in the MD5 hash)
+     *
      * Lower: exclusive
      * Upper: inclusive
      */

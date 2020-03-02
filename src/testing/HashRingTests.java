@@ -20,6 +20,7 @@ import shared.messages.UnifiedRequestResponse;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
@@ -120,6 +121,68 @@ public class HashRingTests extends TestCase {
             }
         });
         assert(servers.size() == 0);
+    }
+
+    @Test
+    public void testHash1() {
+        HashRing hashRing = new HashRingImpl();
+        List<Pair<String, String>> keyValues = Arrays.asList(
+            new Pair<>("jimmy", "KOBE"),
+            new Pair<>("patricia", "BRYANT"),
+            new Pair<>("ann", "IS"),
+            new Pair<>("amy", "THE"),
+            new Pair<>("richard", "GREATEST"),
+            new Pair<>("lemon", "PLAYER"),
+            new Pair<>("apple", "IN"),
+            new Pair<>("peach", "THE"),
+            new Pair<>("iphone", "NBA")
+        );
+
+        List<ECSNode> servers = Arrays.asList(
+            new ECSNode("server-0", "localhost", 50000),
+            new ECSNode("server-1", "localhost", 50001),
+            new ECSNode("server-2", "localhost", 50002)
+        );
+
+
+        hashRing.addServer(servers.get(0));
+        hashRing.addServer(servers.get(1));
+        hashRing.addServer(servers.get(2));
+
+        List<ECSNode> _servers = hashRing.filterServer(new Predicate<ECSNode>() {
+            @Override
+            public boolean test(ECSNode ecsNode) {
+                return true;
+            }
+        });
+
+        for (ECSNode _n : _servers) {
+            _n.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+            System.out.println(new Gson().toJson(_n));
+        }
+        hashRing.updateRing();
+
+        BiPredicate<String, String> pred = new BiPredicate<String, String>() {
+            @Override
+            public boolean test(String s1, String s2) {
+                ECSNode node = hashRing.getServerByObjectKey(s1);
+                if (Objects.nonNull(node)) {
+                    return hashRing.getServerByObjectKey(s1).getNodeName().equals(s2);
+                } else {
+                    System.out.println("No server with object key");
+                    return false;
+                }
+            }
+        };
+
+        assert(pred.test("jimmy", "server-1"));
+        assert(pred.test("patricia", "server-1"));
+        assert(pred.test("ann", "server-1"));
+        assert(pred.test("amy", "server-1"));
+        assert(pred.test("richard", "server-1"));
+        assert(pred.test("apple", "server-0"));
+        assert(pred.test("peach", "server-1"));
+        assert(pred.test("iphone", "server-0"));
     }
 
     private boolean isSame(Map<String, ECSNode> s1, Map<String, ECSNode> s2) {
