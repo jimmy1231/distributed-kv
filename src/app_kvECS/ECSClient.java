@@ -66,7 +66,7 @@ public class ECSClient implements IECSClient {
                 System.out.printf("ADD SERVER: %s | %s:%d\n", name, host, port);
                 /* Create ECSNode and add to ring */
                 node = new ECSNode(name,host, port);
-                node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+                node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE);
                 ring.addServer(node);
                 allNodes.add(node);
 
@@ -167,7 +167,8 @@ public class ECSClient implements IECSClient {
 
         for (int i = 0; i<allNodes.size(); i++) {
             ECSNode currNode = allNodes.get(i);
-            if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE_START) {
+            if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE) {
+                currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
                 ring.addServer(currNode);
                 ring.updateRing();
                 KVServerMetadata metadata = new KVServerMetadataImpl(currNode.getNodeName(),
@@ -253,7 +254,8 @@ public class ECSClient implements IECSClient {
 
         for (int i = 0; i<allNodes.size(); i++) {
             ECSNode currNode = allNodes.get(i);
-            if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE_START) {
+            if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE) {
+                currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
                 addedNodes.add(currNode);
                 ring.addServer(currNode);
                 ring.updateRing();
