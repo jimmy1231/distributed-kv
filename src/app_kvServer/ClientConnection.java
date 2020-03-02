@@ -216,6 +216,7 @@ public class ClientConnection extends Thread {
             status = KVMessage.StatusType.SUCCESS;
         }
         else if (KVMessage.StatusType.SERVER_INIT.equals(status)){
+            logger.info("REACHED SERVER_INIT");
             server.initKVServer(msg.getMetadata(), msg.getCacheSize(), msg.getCacheStrategy());
             status = KVMessage.StatusType.SUCCESS;
         }
@@ -256,7 +257,7 @@ public class ClientConnection extends Thread {
     public void sendMessage(UnifiedRequestResponse msg) throws Exception{
         // Convert KVMessage to JSON String
         String msgAsString = msg.serialize();
-        System.out.println(msgAsString);
+        logger.info("SEND MESSAGE: " + msgAsString);
         output.println(msgAsString);
     }
 
