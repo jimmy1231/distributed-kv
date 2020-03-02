@@ -192,6 +192,7 @@ public class ECSClient implements IECSClient {
                             .withCacheStrategy(serverCacheStrategy)
                             .withMetadata(metadata).build();
 
+                    System.out.println("INITKVCALL: " + initKVCall.serialize());
                     conn.doRequest(initKVCall);
                     conn.close();
 
