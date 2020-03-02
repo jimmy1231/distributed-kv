@@ -10,6 +10,7 @@ import ecs.IECSNode;
 
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public class HashRingImpl extends HashRing {
@@ -69,6 +70,13 @@ public class HashRingImpl extends HashRing {
         }
 
         return result;
+    }
+
+    @Override
+    public void forEachServer(Consumer<ECSNode> consumer) {
+        for (Map.Entry<String, ECSNode> entry : servers.entrySet()) {
+            consumer.accept(entry.getValue());
+        }
     }
 
     /**
@@ -235,6 +243,8 @@ public class HashRingImpl extends HashRing {
             }
             recomputeHashRanges();
         }
+
+        printHashRing();
     }
 
     /**
@@ -402,5 +412,22 @@ public class HashRingImpl extends HashRing {
     @Override
     public void setServers(Map<String, ECSNode> servers) {
         this.servers = servers;
+    }
+
+    public void printHashRing() {
+        Gson gson = new GsonBuilder()
+            .enableComplexMapKeySerialization()
+            .excludeFieldsWithoutExposeAnnotation()
+            .create();
+
+        System.out.println("=============HASH-RING================");
+        forEachServer(new Consumer<ECSNode>() {
+            @Override
+            public void accept(ECSNode ecsNode) {
+                System.out.println(gson.toJson(ecsNode));
+            }
+        });
+        System.out.println("=============HASH-RING================");
+
     }
 }

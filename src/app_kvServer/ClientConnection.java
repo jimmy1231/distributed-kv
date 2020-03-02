@@ -235,7 +235,7 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedRequestResponse handleServerMessage(UnifiedRequestResponse msg) {
-        if (msg.getStatusType().equals(KVMessage.StatusType.SERVER_TRANSFER)) {
+        if (msg.getStatusType().equals(KVMessage.StatusType.SERVER_MOVEDATA)) {
             server.recvData(msg.getDataSet());
         }
 

@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 public abstract class HashRing {
@@ -251,6 +252,7 @@ public abstract class HashRing {
      * @return A list of filtered KVServerMetadata.
      */
     public abstract List<ECSNode> filterServer(Predicate<ECSNode> pred);
+    public abstract void forEachServer(Consumer<ECSNode> consumer);
 
     /**
      * {@link #getServerByHash(Hash)}

@@ -408,7 +408,7 @@ public class KVServer implements IKVServer {
 			logger.info("DATA SET TO TRANSFER: " + dataSet.serialize());
 			req = new UnifiedRequestResponse.Builder()
 				.withMessageType(MessageType.SERVER_TO_SERVER)
-				.withStatusType(KVMessage.StatusType.SERVER_TRANSFER)
+				.withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
 				.withDataSet(dataSet)
 				.build();
 
