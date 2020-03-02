@@ -95,7 +95,6 @@ public class ECSClient implements IECSClient {
     private boolean sendFilteredRequest(Predicate<ECSNode> filter, KVMessage.StatusType requestType) {
         boolean success = true;
         List<ECSNode> servers = ring.filterServer(filter);
-        System.out.println(new Gson().toJson(servers));
 
         KVServerMetadata metadata = null;
         UnifiedRequestResponse req = null;
