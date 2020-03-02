@@ -24,7 +24,8 @@ public interface KVMessage {
 		SERVER_INIT, /* if server sees this. call initKVServer() */
 		SERVER_MOVEDATA, /* if server sees this, call moveData() */
 		SERVER_UPDATE, /* update metadata */
-
+		SERVER_TRANSFER,
+		
 		START,				/* ECSClient sending a START request to Server */
 		STOP,				/* ECS sends STOP request to server */
 		SHUTDOWN,			/* ECS sends SHUTDOWN request to server */
