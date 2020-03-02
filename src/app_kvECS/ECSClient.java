@@ -193,7 +193,9 @@ public class ECSClient implements IECSClient {
                         .build();
 
                     conn.doRequest(initKVCall);
+                    System.out.println("CONN CLOSE START");
                     conn.close();
+                    System.out.println("CONN CLOSE END");
 
                     ECSNode succssorNode = ring.getSuccessorServer(currNode);
                     System.out.println("SUCCESSOR NODE: " + succssorNode.getUuid());
