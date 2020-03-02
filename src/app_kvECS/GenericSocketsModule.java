@@ -1,7 +1,6 @@
 package app_kvECS;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.log4j.Logger;
 import shared.messages.UnifiedRequestResponse;
 
@@ -15,7 +14,6 @@ public class GenericSocketsModule {
 
     private InputStream input;
     private OutputStream output;
-    private ObjectMapper objectMapper;
     private Socket socket;
 
     /****************************************************/
@@ -29,8 +27,6 @@ public class GenericSocketsModule {
 
         input = this.socket.getInputStream();
         output = this.socket.getOutputStream();
-        objectMapper = new ObjectMapper();
-        objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
     /****************************************************/
 

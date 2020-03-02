@@ -20,6 +20,7 @@ public interface KVMessage {
 		SERVER_STARTED, 		/* Server is started, processing all client & ECS requests */
 		SERVER_WRITE_LOCK, 		/* Server locked for out, only get possible */
 		SERVER_NOT_RESPONSIBLE, /* Requset not successful, server not responsible for key */
+		SERVER_TRANSFER, 		/* Server is transferring data to another server */
 
 		START,				/* ECSClient sending a START request to Server */
 		STOP,				/* ECS sends STOP request to server */

@@ -83,6 +83,9 @@ public class ClientConnection extends Thread {
                             logger.info("ECS_TO_SERVER request: " + request.serialize());
                             response = handleAdminMessage(request);
                             break;
+                        case SERVER_TO_SERVER:
+                            logger.info("SERVER_TO_SERVER request: " + request.serialize());
+                            response = handleServerMessage(request);
                         default:
                             logger.info("UNKNOWN request: " + request.serialize());
                             throw new Exception("Invalid message type");
@@ -209,6 +212,14 @@ public class ClientConnection extends Thread {
 
         replyMsg.setStatusType(status);
         return replyMsg;
+    }
+
+    private UnifiedRequestResponse handleServerMessage(UnifiedRequestResponse msg) {
+        if (msg.getStatusType().equals(KVMessage.StatusType.SERVER_TRANSFER)) {
+            server.recvData(msg.getDataSet());
+        }
+
+        return msg;
     }
 
     /**

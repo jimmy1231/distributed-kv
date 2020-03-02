@@ -398,21 +398,40 @@ public class KVServer implements IKVServer {
 		/*
 		 * Move data to another server via socket request
 		 */
+		UnifiedRequestResponse req, resp;
 		try {
 			GenericSocketsModule module = new GenericSocketsModule(
 				server.getNodeHost(), server.getNodePort()
 			);
 
-			UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+			KVDataSet dataSet = new KVDataSet(entries);
+			logger.info("DATA SET TO TRANSFER: " + dataSet.serialize());
+			req = new UnifiedRequestResponse.Builder()
 				.withMessageType(MessageType.SERVER_TO_SERVER)
-				.withDataSet(new KVDataSet())
+				.withStatusType(KVMessage.StatusType.SERVER_TRANSFER)
+				.withDataSet(dataSet)
 				.build();
 
-			module.doRequest(request);
+			resp = module.doRequest(req);
+			logger.info("DATA TRANSFER COMPLETE: " + resp.serialize());
 		} catch (Exception e) {
 			logger.error(String.format(
 				"Unable to send MoveData request: %s",
 				e.getMessage()), e);
+		}
+	}
+
+	public void recvData(KVDataSet dataSet) {
+		List<Pair<String, String>> entries = dataSet.getEntries();
+		try {
+			for (Pair<String, String> entry : entries) {
+				cache.putKV(entry.getKey(), entry.getValue());
+			}
+		} catch (Exception e) {
+			logger.error(String.format(
+				"Unable to transfer data: %s. Data: %s",
+				e.getMessage(), dataSet.serialize()
+			), e);
 		}
 	}
 

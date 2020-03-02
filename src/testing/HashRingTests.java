@@ -12,6 +12,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 import com.google.gson.Gson;
+import shared.Pair;
+import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedRequestResponse;
@@ -211,5 +213,43 @@ public class HashRingTests extends TestCase {
         assert(request2.getKeyRange()[1].equals(request.getKeyRange()[1]));
         assert(request2.getCacheSize().equals(request.getCacheSize()));
         assert(request2.getCacheStrategy().equals(request.getCacheStrategy()));
+    }
+
+    @Test
+    public void testUnifiedObj2() {
+        List<Pair<String, String>> entries = new ArrayList<>();
+        entries.add(new Pair<>("hi", "there"));
+        entries.add(new Pair<>("hello", "man"));
+        entries.add(new Pair<>("im", "adfsafd"));
+        entries.add(new Pair<>("dsflkjc", "dfkjer"));
+        entries.add(new Pair<>("3123lkj", "adsflkjc"));
+        entries.add(new Pair<>("97123123", "1028301982312"));
+
+        for (Pair<String, String> entry : entries) {
+            System.out.println(entry.toString());
+        }
+        UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+            .withMessageType(MessageType.ECS_TO_SERVER)
+            .withDataSet(new KVDataSet(entries))
+            .build();
+
+        String json = request.serialize();
+        System.out.println(json);
+        UnifiedRequestResponse request2 = new UnifiedRequestResponse().deserialize(json);
+
+        List<Pair<String, String>> entries2 = request2.getDataSet().getEntries();
+        Pair<String, String> pair1;
+        Pair<String, String> pair2;
+        int i;
+        for (i=0; i<entries2.size(); i++) {
+            pair1 = entries.get(i);
+            pair2 = entries2.get(i);
+
+            System.out.println(pair1.toString());
+            System.out.println(pair2.toString());
+
+            assert(pair1.getKey().equals(pair2.getKey()));
+            assert(pair1.getValue().equals(pair2.getValue()));
+        }
     }
 }
