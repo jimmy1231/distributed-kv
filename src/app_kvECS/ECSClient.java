@@ -224,6 +224,7 @@ public class ECSClient implements IECSClient {
                     break;
                 }
                 catch (Exception e){
+                    System.out.println("Error while adding server: " + e.getMessage());
                     logger.error("Error while adding server " + currNode.getNodeHost());
                 }
             }
