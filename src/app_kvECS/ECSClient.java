@@ -188,8 +188,8 @@ public class ECSClient implements IECSClient {
                     UnifiedRequestResponse initKVCall = new UnifiedRequestResponse.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_INIT)
-                            .withCacheSize(serverCacheSize)
-                            .withCacheStrategy(serverCacheStrategy)
+                            .withCacheSize(cacheSize)
+                            .withCacheStrategy(cacheStrategy)
                             .withMetadata(metadata).build();
 
                     conn.doRequest(initKVCall);
@@ -249,6 +249,7 @@ public class ECSClient implements IECSClient {
                         .build();
 
                 socketModule.doRequest(notification);
+                socketModule.close();
             } catch (Exception ex) {
                 System.out.printf("ERROR: Could not broadcast metadata update notification");
             }
@@ -276,8 +277,8 @@ public class ECSClient implements IECSClient {
                     UnifiedRequestResponse initKVCall = new UnifiedRequestResponse.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_INIT)
-                            .withCacheSize(serverCacheSize)
-                            .withCacheStrategy(serverCacheStrategy)
+                            .withCacheSize(cacheSize)
+                            .withCacheStrategy(cacheStrategy)
                             .withMetadata(metadata).build();
 
                     conn.doRequest(initKVCall);
