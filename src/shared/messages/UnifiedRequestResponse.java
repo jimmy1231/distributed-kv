@@ -5,6 +5,7 @@ import app_kvECS.impl.KVServerMetadataImpl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
+import ecs.ECSNode;
 
 import java.util.Objects;
 
@@ -27,19 +28,35 @@ public class UnifiedRequestResponse implements KVMessage {
         String key;
         @Expose
         String value;
+        @Expose
+        String[] keyRange;
+        @Expose
+        ECSNode server;
+        @Expose
+        String cacheStrategy;
+        @Expose
+        Integer cacheSize;
 
         __Serialized__(MessageType messageType,
                        KVMessage.StatusType statusType,
                        String metadata,
                        String dataSet,
                        String key,
-                       String value) {
+                       String value,
+                       String[] keyRange,
+                       ECSNode server,
+                       String cacheStrategy,
+                       Integer cacheSize) {
             this.messageType = messageType;
             this.statusType = statusType;
             this.metadata = metadata;
             this.dataSet = dataSet;
             this.key = key;
             this.value = value;
+            this.keyRange = keyRange;
+            this.server = server;
+            this.cacheStrategy = cacheStrategy;
+            this.cacheSize = cacheSize;
         }
     }
 
@@ -49,6 +66,12 @@ public class UnifiedRequestResponse implements KVMessage {
     private KVDataSet dataSet;
     private String key;
     private String value;
+
+    private String[] keyRange;
+    private ECSNode server;
+    private String cacheStrategy;
+    private Integer cacheSize;
+
 
     public static class Builder {
         UnifiedRequestResponse object;
@@ -87,6 +110,26 @@ public class UnifiedRequestResponse implements KVMessage {
             return this;
         }
 
+        public Builder withKeyRange(String[] keyRange) {
+            object.keyRange = keyRange;
+            return this;
+        }
+
+        public Builder withServer(ECSNode server) {
+            object.server = server;
+            return this;
+        }
+
+        public Builder withCacheStrategy(String cacheStrategy) {
+            object.cacheStrategy = cacheStrategy;
+            return this;
+        }
+
+        public Builder withCacheSize(Integer cacheSize) {
+            object.cacheSize = cacheSize;
+            return this;
+        }
+
         public UnifiedRequestResponse build() {
             return object;
         }
@@ -99,7 +142,11 @@ public class UnifiedRequestResponse implements KVMessage {
             Objects.nonNull(metadata) ? metadata.serialize() : null,
             Objects.nonNull(dataSet) ? dataSet.serialize() : null,
             Objects.nonNull(key) ? key : null,
-            Objects.nonNull(value) ? value : null
+            Objects.nonNull(value) ? value : null,
+            Objects.nonNull(keyRange) ? keyRange : null,
+            Objects.nonNull(server) ? server : null,
+            Objects.nonNull(cacheStrategy) ? cacheStrategy : null,
+            Objects.nonNull(cacheSize) ? cacheSize : null
         );
 
         return UNIFIED_GSON.toJson(s);
@@ -112,6 +159,10 @@ public class UnifiedRequestResponse implements KVMessage {
         this.statusType = s.statusType;
         this.key = s.key;
         this.value = s.value;
+        this.keyRange = s.keyRange;
+        this.server = s.server;
+        this.cacheStrategy = s.cacheStrategy;
+        this.cacheSize = s.cacheSize;
 
         if (Objects.nonNull(s.metadata)) {
             this.metadata = new KVServerMetadataImpl().deserialize(s.metadata);
@@ -183,6 +234,42 @@ public class UnifiedRequestResponse implements KVMessage {
 
     public void setMessageType(MessageType messageType) {
         this.messageType = messageType;
+    }
+
+    public String[] getKeyRange() {
+        return keyRange;
+    }
+
+    public UnifiedRequestResponse setKeyRange(String[] keyRange) {
+        this.keyRange = keyRange;
+        return this;
+    }
+
+    public ECSNode getServer() {
+        return server;
+    }
+
+    public UnifiedRequestResponse setServer(ECSNode server) {
+        this.server = server;
+        return this;
+    }
+
+    public String getCacheStrategy() {
+        return cacheStrategy;
+    }
+
+    public UnifiedRequestResponse setCacheStrategy(String cacheStrategy) {
+        this.cacheStrategy = cacheStrategy;
+        return this;
+    }
+
+    public Integer getCacheSize() {
+        return cacheSize;
+    }
+
+    public UnifiedRequestResponse setCacheSize(Integer cacheSize) {
+        this.cacheSize = cacheSize;
+        return this;
     }
 
     /**

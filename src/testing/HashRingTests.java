@@ -12,6 +12,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
 import com.google.gson.Gson;
+import shared.messages.KVMessage;
+import shared.messages.MessageType;
+import shared.messages.UnifiedRequestResponse;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -184,5 +187,29 @@ public class HashRingTests extends TestCase {
 
         assert(isSame(hashRing.getRing(), hashRingCpy.getRing()));
         assert(isSame(hashRing.getServers(), hashRingCpy.getServers()));
+    }
+
+    @Test
+    public void testUnifiedDS() {
+        UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+            .withMessageType(MessageType.ECS_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.START)
+            .withKey("Hi")
+            .withValue("VALUEEEEEE")
+            .withCacheSize(100)
+            .withCacheStrategy("FIFO")
+            .withKeyRange(new String[]{"asdlfkadcljsadc", "asdflkjadslkcjal"})
+            .withServer(mockECSNode())
+            .build();
+
+        String json = request.serialize();
+        System.out.println(json);
+        UnifiedRequestResponse request2 = new UnifiedRequestResponse().deserialize(json);
+
+        assert(request2.getServer().compareTo(request.getServer()));
+        assert(request2.getKeyRange()[0].equals(request.getKeyRange()[0]));
+        assert(request2.getKeyRange()[1].equals(request.getKeyRange()[1]));
+        assert(request2.getCacheSize().equals(request.getCacheSize()));
+        assert(request2.getCacheStrategy().equals(request.getCacheStrategy()));
     }
 }

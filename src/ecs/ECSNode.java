@@ -1,6 +1,7 @@
 package ecs;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 
 import java.util.Collection;
@@ -80,6 +81,14 @@ public class ECSNode implements IECSNode {
     }
 
     public boolean compareTo(ECSNode o) {
+        if (Objects.isNull(range)) {
+            return uuid.equals(o.uuid)
+                && name.equals(o.name)
+                && host.equals(o.host)
+                && port == o.port
+                && ecsNodeFlag.equals(o.ecsNodeFlag);
+        }
+
         return uuid.equals(o.uuid)
             && name.equals(o.name)
             && host.equals(o.host)
