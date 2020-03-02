@@ -189,7 +189,8 @@ public class ECSClient implements IECSClient {
                             .withStatusType(KVMessage.StatusType.SERVER_INIT)
                             .withCacheSize(cacheSize)
                             .withCacheStrategy(cacheStrategy)
-                            .withMetadata(metadata).build();
+//                            .withMetadata(metadata)
+                        .build();
 
                     conn.doRequest(initKVCall);
                     conn.close();
@@ -220,7 +221,7 @@ public class ECSClient implements IECSClient {
 
                     broadcastMetaDataUpdates();
                     NodeToAdd = currNode;
-                    currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+
                     break;
                 }
                 catch (Exception e){
