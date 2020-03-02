@@ -211,7 +211,6 @@ public class HashRingImpl extends HashRing {
                     /* IMPORTANT: put to ring */
                     hash = new Hash(server.getUuid());
                     ring.put(hash, server);
-                    server.setEcsNodeFlag(IECSNode.ECSNodeFlag.START);
                 }
             }
             recomputeHashRanges();
