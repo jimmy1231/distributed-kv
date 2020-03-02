@@ -48,7 +48,7 @@ public class GenericSocketsModule {
             try {
                 String responseStr = recv();
                 if (Objects.nonNull(responseStr)) {
-                    System.out.println(responseStr);
+                    System.out.println("RECEIVED RESPONSE");
                     response = new UnifiedRequestResponse().deserialize(responseStr);
                     break;
                 }
