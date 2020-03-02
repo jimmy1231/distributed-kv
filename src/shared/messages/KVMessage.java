@@ -18,9 +18,12 @@ public interface KVMessage {
 
 		SERVER_STOPPED, 		/* Server is stopped, no requests are processed */
 		SERVER_STARTED, 		/* Server is started, processing all client & ECS requests */
-		SERVER_WRITE_LOCK, 		/* Server locked for out, only get possible */
+		SERVER_WRITE_LOCK, 		/* Server locked for out, only get possible. if server sees this, call lockWrite() */
 		SERVER_NOT_RESPONSIBLE, /* Requset not successful, server not responsible for key */
-		SERVER_TRANSFER, 		/* Server is transferring data to another server */
+		SERVER_WRITE_UNLOCK, /* if server sees this, call unLockWrite() */
+		SERVER_INIT, /* if server sees this. call initKVServer() */
+		SERVER_MOVEDATA, /* if server sees this, call moveData() */
+		SERVER_UPDATE, /* update metadata */
 
 		START,				/* ECSClient sending a START request to Server */
 		STOP,				/* ECS sends STOP request to server */
@@ -28,7 +31,6 @@ public interface KVMessage {
 
 		SUCCESS,	/* ECS request was a success */
 		ERROR		/* ECS request failed */
-
 	}
 
 	/**

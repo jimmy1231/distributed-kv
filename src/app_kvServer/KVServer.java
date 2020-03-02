@@ -442,7 +442,7 @@ public class KVServer implements IKVServer {
 	 */
 	@Override
 	public void update(KVServerMetadata metadata) {
-
+		this.metadata = metadata;
 	}
 
 	@Override

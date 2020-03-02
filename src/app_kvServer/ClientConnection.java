@@ -209,6 +209,26 @@ public class ClientConnection extends Thread {
             server.shutdown();
             status = KVMessage.StatusType.SUCCESS;
         }
+        else if (KVMessage.StatusType.SERVER_INIT.equals(status)){
+            server.initKVServer(msg.getMetadata(), msg.getCacheSize(), msg.getCacheStrategy());
+            status = KVMessage.StatusType.SUCCESS;
+        }
+        else if (KVMessage.StatusType.SERVER_WRITE_LOCK.equals(status)){
+            server.lockWrite();
+            status = KVMessage.StatusType.SUCCESS;
+        }
+        else if (KVMessage.StatusType.SERVER_WRITE_UNLOCK.equals(status)){
+            server.unLockWrite();
+            status = KVMessage.StatusType.SUCCESS;
+        }
+        else if (KVMessage.StatusType.SERVER_MOVEDATA.equals(status)){
+            server.moveData(msg.getKeyRange(), msg.getServer());
+            status = KVMessage.StatusType.SUCCESS;
+        }
+        else if (KVMessage.StatusType.SERVER_UPDATE.equals(status)){
+            server.update(msg.getMetadata());
+            status = KVMessage.StatusType.SUCCESS;
+        }
 
         replyMsg.setStatusType(status);
         return replyMsg;
