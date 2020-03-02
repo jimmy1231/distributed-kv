@@ -398,9 +398,10 @@ public class KVServer implements IKVServer {
 		/*
 		 * Move data to another server via socket request
 		 */
+		GenericSocketsModule module = null;
 		UnifiedRequestResponse req, resp;
 		try {
-			GenericSocketsModule module = new GenericSocketsModule(
+			module = new GenericSocketsModule(
 				server.getNodeHost(), server.getNodePort()
 			);
 
@@ -418,6 +419,10 @@ public class KVServer implements IKVServer {
 			logger.error(String.format(
 				"Unable to send MoveData request: %s",
 				e.getMessage()), e);
+		} finally {
+			if (Objects.nonNull(module)) {
+				module.close();
+			}
 		}
 	}
 
