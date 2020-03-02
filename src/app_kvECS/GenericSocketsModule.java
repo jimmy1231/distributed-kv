@@ -48,7 +48,6 @@ public class GenericSocketsModule {
             try {
                 String responseStr = recv();
                 if (Objects.nonNull(responseStr)) {
-                    System.out.println("RECEIVED RESPONSE");
                     response = new UnifiedRequestResponse().deserialize(responseStr);
                     break;
                 }
@@ -93,7 +92,11 @@ public class GenericSocketsModule {
             response = null;
         }
 
-        return response;
+        if (Objects.isNull(response) || response.equals("")) {
+            return null;
+        } else {
+            return response;
+        }
     }
 
     public static String recv(InputStream input) {
