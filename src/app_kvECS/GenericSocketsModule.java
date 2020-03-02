@@ -87,6 +87,7 @@ public class GenericSocketsModule {
                 break;
             }
             response = bas.toString("UTF-8");
+            System.out.println("STRING RECV: " + response);
         } catch (IOException e) {
             System.out.println("IOException in recv: " + e.getMessage());
             logger.error("Error reading input stream", e);
