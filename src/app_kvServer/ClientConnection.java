@@ -294,9 +294,8 @@ public class ClientConnection extends Thread {
     private UnifiedRequestResponse receiveMessage2() throws IOException {
         UnifiedRequestResponse msg = null;
         String msgString = null;
-        System.out.println("RECEIVED MESSAGE");
         msgString = GenericSocketsModule.recv(input);
-        if (msgString != null) {
+        if (!msgString.equals("")) {
             try {
                 logger.info("Received message: " + msgString);
                 msg = new UnifiedRequestResponse().deserialize(msgString);
