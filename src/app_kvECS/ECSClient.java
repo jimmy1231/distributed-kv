@@ -173,6 +173,7 @@ public class ECSClient implements IECSClient {
 
         for (int i = 0; i<allNodes.size(); i++) {
             ECSNode currNode = allNodes.get(i);
+            System.out.println("ADD NODE: " + currNode.getUuid());
             if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE) {
                 currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
                 ring.addServer(currNode);
