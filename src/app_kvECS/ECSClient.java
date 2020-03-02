@@ -186,7 +186,7 @@ public class ECSClient implements IECSClient {
                             .withStatusType(KVMessage.StatusType.SERVER_INIT)
                             .withCacheSize(cacheSize)
                             .withCacheStrategy(cacheStrategy)
-//                            .withMetadata(metadata)
+                            .withMetadata(metadata)
                         .build();
 
                     conn.doRequest(initKVCall);
@@ -195,6 +195,7 @@ public class ECSClient implements IECSClient {
                     ECSNode succssorNode = ring.getSuccessorServer(currNode);
                     if (Objects.isNull(succssorNode)) {
                         NodeToAdd = currNode;
+                        currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
                         break;
                     }
 
@@ -223,7 +224,7 @@ public class ECSClient implements IECSClient {
 
                     broadcastMetaDataUpdates();
                     NodeToAdd = currNode;
-
+                    currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
                     break;
                 }
                 catch (Exception e){
