@@ -87,6 +87,7 @@ public class ClientConnection extends Thread {
                         case SERVER_TO_SERVER:
                             logger.info("SERVER_TO_SERVER request: " + request.serialize());
                             response = handleServerMessage(request);
+                            break;
                         default:
                             logger.info("UNKNOWN request: " + request.serialize());
                             throw new Exception("Invalid message type");
@@ -295,7 +296,7 @@ public class ClientConnection extends Thread {
         UnifiedRequestResponse msg = null;
         String msgString = null;
         msgString = GenericSocketsModule.recv(input);
-        if (!msgString.equals("")) {
+        if (Objects.nonNull(msgString) && !msgString.equals("")) {
             try {
                 logger.info("Received message: " + msgString);
                 msg = new UnifiedRequestResponse().deserialize(msgString);
