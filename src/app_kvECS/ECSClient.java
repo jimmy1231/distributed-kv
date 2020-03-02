@@ -30,6 +30,8 @@ public class ECSClient implements IECSClient {
     private static final String ECS_CONFIG_FILE = CONFIG_DIR_PATH + "ecs.config";
     private int poolSize; // max number of servers that can participate in the service
     List<ECSNode> allNodes = new ArrayList<ECSNode>();
+    int serverCacheSize = 50000;
+    String serverCacheStrategy = "FIFO";
 
     private HashRing ring;
 
@@ -160,22 +162,15 @@ public class ECSClient implements IECSClient {
 
     @Override
     public IECSNode addNode(String cacheStrategy, int cacheSize) {
-        // TODO
-        return null;
-    }
-
-    @Override
-    public Collection<IECSNode> addNodes(int count, String cacheStrategy, int cacheSize) {
-        ArrayList<IECSNode> addedNodes = new ArrayList<IECSNode>();
+        ECSNode NodeToAdd = null;
         GenericSocketsModule conn;
 
         for (int i = 0; i<allNodes.size(); i++) {
             ECSNode currNode = allNodes.get(i);
             if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE_START) {
-                addedNodes.add(currNode);
+                //ring.updateRing(); -- no need to call since all servers are added to its position at startup
                 KVServerMetadata metadata = new KVServerMetadataImpl(currNode.getNodeName(),
                         currNode.getNodeHost(), IECSNode.ECSNodeFlag.STOP, ring); //update the state to stopped
-                count--;
 
                 try {
                     conn = new GenericSocketsModule(currNode.getNodeHost(), currNode.getNodePort());
@@ -183,7 +178,9 @@ public class ECSClient implements IECSClient {
                     // prepare a message to server to make it call initKVServer()
                     UnifiedRequestResponse initKVCall = new UnifiedRequestResponse.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
-                            .withStatusType(KVMessage.StatusType.SERVER_INITIALIZED)
+                            .withStatusType(KVMessage.StatusType.SERVER_INIT)
+                            .withCacheSize(serverCacheSize)
+                            .withCacheStrategy(serverCacheStrategy)
                             .withMetadata(metadata).build();
 
                     conn.doRequest(initKVCall);
@@ -201,7 +198,9 @@ public class ECSClient implements IECSClient {
                     UnifiedRequestResponse moveDataCall = new UnifiedRequestResponse.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
-                            .build(); //@TODO
+                            .withKeyRange(ring.getServerHashRange(currNode).toArray())
+                            .withServer(currNode)
+                            .build();
 
                     lockUnlockWriteCall.setStatusType(KVMessage.StatusType.SERVER_WRITE_UNLOCK);
 
@@ -209,7 +208,99 @@ public class ECSClient implements IECSClient {
                     conn.doRequest(moveDataCall);
                     conn.doRequest(lockUnlockWriteCall);
                     conn.close();
-                    ring.updateRing(); // "send metadata updates to all storage servers" -- hashring is used instead of metadata
+
+                    broadcastMetaDataUpdates();
+                    NodeToAdd = currNode;
+                    break;
+                }
+                catch (Exception e){
+                    logger.error("Error while adding server " + currNode.getNodeHost());
+                }
+            }
+        }
+        return NodeToAdd;
+    }
+
+    public void broadcastMetaDataUpdates(){
+        GenericSocketsModule socketModule;
+
+        for (ECSNode server : allNodes) {
+            String host = server.getNodeHost();
+            int port = server.getNodePort();
+            try {
+                socketModule = new GenericSocketsModule(host, port);
+                System.out.println("Created generic sockets module");
+                KVServerMetadata newMetaData = new KVServerMetadataImpl(server.getNodeName(), host,
+                        server.getEcsNodeFlag(), ring);
+
+                UnifiedRequestResponse notification = new UnifiedRequestResponse.Builder()
+                        .withMessageType(MessageType.ECS_TO_SERVER)
+                        .withStatusType(KVMessage.StatusType.SERVER_UPDATE)
+                        .withMetadata(newMetaData)
+                        .build();
+
+                socketModule.doRequest(notification);
+            } catch (Exception ex) {
+                System.out.printf("ERROR: Could not broadcast metadata update notification");
+            }
+        }
+    }
+    @Override
+    public Collection<IECSNode> addNodes(int count, String cacheStrategy, int cacheSize) {
+        ArrayList<IECSNode> addedNodes = new ArrayList<IECSNode>();
+        GenericSocketsModule conn;
+
+        for (int i = 0; i<allNodes.size(); i++) {
+            ECSNode currNode = allNodes.get(i);
+            if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE_START) {
+                addedNodes.add(currNode);
+                //ring.updateRing(); -- no need to call since all servers are added to its position at startup
+                KVServerMetadata metadata = new KVServerMetadataImpl(currNode.getNodeName(),
+                        currNode.getNodeHost(), IECSNode.ECSNodeFlag.STOP, ring); //update the state to stopped
+
+                try {
+                    conn = new GenericSocketsModule(currNode.getNodeHost(), currNode.getNodePort());
+
+                    // prepare a message to server to make it call initKVServer()
+                    UnifiedRequestResponse initKVCall = new UnifiedRequestResponse.Builder()
+                            .withMessageType(MessageType.ECS_TO_SERVER)
+                            .withStatusType(KVMessage.StatusType.SERVER_INIT)
+                            .withCacheSize(serverCacheSize)
+                            .withCacheStrategy(serverCacheStrategy)
+                            .withMetadata(metadata).build();
+
+                    conn.doRequest(initKVCall);
+                    conn.close();
+
+                    ECSNode succssorNode = ring.getSuccessorServer(currNode);
+                    conn = new GenericSocketsModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
+
+                    // prepare a message to server to make it call initKVServer()
+                    UnifiedRequestResponse lockUnlockWriteCall = new UnifiedRequestResponse.Builder()
+                            .withMessageType(MessageType.ECS_TO_SERVER)
+                            .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
+                            .build();
+
+                    UnifiedRequestResponse moveDataCall = new UnifiedRequestResponse.Builder()
+                            .withMessageType(MessageType.ECS_TO_SERVER)
+                            .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
+                            .withKeyRange(ring.getServerHashRange(currNode).toArray())
+                            .withServer(currNode)
+                            .build();
+
+                    lockUnlockWriteCall.setStatusType(KVMessage.StatusType.SERVER_WRITE_UNLOCK);
+
+                    conn.doRequest(lockUnlockWriteCall);
+                    conn.doRequest(moveDataCall);
+                    conn.doRequest(lockUnlockWriteCall);
+                    conn.close();
+
+                    broadcastMetaDataUpdates();
+
+                    count --;
+                    if (count != 0){
+                        break;
+                    }
                 }
                 catch (Exception e){
                     logger.error("Error while adding server " + currNode.getNodeHost());
