@@ -196,6 +196,7 @@ public class ECSClient implements IECSClient {
                     conn.close();
 
                     ECSNode succssorNode = ring.getSuccessorServer(currNode);
+                    System.out.println("SUCCESSOR NODE: " + succssorNode.getUuid());
                     conn = new GenericSocketsModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
 
                     // prepare a message to server to make it call initKVServer()
