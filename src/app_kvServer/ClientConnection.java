@@ -1,6 +1,7 @@
 package app_kvServer;
 
 import app_kvECS.GenericSocketsModule;
+import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
@@ -196,17 +197,21 @@ public class ClientConnection extends Thread {
     private UnifiedRequestResponse handleAdminMessage(UnifiedRequestResponse msg) {
         UnifiedRequestResponse replyMsg = msg;
         KVMessage.StatusType status = msg.getStatusType();
+        KVServerMetadata metadata = msg.getMetadata();
         System.out.println(status);
         if (KVMessage.StatusType.START.equals(status)) {
             server.start();
+            server.update(metadata);
             status = KVMessage.StatusType.SUCCESS;
         }
         else if (KVMessage.StatusType.STOP.equals(status)) {
             server.stop();
+            server.update(metadata);
             status = KVMessage.StatusType.SUCCESS;
         }
         else if (KVMessage.StatusType.SHUTDOWN.equals(status)) {
             server.shutdown();
+            server.update(metadata);
             status = KVMessage.StatusType.SUCCESS;
         }
         else if (KVMessage.StatusType.SERVER_INIT.equals(status)){

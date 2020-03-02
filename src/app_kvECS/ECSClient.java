@@ -97,11 +97,8 @@ public class ECSClient implements IECSClient {
         List<ECSNode> servers = ring.filterServer(filter);
         System.out.println(new Gson().toJson(servers));
 
-        UnifiedRequestResponse req = new UnifiedRequestResponse.Builder()
-            .withMessageType(MessageType.ECS_TO_SERVER)
-            .withStatusType(requestType)
-            .build();
-
+        KVServerMetadata metadata = null;
+        UnifiedRequestResponse req = null;
         UnifiedRequestResponse res;
 
         String host;
@@ -111,10 +108,20 @@ public class ECSClient implements IECSClient {
             host = server.getNodeHost();
             port = server.getNodePort();
             try {
+                setServerStatus(server, requestType);
+                metadata = new KVServerMetadataImpl(server.getNodeName(),
+                        server.getNodeHost(), server.getEcsNodeFlag(), ring);
+
+                req = new UnifiedRequestResponse.Builder()
+                        .withMessageType(MessageType.ECS_TO_SERVER)
+                        .withStatusType(requestType)
+                        .withMetadata(metadata)
+                        .build();
+
                 socketModule = new GenericSocketsModule(host, port);
                 System.out.println("Created generic sockets module");
                 res = socketModule.doRequest(req);
-                setServerStatus(server, requestType);
+                socketModule.close();
             } catch (Exception ex) {
                 System.out.printf("ERROR: Could not complete request for server - %s:%d\n", host, port);
                 success = false;
