@@ -2,10 +2,7 @@ package app_kvECS;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Collection;
+import java.util.*;
 import java.util.function.Predicate;
 
 import app_kvECS.impl.KVServerMetadataImpl;
@@ -193,11 +190,14 @@ public class ECSClient implements IECSClient {
                         .build();
 
                     conn.doRequest(initKVCall);
-                    System.out.println("CONN CLOSE START");
                     conn.close();
-                    System.out.println("CONN CLOSE END");
 
                     ECSNode succssorNode = ring.getSuccessorServer(currNode);
+                    if (Objects.isNull(succssorNode)) {
+                        NodeToAdd = currNode;
+                        break;
+                    }
+
                     System.out.println("SUCCESSOR NODE: " + succssorNode.getUuid());
                     conn = new GenericSocketsModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
 
@@ -210,9 +210,9 @@ public class ECSClient implements IECSClient {
                     UnifiedRequestResponse moveDataCall = new UnifiedRequestResponse.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
-                            .withKeyRange(ring.getServerHashRange(currNode).toArray())
-                            .withServer(currNode)
-                            .build();
+                        .withKeyRange(ring.getServerHashRange(currNode).toArray())
+                        .withServer(currNode)
+                        .build();
 
                     lockUnlockWriteCall.setStatusType(KVMessage.StatusType.SERVER_WRITE_UNLOCK);
 
