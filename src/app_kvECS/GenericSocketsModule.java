@@ -109,7 +109,6 @@ public class GenericSocketsModule {
             int len;
             while ((len = bis.read(buf)) > 0) {
                 bas.write(buf, 0, len);
-                logger.info("WRITING: " + bas.toString("UTF-8"));
                 break;
             }
             response = bas.toString("UTF-8");
