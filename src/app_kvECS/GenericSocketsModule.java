@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class GenericSocketsModule {
     private static Logger logger = Logger.getLogger(GenericSocketsModule.class);
-    private static int MAX_READ_BYTES = Integer.MAX_VALUE;
+    private static int MAX_READ_BYTES = 4096;
 
     private InputStream input;
     private OutputStream output;
