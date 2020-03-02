@@ -39,18 +39,22 @@ public class Message implements KVMessage, Serializable{
         return status;
     }
 
+    @Override
     public void setStatus(StatusType newStatus) {
         status = newStatus;
     }
 
+    @Override
     public void setValue(String newValue){
         value = newValue;
     }
 
+    @Override
     public KVServerMetadata getMetadata() {
 	return metadata;
     }
 
+    @Override
     public void setMetadata(KVServerMetadata newMetadata) {
 	metadata = newMetadata;
     }
