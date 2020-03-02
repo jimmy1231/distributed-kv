@@ -10,7 +10,7 @@ import java.util.Objects;
 
 public class GenericSocketsModule {
     private static Logger logger = Logger.getLogger(GenericSocketsModule.class);
-    private static int MAX_READ_BYTES = 1024;
+    private static int MAX_READ_BYTES = Integer.MAX_VALUE;
 
     private InputStream input;
     private OutputStream output;
@@ -109,6 +109,7 @@ public class GenericSocketsModule {
             int len;
             while ((len = bis.read(buf)) > 0) {
                 bas.write(buf, 0, len);
+                logger.info("WRITING: " + bas.toString("UTF-8"));
                 break;
             }
             response = bas.toString("UTF-8");
