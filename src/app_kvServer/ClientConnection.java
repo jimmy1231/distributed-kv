@@ -4,7 +4,8 @@ import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.IECSNode;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.Message;
@@ -23,8 +24,8 @@ import java.util.Objects;
  * is received it is going to be echoed back to the client.
  */
 public class ClientConnection extends Thread {
+    private static Logger logger = LoggerFactory.getLogger(ClientConnection.class);
     private String id;
-    private static Logger logger = Logger.getRootLogger();
 
     private volatile boolean isOpen;
     private static final int BUFFER_SIZE = 1024;
@@ -123,76 +124,26 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleMessage(UnifiedMessage msg) {
-        String key = msg.getKey();
-        String value = msg.getValue();
-        KVMessage.StatusType status = null;
+        if (!server.getStatus().equals(IECSNode.ECSNodeFlag.START)) {
+            logger.info("SERVER: {}. Not accepting client requests",
+                server.getStatus());
+            msg.setStatusType(KVMessage.StatusType.SERVER_STOPPED);
+            return msg;
+        }
+
         UnifiedMessage replyMsg = msg;
-        boolean started = IECSNode.ECSNodeFlag.START.equals(server.getStatus());
-
-        if (msg.getStatusType() == KVMessage.StatusType.PUT) {
-            if (!started) {
-                System.out.println("SERVER IS STOPPED!");
-                status = KVMessage.StatusType.SERVER_STOPPED;
-            } else {
-                String infoMsg = MessageFormat.format("Received PUT <{0}, {1}>", key, value);
-                logger.info(infoMsg);
-                System.out.println(infoMsg);
-
-                try{
-                    status = server.putKVWithStatusCheck(key, value);
-                    String successMsg = MessageFormat.format("{0} <{1}, {2}>", status, key, value);
-                    logger.info(successMsg);
-                    System.out.println(successMsg);
-                }
-                catch (Exception e){
-                    System.out.println("Exception!" + key + " " + value);
-                    // Delete scenario
-                    if (value == null || value == "null" || value == "") {
-                        status = KVMessage.StatusType.DELETE_ERROR;
-                    }
-                    else{
-                        status =  KVMessage.StatusType.PUT_ERROR;
-                    }
-
-                    String failMsg = MessageFormat.format("{0} Failed to put <{1}, {2}>",
-                            msg.getStatusType(),
-                            key,
-                            value);
-                    logger.warn(failMsg);
-                    System.out.println(failMsg);
-                }
-            }
+        switch(msg.getStatusType()) {
+            case PUT:
+                replyMsg = handleClientPut(msg);
+                break;
+            case GET:
+                replyMsg = handleClientGet(msg);
+                break;
+            default:
+                msg.setStatusType(KVMessage.StatusType.CLIENT_ERROR);
+                logger.info("Unrecognized message type: {}", msg.getStatusType());
         }
 
-        else if (msg.getStatusType() == KVMessage.StatusType.GET){
-            if (!started) {
-                status = KVMessage.StatusType.SERVER_STOPPED;
-            } else {
-                String infoMsg = MessageFormat.format("Received GET <{0}>", msg.getKey());
-                logger.info(infoMsg);
-                System.out.println(infoMsg);
-
-                try{
-                    String retrievedValue = this.server.getKV(key);
-                    status = KVMessage.StatusType.GET_SUCCESS;
-                    replyMsg.setValue(retrievedValue);
-
-                    String successMsg = MessageFormat.format("{0} <{0}, {1}>", status, key, retrievedValue);
-                    logger.info(successMsg);
-                    System.out.println(successMsg);
-                }
-                catch (Exception e){
-                    status = KVMessage.StatusType.GET_ERROR;
-                    String failMsg = MessageFormat.format("{0} Failed to find the value for key <{1}>",
-                            msg.getStatusType(),
-                            msg.getKey());
-                    logger.warn(failMsg);
-                    System.out.println(failMsg);
-                }
-            }
-        }
-
-        replyMsg.setStatusType(status);
         return replyMsg;
     }
 
@@ -257,6 +208,50 @@ public class ClientConnection extends Thread {
         return msg;
     }
 
+    private UnifiedMessage handleClientPut(UnifiedMessage msg) {
+        String key = msg.getKey(), value = msg.getValue();
+
+        logger.info("Received PUT <{}, {}>", key, value);
+        KVMessage.StatusType status;
+        try{
+            status = server.putKVWithStatusCheck(key, value);
+            logger.info("PUT: {} <{}, {}>", status, key, value);
+        } catch (Exception e){
+            logger.error("PUT failed. <{}, {}>", key, value, e);
+
+            // Delete scenario
+            if (Objects.isNull(value) || value.equals("null") || value.equals("")) {
+                status = KVMessage.StatusType.DELETE_ERROR;
+            }
+            else{
+                status =  KVMessage.StatusType.PUT_ERROR;
+            }
+        }
+
+        msg.setStatusType(status);
+        return msg;
+    }
+
+    private UnifiedMessage handleClientGet(UnifiedMessage msg) {
+        String key = msg.getKey();
+
+        logger.info("Received GET <{}>", msg.getKey());
+        KVMessage.StatusType status;
+        try{
+            String retrievedValue = this.server.getKV(key);
+            msg.setValue(retrievedValue);
+
+            status = KVMessage.StatusType.GET_SUCCESS;
+            logger.info("GET: {} <{}, {}>", status, key, retrievedValue);
+        } catch (Exception e) {
+            status = KVMessage.StatusType.GET_ERROR;
+            logger.error("GET <{}> failed. Status: {}", key, status, e);
+        }
+
+        msg.setStatusType(status);
+        return msg;
+    }
+
     /**
      * Method sends a Message using this socket.
      * @param msg the message that is to be sent.
@@ -296,7 +291,6 @@ public class ClientConnection extends Thread {
             catch (IOException e){
                 System.out.println("readValue casued IO expcetion");
             }
-
         }
         return msg;
     }
@@ -307,13 +301,13 @@ public class ClientConnection extends Thread {
         msgString = TCPSockModule.recv(input);
         if (Objects.nonNull(msgString) && !msgString.equals("")) {
             try {
-                logger.info("Received message: " + msgString);
+                logger.info("Received message: {}", msgString);
                 msg = new UnifiedMessage().deserialize(msgString);
-                logger.info(String.format("Deserialized message: messageType=%s, statusType=%s",
-                    msg.getMessageType(), msg.getStatusType()));
+                logger.info("Deserialized message: messageType={}, statusType={}",
+                    msg.getMessageType(), msg.getStatusType());
             }
             catch (Exception e){
-                logger.error("readValue caused IO exception: " + e.getMessage());
+                logger.error("readValue caused IO exception", e);
             }
 
         }
