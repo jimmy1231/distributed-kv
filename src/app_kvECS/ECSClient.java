@@ -299,9 +299,15 @@ public class ECSClient implements IECSClient {
 
     @Override
     public boolean removeNodes(Collection<String> nodeNames) {
+
         for (String nodeName : nodeNames){
             ECSNode nodeToRemove = ring.getServerByName(nodeName);
             ECSNode successorNode = ring.getSuccessorServer(nodeToRemove); // get it before update the ring
+
+            if (successorNode.getNodeName().equals(nodeName)) {
+                System.out.printf("NODE %s is the ONLY NODE, CANNOT REMOVE\n", nodeName);
+                return false;
+            }
 
             ring.removeServer(nodeToRemove);
             ring.updateRing();
@@ -314,7 +320,6 @@ public class ECSClient implements IECSClient {
                         .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
                         .build();
                 UnifiedMessage resp = conn1.doRequest(removeNodeCalls);
-                //conn1.close();
 
                 if (resp.getStatusType() != KVMessage.StatusType.SUCCESS){
                     conn1.close();
@@ -324,6 +329,7 @@ public class ECSClient implements IECSClient {
                 }
 
                 // Make & Update successor with new metadata
+
                 KVServerMetadata newMetadata = new KVServerMetadataImpl(successorNode.getNodeName(),
                         successorNode.getNodeHost(), successorNode.getEcsNodeFlag(), ring);
 
@@ -352,6 +358,7 @@ public class ECSClient implements IECSClient {
             catch (Exception e){
                 System.out.println("Error occurred: " + e.getMessage());
                 logger.error("Error occurred while removing nodes\n");
+                return false;
             }
         }
 
