@@ -162,6 +162,7 @@ public class ECSClient implements IECSClient {
 
     @Override
     public IECSNode addNode(String cacheStrategy, int cacheSize) {
+        final String PREFIX = "<ADD_NODE>: ";
         ECSNode nodeToAdd = ring.findServer(node ->
             node.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.IDLE)
         );
@@ -170,14 +171,17 @@ public class ECSClient implements IECSClient {
         }
 
         ring.addServer(nodeToAdd);
+        nodeToAdd.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+        ring.updateRing();
 
         TCPSockModule newNodeConn;
         try {
             newNodeConn = new TCPSockModule(
                 nodeToAdd.getNodeHost(), nodeToAdd.getNodePort()
             );
+            System.out.print(PREFIX+"NEW_NODE connection established\n");
         } catch (Exception e) {
-            System.out.println("NEW NODE CONNECTION FAILED");
+            System.out.println(PREFIX+"NEW NODE CONNECTION FAILED");
             return null;
         }
 
@@ -196,8 +200,9 @@ public class ECSClient implements IECSClient {
                 ))
                 .build();
             newNodeConn.doRequest(initKVMessage);
+            System.out.print(PREFIX+"INITKV Success\n");
         } catch (Exception e) {
-            System.out.println("ERROR INITKV");
+            System.out.println("Error INITKV");
             return null;
         } finally {
             newNodeConn.close();
@@ -207,8 +212,6 @@ public class ECSClient implements IECSClient {
         {
             succssorNode = ring.getSuccessorServer(nodeToAdd);
             if (Objects.isNull(succssorNode)) {
-                nodeToAdd.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
-                ring.updateRing();
                 return nodeToAdd;
             }
         }
@@ -218,6 +221,7 @@ public class ECSClient implements IECSClient {
             successorNodeConn = new TCPSockModule(
                 succssorNode.getNodeHost(), succssorNode.getNodePort()
             );
+            System.out.print(PREFIX+"Successor connection established\n");
         } catch (Exception e) {
             System.out.println("SUCCESSOR NODE CONNECTION FAILED");
             return null;
@@ -245,8 +249,11 @@ public class ECSClient implements IECSClient {
                 .build();
 
             successorNodeConn.doRequest(writeLockMessage);
+            System.out.print(PREFIX+"SUCCESSOR locked\n");
             successorNodeConn.doRequest(moveDataMessage);
+            System.out.print(PREFIX+"SUCCESSOR move data\n");
             successorNodeConn.doRequest(writeUnlockMessage);
+            System.out.print(PREFIX+"SUCCESSOR unlocked\n");
         } catch (Exception e) {
             System.out.println("FAILED TRANSFER DATA");
             return null;
@@ -255,9 +262,6 @@ public class ECSClient implements IECSClient {
         }
 
         broadcastMetaDataUpdates();
-        nodeToAdd.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
-        ring.updateRing();
-
         return nodeToAdd;
     }
 
