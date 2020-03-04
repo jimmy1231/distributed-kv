@@ -318,6 +318,7 @@ public class ECSClient implements IECSClient {
 
                 if (resp.getStatusType() != KVMessage.StatusType.SUCCESS){
                     conn1.close();
+                    System.out.println("Could not get writer lock");
                     logger.error("Could not get writer lock for " + nodeToRemove.getNodeName() +"\n");
                     continue; // skip the rest of the process
                 }
@@ -349,6 +350,7 @@ public class ECSClient implements IECSClient {
                 conn1.close();
             }
             catch (Exception e){
+                System.out.println("Error occurred: " + e.getMessage());
                 logger.error("Error occurred while removing nodes\n");
             }
         }
