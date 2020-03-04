@@ -1,5 +1,6 @@
 package shared.messages;
 
+import app_kvECS.HashRing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -50,16 +51,22 @@ public class KVDataSet {
         Type type = new TypeToken<List<Pair<String, String>>>() {}.getType();
         this.entries = KVDATA_GSON.fromJson(json, type);
 
-        System.out.println("DESERIALIZE!: "+ entries);
         return this;
     }
 
     public void print(String header) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("============%s: DATA===========\n", header));
+
+        HashRing.Hash hash;
+        String key;
+        String value;
         for (Pair<String, String> pair : entries) {
-            sb.append(String.format("\tKey: %s\t\t | Data: %s\n",
-                pair.getKey(), pair.getValue()));
+            key = pair.getKey();
+            value = pair.getValue();
+            hash = new HashRing.Hash(key);
+            sb.append(String.format("\tKey: %s\t\t-> %s | Data: %s\t\t\n",
+                key, hash.toHexString(), value));
         }
 
         System.out.print(sb.toString());
