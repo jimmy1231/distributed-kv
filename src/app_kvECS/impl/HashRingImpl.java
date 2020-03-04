@@ -79,6 +79,19 @@ public class HashRingImpl extends HashRing {
         }
     }
 
+    @Override
+    public ECSNode findServer(Predicate<ECSNode> pred) {
+        ECSNode server;
+        for (Map.Entry<String, ECSNode> entry : servers.entrySet()) {
+            server = entry.getValue();
+            if (pred.test(server)) {
+                return server;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * {@link #getServerByHash(Hash)}
      * Gets nearest server -> traverse HashRing in CW order.

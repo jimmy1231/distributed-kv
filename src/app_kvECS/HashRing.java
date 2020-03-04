@@ -244,26 +244,28 @@ public abstract class HashRing {
 
     //////////////////////////////////////////////////////////////
     /**
-     * Works like a findAndRemove function, except on the list of servers
-     * in the HashRing.
+     * {@link #filterServer(Predicate)}
+     *      Returns a list of servers that all evaluated to TRUE for
+     *      the predicate. Returns empty list if no servers evaluated
+     *      to TRUE.
      *
-     * Example: The following predicate function would return all
-     * servers in the HashRing with serverStatusType == 'STOPPED'.
-     *
-     * <pre>
-     * HashRing.filterServer(
-     *      (KVServerMetadata server) -> {
+     *      Example usage:
+     *      <pre>
+     *      HashRing.filterServer((ECSNode server) -> {
      *          return server.serverStatusType == 'STOPPED'
-     *      }
-     * );
-     * </pre>
-     *
-     * @param pred A predicate. If return true, then the evaluating
-     *             object is included in the output list.
-     * @return A list of filtered KVServerMetadata.
+     *      });
+     *      </pre>
+     * {@link #forEachServer(Consumer)}
+     *      Iterates through the servers one by one (in no particular
+     *      order).
+     * {@link #findServer(Predicate)}
+     *      Returns the first server that evaluates to TRUE for the
+     *      predicate. If no servers evaluate to TRUE, then returns
+     *      NULL.
      */
     public abstract List<ECSNode> filterServer(Predicate<ECSNode> pred);
     public abstract void forEachServer(Consumer<ECSNode> consumer);
+    public abstract ECSNode findServer(Predicate<ECSNode> pred);
 
     /**
      * {@link #getServerByHash(Hash)}
