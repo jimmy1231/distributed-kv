@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import shared.Pair;
 
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
 
 public class KVDataSet {
@@ -57,6 +58,13 @@ public class KVDataSet {
     public void print(String header) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("============%s: DATA===========\n", header));
+        int keyFormatLen = 0;
+        for (Pair<String, String> pair : entries) {
+            if (keyFormatLen < pair.getKey().length()) {
+                keyFormatLen = pair.getKey().length();
+            }
+        }
+        keyFormatLen+=2;
 
         HashRing.Hash hash;
         String key;
@@ -65,7 +73,8 @@ public class KVDataSet {
             key = pair.getKey();
             value = pair.getValue();
             hash = new HashRing.Hash(key);
-            sb.append(String.format("\tKey: %s\t\t-> %s | Data: %s\t\t\n",
+            sb.append(String.format(
+                "\tKey: %" + keyFormatLen + "s -> %s | Data: %s\t\t\n",
                 key, hash.toHexString(), value));
         }
 
