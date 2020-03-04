@@ -5,6 +5,7 @@ import shared.messages.KVDataSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class CLI {
@@ -87,7 +88,9 @@ public class CLI {
 
 	private void handleServerData(String serverName) {
 		KVDataSet dataSet = client.getServerData(serverName);
-		dataSet.print(serverName);
+		if (Objects.nonNull(dataSet)) {
+			dataSet.print(serverName);
+		}
 	}
 
 	/**
