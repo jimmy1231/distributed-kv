@@ -342,6 +342,8 @@ public class ECSClient implements IECSClient {
             return null;
         }
 
+        System.out.println("RESPONSE: GET_SERVER_DATA: " +
+            response.serialize());
         return response.getDataSet();
     }
 
