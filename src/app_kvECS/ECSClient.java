@@ -2,6 +2,7 @@ package app_kvECS;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
@@ -11,7 +12,10 @@ import app_kvECS.impl.HashRingImpl;
 
 import ecs.ECSNode;
 import ecs.IECSNode;
-import org.apache.log4j.Logger;
+import logger.LogSetup;
+import org.apache.log4j.Level;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
@@ -19,7 +23,7 @@ import shared.messages.UnifiedMessage;
 
 
 public class ECSClient implements IECSClient {
-    private static Logger logger = Logger.getLogger(ECSClient.class);
+    private static Logger logger = LoggerFactory.getLogger(ECSClient.class);
     private static final String CONFIG_DIR_PATH = "./src/app_kvECS/config/";
     private static final String KVSERVER_START_FILE = "./run_kvserver.sh";
     private static final String ECS_CONFIG_FILE = CONFIG_DIR_PATH + "ecs.config";
@@ -57,7 +61,7 @@ public class ECSClient implements IECSClient {
                 host = serverData[1];
                 port = Integer.parseInt(serverData[2]);
 
-                System.out.printf("ADD SERVER: %s | %s:%d\n", name, host, port);
+                logger.info("ADD SERVER: {} | {}:{}\n", name, host, port);
                 /* Create ECSNode and add to ring */
                 node = new ECSNode(name,host, port);
                 node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE);
@@ -112,11 +116,11 @@ public class ECSClient implements IECSClient {
                         .build();
 
                 socketModule = new TCPSockModule(host, port);
-                System.out.println("Created generic sockets module");
                 res = socketModule.doRequest(req);
                 socketModule.close();
             } catch (Exception ex) {
-                System.out.printf("ERROR: Could not complete request for server - %s:%d\n", host, port);
+                logger.error("ERROR: Could not complete request for server - {}:{}\n",
+                    host, port, ex);
                 success = false;
             }
         }
@@ -179,9 +183,8 @@ public class ECSClient implements IECSClient {
             newNodeConn = new TCPSockModule(
                 nodeToAdd.getNodeHost(), nodeToAdd.getNodePort()
             );
-            System.out.print(PREFIX+"NEW_NODE connection established\n");
         } catch (Exception e) {
-            System.out.println(PREFIX+"NEW NODE CONNECTION FAILED");
+            logger.error("Failed to connect", e);
             return null;
         }
 
@@ -200,9 +203,9 @@ public class ECSClient implements IECSClient {
                 ))
                 .build();
             newNodeConn.doRequest(initKVMessage);
-            System.out.print(PREFIX+"INITKV Success\n");
+            logger.info("INITKV Success");
         } catch (Exception e) {
-            System.out.println("Error INITKV");
+            logger.error("INITKV Failed", e);
             return null;
         } finally {
             newNodeConn.close();
@@ -212,6 +215,7 @@ public class ECSClient implements IECSClient {
         {
             succssorNode = ring.getSuccessorServer(nodeToAdd);
             if (Objects.isNull(succssorNode)) {
+                logger.info("No successors, returning..");
                 return nodeToAdd;
             }
         }
@@ -221,9 +225,8 @@ public class ECSClient implements IECSClient {
             successorNodeConn = new TCPSockModule(
                 succssorNode.getNodeHost(), succssorNode.getNodePort()
             );
-            System.out.print(PREFIX+"Successor connection established\n");
         } catch (Exception e) {
-            System.out.println("SUCCESSOR NODE CONNECTION FAILED");
+            logger.error("Failed to connect", e);
             return null;
         }
 
@@ -249,13 +252,10 @@ public class ECSClient implements IECSClient {
                 .build();
 
             successorNodeConn.doRequest(writeLockMessage);
-            System.out.print(PREFIX+"SUCCESSOR locked\n");
             successorNodeConn.doRequest(moveDataMessage);
-            System.out.print(PREFIX+"SUCCESSOR move data\n");
             successorNodeConn.doRequest(writeUnlockMessage);
-            System.out.print(PREFIX+"SUCCESSOR unlocked\n");
         } catch (Exception e) {
-            System.out.println("FAILED TRANSFER DATA");
+            logger.error("Transfer data failed", e);
             return null;
         } finally {
             successorNodeConn.close();
@@ -281,20 +281,22 @@ public class ECSClient implements IECSClient {
             int port = server.getNodePort();
             try {
                 socketModule = new TCPSockModule(host, port);
-                System.out.println("Created generic sockets module");
-                KVServerMetadata newMetaData = new KVServerMetadataImpl(server.getNodeName(), host,
-                        server.getEcsNodeFlag(), ring);
+                KVServerMetadata newMetaData = new KVServerMetadataImpl(
+                    server.getNodeName(),
+                    server.getNodeHost(),
+                    server.getEcsNodeFlag(),
+                    ring);
 
                 UnifiedMessage notification = new UnifiedMessage.Builder()
-                        .withMessageType(MessageType.ECS_TO_SERVER)
-                        .withStatusType(KVMessage.StatusType.SERVER_UPDATE)
-                        .withMetadata(newMetaData)
-                        .build();
+                    .withMessageType(MessageType.ECS_TO_SERVER)
+                    .withStatusType(KVMessage.StatusType.SERVER_UPDATE)
+                    .withMetadata(newMetaData)
+                    .build();
 
                 socketModule.doRequest(notification);
                 socketModule.close();
             } catch (Exception ex) {
-                System.out.printf("ERROR: Could not broadcast metadata update notification");
+                logger.error("ERROR: Could not broadcast metadata update notification", ex);
             }
         }
     }
@@ -314,14 +316,14 @@ public class ECSClient implements IECSClient {
             }
         }
 
-        System.out.printf("ADD_NODES: ADDED %d NODES\n", addedNodes.size());
+        logger.info("Added {} nodes", addedNodes.size());
         return addedNodes;
     }
 
     public KVDataSet getServerData(String serverName) {
         ECSNode node = ring.getServerByName(serverName);
         if (Objects.isNull(node)) {
-            System.out.printf("SERVER: %s DOES NOT EXIST", serverName);
+            logger.info("SERVER: '{}' does not exist..", serverName);
         }
 
         TCPSockModule conn;
@@ -330,7 +332,7 @@ public class ECSClient implements IECSClient {
                 node.getNodeHost(), node.getNodePort()
             );
         } catch (Exception e) {
-            System.out.println("FAILED TO CONNECT");
+            logger.error("Failed to connect", e);
             return null;
         }
 
@@ -342,7 +344,7 @@ public class ECSClient implements IECSClient {
                 .build();
             response = conn.doRequest(message);
         } catch (Exception e) {
-            System.out.println("FAILED TO GET DATA");
+            logger.error("Failed to get data", e);
             return null;
         }
 
@@ -369,7 +371,7 @@ public class ECSClient implements IECSClient {
             ECSNode successorNode = ring.getSuccessorServer(nodeToRemove); // get it before update the ring
 
             if (Objects.isNull(successorNode)) {
-                System.out.printf("NODE %s is the ONLY NODE, CANNOT REMOVE\n", nodeName);
+                logger.info("Cannot remove {}: only node", nodeName);
                 return false;
             }
 
@@ -387,8 +389,8 @@ public class ECSClient implements IECSClient {
 
                 if (resp.getStatusType() != KVMessage.StatusType.SUCCESS){
                     conn1.close();
-                    System.out.println("Could not get writer lock");
-                    logger.error("Could not get writer lock for " + nodeToRemove.getNodeName() +"\n");
+                    logger.error("Could not get writer lock for {}",
+                        nodeToRemove.getNodeName());
                     continue; // skip the rest of the process
                 }
 
@@ -419,9 +421,8 @@ public class ECSClient implements IECSClient {
                 conn1.doRequest(removeNodeCalls);
                 conn1.close();
             }
-            catch (Exception e){
-                System.out.println("Error occurred: " + e.getMessage());
-                logger.error("Error occurred while removing nodes\n");
+            catch (Exception e) {
+                logger.error("Error occurred while removing nodes", e);
                 return false;
             }
         }
@@ -444,7 +445,14 @@ public class ECSClient implements IECSClient {
     }
 
     public static void main(String[] args) {
-        CLI app = new CLI();
-        app.run();
+        try {
+            new LogSetup("logs/ecs.log", Level.OFF);
+            CLI app = new CLI();
+            app.run();
+        } catch (IOException e) {
+            System.out.println("Error! Unable to initialize logger!");
+            e.printStackTrace();
+            System.exit(1);
+        }
     }
 }

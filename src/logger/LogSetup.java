@@ -12,7 +12,6 @@ import org.apache.log4j.PatternLayout;
  * Represents the initialization for the server logging with Log4J.
  */
 public class LogSetup {
-
 	public static final String UNKNOWN_LEVEL = "UnknownLevel";
 	private static Logger logger = Logger.getRootLogger();
 	private String logdir;
