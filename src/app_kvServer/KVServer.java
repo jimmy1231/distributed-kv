@@ -452,7 +452,9 @@ public class KVServer implements IKVServer {
 
 	public KVDataSet getAllData() {
 		List<Pair<String, String>> entries = Disk.getAll();
-		return new KVDataSet(entries);
+		KVDataSet dataSet = new KVDataSet(entries);
+		logger.info("GET ALL DATA: " + dataSet.serialize());
+		return dataSet;
 	}
 
 	@Override
