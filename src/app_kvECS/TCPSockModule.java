@@ -76,8 +76,9 @@ public class TCPSockModule {
         byte[] messageBytes = message.getBytes();
         logger.info("REQUEST, # Bytes = {}", messageBytes.length);
         try {
-            logger.debug("SEND_MESSAGE: {}..",
-                StringUtils.substring(message, 0, 80));
+            logger.debug("SEND_MESSAGE: {} ... {}",
+                StringUtils.left(message, 40),
+                StringUtils.right(message, 40));
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
         } catch (Exception e) {
@@ -167,8 +168,9 @@ public class TCPSockModule {
             response = null;
         }
 
-        logger.debug("RECV_MESSAGE: {}..",
-            StringUtils.substring(response, 0, 80));
+        logger.debug("RECV_MESSAGE: {} ... {}",
+            StringUtils.left(response, 40),
+            StringUtils.right(response, 40));
         return response;
     }
 
