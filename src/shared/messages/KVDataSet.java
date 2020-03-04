@@ -50,6 +50,7 @@ public class KVDataSet {
         Type type = new TypeToken<List<Pair<String, String>>>() {}.getType();
         this.entries = KVDATA_GSON.fromJson(json, type);
 
+        System.out.println("DESERIALIZE!: "+ entries);
         return this;
     }
 
