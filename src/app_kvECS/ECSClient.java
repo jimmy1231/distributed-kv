@@ -119,11 +119,12 @@ public class ECSClient implements IECSClient {
                 res = socketModule.doRequest(req);
                 socketModule.close();
             } catch (Exception ex) {
-                logger.error("ERROR: Could not complete request for server - {}:{}\n",
+                logger.error("ERROR: Could not complete request for server - {}:{}",
                     host, port, ex);
                 success = false;
             }
         }
+
         return success;
     }
 
@@ -446,7 +447,7 @@ public class ECSClient implements IECSClient {
 
     public static void main(String[] args) {
         try {
-            new LogSetup("logs/ecs.log", Level.OFF);
+            new LogSetup("logs/ecs.log", Level.ALL);
             CLI app = new CLI();
             app.run();
         } catch (IOException e) {
