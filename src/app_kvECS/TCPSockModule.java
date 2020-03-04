@@ -75,9 +75,9 @@ public class TCPSockModule {
         byte[] messageBytes = message.getBytes();
         logger.info("REQUEST, # Bytes = {}", messageBytes.length);
         try {
+            logger.debug("SEND_MESSAGE: {}", message);
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
-            logger.debug("SEND: {}", message.substring(0, 100));
         } catch (Exception e) {
             logger.error("Failed to send response", e);
             return false;
@@ -117,7 +117,7 @@ public class TCPSockModule {
                  */
                 boolean finished = false;
                 if (isDeadbeef(buf, len)) {
-                    logger.debug("\"{}\" - Transmission finished",
+                    logger.debug("\"{}\": Transmission finished",
                         DEADBEEF);
                     len -= DEADBEEF.length();
                     finished = true;
@@ -165,6 +165,7 @@ public class TCPSockModule {
             response = null;
         }
 
+        logger.debug("RECV_MESSAGE: {}", response);
         return response;
     }
 
