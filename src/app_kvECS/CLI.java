@@ -17,6 +17,7 @@ public class CLI {
 	private static final String REMOVE_NODE = "remove_node";
 	private static final String SETUP = "setup";
 	private static final String HELP = "help";
+	private static final String PRINT_RING = "print_ring";
 
 	private ECSClient client = null;
 
@@ -165,6 +166,9 @@ public class CLI {
 		else if (cmd.equals(HELP)) {
 			if (assertNumParameters(1, tokens.length))
 				printHelp();
+		}
+		else if (cmd.equals(PRINT_RING)) {
+			client.printRing();
 		}
 		else {
 			System.out.println("ERROR: Invalid command!");

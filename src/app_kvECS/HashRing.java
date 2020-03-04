@@ -3,6 +3,7 @@ package app_kvECS;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.annotations.Expose;
 import ecs.ECSNode;
+import ecs.IECSNode;
 import org.apache.log4j.Logger;
 
 import javax.xml.bind.DatatypeConverter;
@@ -346,9 +347,7 @@ public abstract class HashRing {
     public abstract HashRange getServerHashRange(String serverName);
 
     public abstract TreeMap<Hash, ECSNode> getRing();
-    public abstract Map<String, ECSNode> getServers();
-    public abstract void setRing(TreeMap<Hash, ECSNode> ring);
-    public abstract  void setServers(Map<String, ECSNode> servers);
+    public abstract Map<String, IECSNode> getServers();
 
     /**
      * {@link #serialize()}

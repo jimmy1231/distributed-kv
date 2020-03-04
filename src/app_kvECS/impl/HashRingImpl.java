@@ -398,18 +398,12 @@ public class HashRingImpl extends HashRing {
     }
 
     @Override
-    public Map<String, ECSNode> getServers() {
-        return this.servers;
-    }
-
-    @Override
-    public void setRing(TreeMap<Hash, ECSNode> ring) {
-        this.ring = ring;
-    }
-
-    @Override
-    public void setServers(Map<String, ECSNode> servers) {
-        this.servers = servers;
+    public Map<String, IECSNode> getServers() {
+        Map<String, IECSNode> serversCpy = new HashMap<>();
+        for (Map.Entry<String, ECSNode> entry : this.servers.entrySet()) {
+            serversCpy.put(entry.getKey(), entry.getValue());
+        }
+        return serversCpy;
     }
 
     @Override

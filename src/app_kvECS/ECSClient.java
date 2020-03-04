@@ -397,17 +397,17 @@ public class ECSClient implements IECSClient {
 
     @Override
     public Map<String, IECSNode> getNodes() {
-        // TODO
-        return null;
+        return ring.getServers();
     }
 
     @Override
     public IECSNode getNodeByKey(String Key) {
-        // TODO
-        return null;
+        return ring.getServerByHash(new HashRing.Hash(Key));
     }
 
-
+    public void printRing() {
+        ring.print();
+    }
 
     public static void main(String[] args) {
         CLI app = new CLI();
