@@ -1,5 +1,6 @@
 package app_kvECS;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.messages.UnifiedMessage;
@@ -75,7 +76,8 @@ public class TCPSockModule {
         byte[] messageBytes = message.getBytes();
         logger.info("REQUEST, # Bytes = {}", messageBytes.length);
         try {
-            logger.debug("SEND_MESSAGE: {}", message);
+            logger.debug("SEND_MESSAGE: {}..",
+                StringUtils.substring(message, 0, 80));
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
         } catch (Exception e) {
@@ -165,7 +167,8 @@ public class TCPSockModule {
             response = null;
         }
 
-        logger.debug("RECV_MESSAGE: {}", response);
+        logger.debug("RECV_MESSAGE: {}..",
+            StringUtils.substring(response, 0, 80));
         return response;
     }
 
