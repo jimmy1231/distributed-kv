@@ -168,6 +168,7 @@ public class ECSClient implements IECSClient {
             ECSNode currNode = allNodes.get(i);
             System.out.println("ADD NODE: " + currNode.getUuid());
             if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE) {
+                currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
                 ring.addServer(currNode);
                 ring.updateRing();
                 KVServerMetadata metadata = new KVServerMetadataImpl(currNode.getNodeName(),
