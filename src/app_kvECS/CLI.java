@@ -1,6 +1,7 @@
 package app_kvECS;
 
 import ecs.IECSNode;
+import shared.messages.KVDataSet;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,6 +19,7 @@ public class CLI {
 	private static final String SETUP = "setup";
 	private static final String HELP = "help";
 	private static final String PRINT_RING = "print_ring";
+	private static final String SERVER_DATA = "data";
 
 	private ECSClient client = null;
 
@@ -81,6 +83,11 @@ public class CLI {
 			System.out.println("ERROR: Setup failed.");
 		else
 			System.out.format("SUCCESS: Configured %d nodes with Zookeeper\n", count);
+	}
+
+	private void handleServerData(String serverName) {
+		KVDataSet dataSet = client.getServerData(serverName);
+		dataSet.print(serverName);
 	}
 
 	/**
@@ -168,7 +175,12 @@ public class CLI {
 				printHelp();
 		}
 		else if (cmd.equals(PRINT_RING)) {
-			client.printRing();
+			if (assertNumParameters(1, tokens.length))
+				client.printRing();
+		}
+		else if (cmd.equals(SERVER_DATA)) {
+			if (assertNumParameters(2, tokens.length))
+				handleServerData(tokens[1]);
 		}
 		else {
 			System.out.println("ERROR: Invalid command!");

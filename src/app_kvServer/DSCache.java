@@ -168,6 +168,26 @@ public class DSCache {
         return strategy;
     }
 
+    public List<Pair<String, String>> getAll() {
+        /* GLOBAL CRITICAL REGION - START */
+        gl.lock();
+
+        List<Pair<String, String>> entries = new ArrayList<>();
+        Iterator<Map.Entry<String, CacheEntry>> it = _cache.entrySet().iterator();
+        Map.Entry<String, CacheEntry> entry;
+        while (it.hasNext()) {
+            entry = it.next();
+            entries.add(new Pair<>(
+                entry.getKey(),
+                entry.getValue().data)
+            );
+        }
+
+        gl.unlock();
+        /* GLOBAL CRITICAL REGION - END */
+
+        return entries;
+    }
     public List<Pair<String, String>> findAndRemove(
         Predicate<Pair<String, String>> pred) throws Exception {
         /* GLOBAL CRITICAL REGION - START */

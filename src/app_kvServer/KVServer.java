@@ -450,6 +450,11 @@ public class KVServer implements IKVServer {
 		this.metadata = metadata;
 	}
 
+	public KVDataSet getAllData() {
+		List<Pair<String, String>> entries = Disk.getAll();
+		return new KVDataSet(entries);
+	}
+
 	@Override
 	public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy) {
 		this.update(metadata);

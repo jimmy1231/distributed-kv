@@ -12,6 +12,7 @@ import app_kvECS.impl.HashRingImpl;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
+import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
@@ -161,80 +162,108 @@ public class ECSClient implements IECSClient {
 
     @Override
     public IECSNode addNode(String cacheStrategy, int cacheSize) {
-        ECSNode NodeToAdd = null;
-        TCPSockModule conn;
+        ECSNode nodeToAdd = ring.findServer(node ->
+            node.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.IDLE)
+        );
+        if (Objects.isNull(nodeToAdd)) {
+            return null;
+        }
 
-        for (int i = 0; i<allNodes.size(); i++) {
-            ECSNode currNode = allNodes.get(i);
-            System.out.println("ADD NODE: " + currNode.getUuid());
-            if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE) {
-                ring.addServer(currNode);
-                KVServerMetadata metadata = new KVServerMetadataImpl(currNode.getNodeName(),
-                        currNode.getNodeHost(), IECSNode.ECSNodeFlag.STOP, ring); //update the state to stopped
+        ring.addServer(nodeToAdd);
 
-                try {
-                    conn = new TCPSockModule(currNode.getNodeHost(), currNode.getNodePort());
+        TCPSockModule newNodeConn;
+        try {
+            newNodeConn = new TCPSockModule(
+                nodeToAdd.getNodeHost(), nodeToAdd.getNodePort()
+            );
+        } catch (Exception e) {
+            System.out.println("NEW NODE CONNECTION FAILED");
+            return null;
+        }
 
-                    // prepare a message to server to make it call initKVServer()
-                    UnifiedMessage initKVCall = new UnifiedMessage.Builder()
-                            .withMessageType(MessageType.ECS_TO_SERVER)
-                            .withStatusType(KVMessage.StatusType.SERVER_INIT)
-                            .withCacheSize(cacheSize)
-                            .withCacheStrategy(cacheStrategy)
-                            .withMetadata(metadata)
-                        .build();
+        UnifiedMessage initKVMessage;
+        try {
+            initKVMessage = new UnifiedMessage.Builder()
+                .withMessageType(MessageType.ECS_TO_SERVER)
+                .withStatusType(KVMessage.StatusType.SERVER_INIT)
+                .withCacheSize(cacheSize)
+                .withCacheStrategy(cacheStrategy)
+                .withMetadata(new KVServerMetadataImpl(
+                    nodeToAdd.getNodeName(),
+                    nodeToAdd.getNodeHost(),
+                    IECSNode.ECSNodeFlag.STOP,
+                    ring
+                ))
+                .build();
+            newNodeConn.doRequest(initKVMessage);
+        } catch (Exception e) {
+            System.out.println("ERROR INITKV");
+            return null;
+        } finally {
+            newNodeConn.close();
+        }
 
-                    conn.doRequest(initKVCall);
-                    conn.close();
-
-                    ECSNode succssorNode = ring.getSuccessorServer(currNode);
-                    if (Objects.isNull(succssorNode)) {
-                        NodeToAdd = currNode;
-                        currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
-                        ring.updateRing();
-                        break;
-                    }
-
-                    System.out.println("SUCCESSOR NODE: " + succssorNode.getUuid());
-                    conn = new TCPSockModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
-
-                    // prepare a message to server to make it call initKVServer()
-                    UnifiedMessage lockUnlockWriteCall = new UnifiedMessage.Builder()
-                            .withMessageType(MessageType.ECS_TO_SERVER)
-                            .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
-                            .build();
-
-                    UnifiedMessage moveDataCall = new UnifiedMessage.Builder()
-                            .withMessageType(MessageType.ECS_TO_SERVER)
-                            .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
-                        .withKeyRange(ring.getServerHashRange(currNode).toArray())
-                        .withServer(currNode)
-                        .build();
-
-                    lockUnlockWriteCall.setStatusType(KVMessage.StatusType.SERVER_WRITE_UNLOCK);
-
-                    conn.doRequest(lockUnlockWriteCall);
-                    conn.doRequest(moveDataCall);
-                    conn.doRequest(lockUnlockWriteCall);
-                    conn.close();
-
-                    broadcastMetaDataUpdates();
-                    NodeToAdd = currNode;
-                    currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
-                    ring.updateRing();
-                    break;
-                }
-                catch (Exception e){
-                    System.out.println("Error while adding server: " + e.getMessage());
-                    logger.error("Error while adding server " + currNode.getNodeHost());
-                }
+        ECSNode succssorNode;
+        {
+            succssorNode = ring.getSuccessorServer(nodeToAdd);
+            if (Objects.isNull(succssorNode)) {
+                nodeToAdd.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+                ring.updateRing();
+                return nodeToAdd;
             }
         }
-        return NodeToAdd;
+
+        TCPSockModule successorNodeConn;
+        try {
+            successorNodeConn = new TCPSockModule(
+                succssorNode.getNodeHost(), succssorNode.getNodePort()
+            );
+        } catch (Exception e) {
+            System.out.println("SUCCESSOR NODE CONNECTION FAILED");
+            return null;
+        }
+
+        UnifiedMessage writeLockMessage;
+        UnifiedMessage moveDataMessage;
+        UnifiedMessage writeUnlockMessage;
+        try {
+            writeLockMessage = new UnifiedMessage.Builder()
+                .withMessageType(MessageType.ECS_TO_SERVER)
+                .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
+                .build();
+
+            String[] hashRange = ring.getServerHashRange(nodeToAdd).toArray();
+            moveDataMessage = new UnifiedMessage.Builder()
+                .withMessageType(MessageType.ECS_TO_SERVER)
+                .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
+                .withKeyRange(hashRange)
+                .withServer(nodeToAdd)
+                .build();
+            writeUnlockMessage = new UnifiedMessage.Builder()
+                .withMessageType(MessageType.ECS_TO_SERVER)
+                .withStatusType(KVMessage.StatusType.SERVER_WRITE_UNLOCK)
+                .build();
+
+            successorNodeConn.doRequest(writeLockMessage);
+            successorNodeConn.doRequest(moveDataMessage);
+            successorNodeConn.doRequest(writeUnlockMessage);
+        } catch (Exception e) {
+            System.out.println("FAILED TRANSFER DATA");
+            return null;
+        } finally {
+            successorNodeConn.close();
+        }
+
+        broadcastMetaDataUpdates();
+        nodeToAdd.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+        ring.updateRing();
+
+        return nodeToAdd;
     }
 
     public void broadcastMetaDataUpdates(){
         TCPSockModule socketModule;
+
 
         IECSNode.ECSNodeFlag status;
         for (ECSNode server : allNodes) {
@@ -283,6 +312,37 @@ public class ECSClient implements IECSClient {
 
         System.out.printf("ADD_NODES: ADDED %d NODES\n", addedNodes.size());
         return addedNodes;
+    }
+
+    public KVDataSet getServerData(String serverName) {
+        ECSNode node = ring.getServerByName(serverName);
+        if (Objects.isNull(node)) {
+            System.out.printf("SERVER: %s DOES NOT EXIST", serverName);
+        }
+
+        TCPSockModule conn;
+        try {
+            conn = new TCPSockModule(
+                node.getNodeHost(), node.getNodePort()
+            );
+        } catch (Exception e) {
+            System.out.println("FAILED TO CONNECT");
+            return null;
+        }
+
+        UnifiedMessage message, response;
+        try {
+            message = new UnifiedMessage.Builder()
+                .withMessageType(MessageType.ECS_TO_SERVER)
+                .withStatusType(KVMessage.StatusType.SERVER_DUMP_DATA)
+                .build();
+            response = conn.doRequest(message);
+        } catch (Exception e) {
+            System.out.println("FAILED TO GET DATA");
+            return null;
+        }
+
+        return response.getDataSet();
     }
 
     @Override

@@ -52,4 +52,13 @@ public class KVDataSet {
 
         return this;
     }
+
+    public void print(String header) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("============%s: DATA===========\n", header));
+        for (Pair<String, String> pair : entries) {
+            sb.append(String.format("\tKey: %s\t\t | Data: %s\n",
+                pair.getKey(), pair.getValue()));
+        }
+    }
 }

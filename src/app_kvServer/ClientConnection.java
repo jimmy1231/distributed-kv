@@ -5,6 +5,7 @@ import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
+import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.Message;
 import shared.messages.UnifiedMessage;
@@ -195,50 +196,57 @@ public class ClientConnection extends Thread {
         return replyMsg;
     }
 
-    private UnifiedMessage handleAdminMessage(UnifiedMessage msg) {
-        UnifiedMessage replyMsg = msg;
-        KVMessage.StatusType status = msg.getStatusType();
+    private UnifiedMessage handleAdminMessage(UnifiedMessage msg) throws Exception {
+        KVMessage.StatusType responseStatus;
         KVServerMetadata metadata = msg.getMetadata();
-        System.out.println(status);
-        if (KVMessage.StatusType.START.equals(status)) {
-            server.start();
-            server.update(metadata);
-            status = KVMessage.StatusType.SUCCESS;
-        }
-        else if (KVMessage.StatusType.STOP.equals(status)) {
-            server.stop();
-            server.update(metadata);
-            status = KVMessage.StatusType.SUCCESS;
-        }
-        else if (KVMessage.StatusType.SHUTDOWN.equals(status)) {
-            server.shutdown();
-            server.update(metadata);
-            status = KVMessage.StatusType.SUCCESS;
-        }
-        else if (KVMessage.StatusType.SERVER_INIT.equals(status)){
-            logger.info("REACHED SERVER_INIT");
-            server.initKVServer(msg.getMetadata(), msg.getCacheSize(), msg.getCacheStrategy());
-            status = KVMessage.StatusType.SUCCESS;
-        }
-        else if (KVMessage.StatusType.SERVER_WRITE_LOCK.equals(status)){
-            server.lockWrite();
-            status = KVMessage.StatusType.SUCCESS;
-        }
-        else if (KVMessage.StatusType.SERVER_WRITE_UNLOCK.equals(status)){
-            server.unLockWrite();
-            status = KVMessage.StatusType.SUCCESS;
-        }
-        else if (KVMessage.StatusType.SERVER_MOVEDATA.equals(status)){
-            server.moveData(msg.getKeyRange(), msg.getServer());
-            status = KVMessage.StatusType.SUCCESS;
-        }
-        else if (KVMessage.StatusType.SERVER_UPDATE.equals(status)){
-            server.update(msg.getMetadata());
-            status = KVMessage.StatusType.SUCCESS;
+
+        switch(msg.getStatusType()) {
+            case START:
+                server.start();
+                server.update(metadata);
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case STOP:
+                server.shutdown();
+                server.update(metadata);
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case SHUTDOWN:
+                server.shutdown();
+                server.update(metadata);
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case SERVER_INIT:
+                server.initKVServer(msg.getMetadata(), msg.getCacheSize(), msg.getCacheStrategy());
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case SERVER_WRITE_LOCK:
+                server.lockWrite();
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case SERVER_WRITE_UNLOCK:
+                server.unLockWrite();
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case SERVER_MOVEDATA:
+                server.moveData(msg.getKeyRange(), msg.getServer());
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case SERVER_UPDATE:
+                server.update(msg.getMetadata());
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case SERVER_DUMP_DATA:
+                KVDataSet data = server.getAllData();
+                msg.setDataSet(data);
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            default:
+                throw new Exception("Unrecognized message");
         }
 
-        replyMsg.setStatusType(status);
-        return replyMsg;
+        msg.setStatusType(responseStatus);
+        return msg;
     }
 
     private UnifiedMessage handleServerMessage(UnifiedMessage msg) {

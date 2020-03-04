@@ -25,6 +25,7 @@ public interface KVMessage {
 		SERVER_MOVEDATA, /* if server sees this, call moveData() */
 		SERVER_UPDATE, /* update metadata */
 		SERVER_TRANSFER,
+		SERVER_DUMP_DATA, /* Server should dump data and return it to ECS */
 		
 		START,				/* ECSClient sending a START request to Server */
 		STOP,				/* ECS sends STOP request to server */
