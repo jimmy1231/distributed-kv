@@ -32,7 +32,7 @@ public class ClientConnection extends Thread {
     private Socket clientSocket;
     private KVServer server;
     private InputStream input;
-    private PrintWriter output;
+    private OutputStream output;
     private ObjectMapper objectMapper;
 
     /**
@@ -55,11 +55,11 @@ public class ClientConnection extends Thread {
      */
     public void run() {
         try {
-            output = new PrintWriter(clientSocket.getOutputStream(), true);
+            output = clientSocket.getOutputStream();
             input = clientSocket.getInputStream();
             objectMapper = new ObjectMapper();
 
-            output.println(String.format(
+            TCPSockModule.send(output, String.format(
                 "Connection to KVServer established: %s:%s",
                 clientSocket.getLocalAddress(),
                 clientSocket.getLocalPort()
@@ -258,7 +258,7 @@ public class ClientConnection extends Thread {
         // Convert KVMessage to JSON String
         String msgAsString = msg.serialize();
         logger.info("SEND MESSAGE: " + msgAsString);
-        output.println(msgAsString);
+        TCPSockModule.send(output, msgAsString);
     }
 
     public void gracefulClose() {
