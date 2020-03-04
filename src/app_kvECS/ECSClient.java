@@ -236,7 +236,14 @@ public class ECSClient implements IECSClient {
     public void broadcastMetaDataUpdates(){
         TCPSockModule socketModule;
 
+        IECSNode.ECSNodeFlag status;
         for (ECSNode server : allNodes) {
+            status = server.getEcsNodeFlag();
+            if (status.equals(IECSNode.ECSNodeFlag.STOP)
+                || status.equals(IECSNode.ECSNodeFlag.SHUT_DOWN)) {
+                continue;
+            }
+
             String host = server.getNodeHost();
             int port = server.getNodePort();
             try {
