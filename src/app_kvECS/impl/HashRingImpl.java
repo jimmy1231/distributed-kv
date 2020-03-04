@@ -341,7 +341,7 @@ public class HashRingImpl extends HashRing {
      */
     @Override
     public HashRange getServerHashRange(ECSNode server) {
-        ECSNode predecessor = getSuccessorServer(server);
+        ECSNode predecessor = getPredecessorServer(server);
         if (Objects.isNull(predecessor)) {
             predecessor = server;
         }
@@ -412,20 +412,48 @@ public class HashRingImpl extends HashRing {
         this.servers = servers;
     }
 
-    public void printHashRing() {
-        Gson gson = new GsonBuilder()
-            .enableComplexMapKeySerialization()
-            .excludeFieldsWithoutExposeAnnotation()
-            .create();
+    @Override
+    public void print() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("=============HASH-RING================\n");
+        {
+            Iterator<Map.Entry<Hash, ECSNode>> it = ring.entrySet().iterator();
+            Map.Entry<Hash, ECSNode> entry;
+            ECSNode ecsNode;
+            String[] hashRange;
+            Hash hash;
+            int i = 0;
+            while (it.hasNext()) {
+                entry = it.next();
+                hash = entry.getKey();
+                ecsNode = entry.getValue();
+                hashRange = ecsNode.getNodeHashRange();
 
-        System.out.println("=============HASH-RING================");
-        forEachServer(new Consumer<ECSNode>() {
-            @Override
-            public void accept(ECSNode ecsNode) {
-                System.out.println(gson.toJson(ecsNode));
+                sb.append(String.format("%3d: %s => %s | RANGE=(%s,%s] | %s\n",
+                    i, ecsNode.getNodeName(), hash.toHexString(),
+                    hashRange[0], hashRange[1],
+                    ecsNode.getEcsNodeFlag())
+                );
+
+                i++;
             }
-        });
-        System.out.println("=============HASH-RING================");
+        }
 
+        sb.append("=============ALL-SERVERS============\n");
+        {
+            Iterator<Map.Entry<String, ECSNode>> it = servers.entrySet().iterator();
+            Map.Entry<String, ECSNode> entry;
+            ECSNode ecsNode;
+            while (it.hasNext()) {
+                entry = it.next();
+                ecsNode = entry.getValue();
+
+                sb.append(String.format("%s: %s:%d | %s\n",
+                    ecsNode.getNodeName(), ecsNode.getNodeHost(),
+                    ecsNode.getNodePort(), ecsNode.getEcsNodeFlag())
+                );
+            }
+        }
+        System.out.print(sb.toString());
     }
 }

@@ -8,7 +8,7 @@ import shared.messages.KVMessage;
 import shared.messages.Message;
 import app_kvECS.HashRing;
 import shared.messages.MessageType;
-import shared.messages.UnifiedRequestResponse;
+import shared.messages.UnifiedMessage;
 
 import java.io.*;
 import java.net.ConnectException;
@@ -105,7 +105,7 @@ public class KVStore implements KVCommInterface {
 	public KVMessage put(String key, String value) throws Exception {
 		boolean retransmit = true;
 
-		UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+		UnifiedMessage request = new UnifiedMessage.Builder()
 			.withMessageType(MessageType.CLIENT_TO_SERVER)
 			.withKey(key)
 			.withValue(value)
@@ -148,7 +148,7 @@ public class KVStore implements KVCommInterface {
 	public KVMessage get(String key) throws Exception {
 		boolean retransmit = true;
 		KVMessage replyMsg = null;
-		UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+		UnifiedMessage request = new UnifiedMessage.Builder()
 			.withMessageType(MessageType.CLIENT_TO_SERVER)
 			.withKey(key)
 			.withValue(null)
@@ -195,7 +195,7 @@ public class KVStore implements KVCommInterface {
 	/**
 	 * Serialize the msg and send it over socket
 	 */
-	private void sendMessage(UnifiedRequestResponse msg) throws Exception {
+	private void sendMessage(UnifiedMessage msg) throws Exception {
 		// Convert KVMessage to JSON String
 		String msgAsString = msg.serialize();
 		output.println(msgAsString);
@@ -207,13 +207,13 @@ public class KVStore implements KVCommInterface {
 	 * @throws IOException
 	 */
 	private KVMessage receiveMessage() throws IOException {
-		UnifiedRequestResponse msg = null;
+		UnifiedMessage msg = null;
 		String msgString = null;
 		msgString = input.readLine();
 
 		if (msgString != null) {
 			try {
-				msg = new UnifiedRequestResponse().deserialize(msgString);
+				msg = new UnifiedMessage().deserialize(msgString);
 			}
 			catch (Exception e){
 				System.out.print("Failed to read from the socket");

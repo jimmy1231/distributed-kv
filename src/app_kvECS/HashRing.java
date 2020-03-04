@@ -94,15 +94,25 @@ public abstract class HashRing {
              * If bytes are equal, iterate to the next byte.
              * If all bytes have been traversed, then 2 hashes
              * are equal.
+             *
+             * Notice that we AND byte with 0xFF. This is because
+             * Java stores bytes as signed data. So byte = 0xFF (255)
+             * would actually be -1. This causes issues where a
+             * byte, say 0xF3 is actually greater than 0x48, but
+             * since 0xF3 is interpretted by Java as -13, 0x48 is
+             * 72, 0x48 will actually evaluate to be greater than
+             * 0xF3! To prevent this, we cast the bytes to a larger
+             * data type -> int32, then bitmask away everything except
+             * the least-significant byte by bitwise AND 0xFF.
              */
             assert(hashBytes.length == o.hashBytes.length);
             int numBytes = hashBytes.length;
 
-            byte b1, b2;
+            int b1, b2;
             int i;
             for (i=0; i<numBytes; i++) {
-                b1 = hashBytes[i];
-                b2 = o.hashBytes[i];
+                b1 = ((int) hashBytes[i]) & 0xFF;
+                b2 = ((int)o.hashBytes[i]) & 0xFF;
 
                 if (b1 < b2) {
                     return -1;
@@ -351,5 +361,7 @@ public abstract class HashRing {
      */
     public abstract String serialize();
     public abstract HashRing deserialize(String json);
+
+    public abstract void print();
     //////////////////////////////////////////////////////////////
 }

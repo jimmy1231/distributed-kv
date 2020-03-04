@@ -1,13 +1,13 @@
 package app_kvServer;
 
-import app_kvECS.GenericSocketsModule;
+import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.Message;
-import shared.messages.UnifiedRequestResponse;
+import shared.messages.UnifiedMessage;
 
 import java.io.*;
 import java.net.Socket;
@@ -67,12 +67,12 @@ public class ClientConnection extends Thread {
 
             while(isOpen) {
                 try {
-                    UnifiedRequestResponse request = receiveMessage2();
+                    UnifiedMessage request = receiveMessage2();
                     if (Objects.isNull(request)) {
                         continue;
                     }
 
-                    UnifiedRequestResponse response;
+                    UnifiedMessage response;
                     switch(request.getMessageType()) {
                         case CLIENT_TO_SERVER:
                         case SERVER_TO_CLIENT:
@@ -121,11 +121,11 @@ public class ClientConnection extends Thread {
         }
     }
 
-    private UnifiedRequestResponse handleMessage(UnifiedRequestResponse msg) {
+    private UnifiedMessage handleMessage(UnifiedMessage msg) {
         String key = msg.getKey();
         String value = msg.getValue();
         KVMessage.StatusType status = null;
-        UnifiedRequestResponse replyMsg = msg;
+        UnifiedMessage replyMsg = msg;
         boolean started = IECSNode.ECSNodeFlag.START.equals(server.getStatus());
 
         if (msg.getStatusType() == KVMessage.StatusType.PUT) {
@@ -195,8 +195,8 @@ public class ClientConnection extends Thread {
         return replyMsg;
     }
 
-    private UnifiedRequestResponse handleAdminMessage(UnifiedRequestResponse msg) {
-        UnifiedRequestResponse replyMsg = msg;
+    private UnifiedMessage handleAdminMessage(UnifiedMessage msg) {
+        UnifiedMessage replyMsg = msg;
         KVMessage.StatusType status = msg.getStatusType();
         KVServerMetadata metadata = msg.getMetadata();
         System.out.println(status);
@@ -241,7 +241,7 @@ public class ClientConnection extends Thread {
         return replyMsg;
     }
 
-    private UnifiedRequestResponse handleServerMessage(UnifiedRequestResponse msg) {
+    private UnifiedMessage handleServerMessage(UnifiedMessage msg) {
         if (msg.getStatusType().equals(KVMessage.StatusType.SERVER_MOVEDATA)) {
             server.recvData(msg.getDataSet());
         }
@@ -254,7 +254,7 @@ public class ClientConnection extends Thread {
      * @param msg the message that is to be sent.
      * @throws IOException some I/O error regarding the output stream
      */
-    public void sendMessage(UnifiedRequestResponse msg) throws Exception{
+    public void sendMessage(UnifiedMessage msg) throws Exception{
         // Convert KVMessage to JSON String
         String msgAsString = msg.serialize();
         logger.info("SEND MESSAGE: " + msgAsString);
@@ -293,14 +293,14 @@ public class ClientConnection extends Thread {
         return msg;
     }
 
-    private UnifiedRequestResponse receiveMessage2() throws IOException {
-        UnifiedRequestResponse msg = null;
+    private UnifiedMessage receiveMessage2() throws IOException {
+        UnifiedMessage msg = null;
         String msgString = null;
-        msgString = GenericSocketsModule.recv(input);
+        msgString = TCPSockModule.recv(input);
         if (Objects.nonNull(msgString) && !msgString.equals("")) {
             try {
                 logger.info("Received message: " + msgString);
-                msg = new UnifiedRequestResponse().deserialize(msgString);
+                msg = new UnifiedMessage().deserialize(msgString);
                 logger.info(String.format("Deserialized message: messageType=%s, statusType=%s",
                     msg.getMessageType(), msg.getStatusType()));
             }

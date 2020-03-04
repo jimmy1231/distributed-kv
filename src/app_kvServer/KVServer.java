@@ -1,6 +1,6 @@
 package app_kvServer;
 
-import app_kvECS.GenericSocketsModule;
+import app_kvECS.TCPSockModule;
 import app_kvECS.HashRing;
 import app_kvECS.KVServerMetadata;
 import app_kvECS.impl.KVServerMetadataImpl;
@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
-import shared.messages.UnifiedRequestResponse;
+import shared.messages.UnifiedMessage;
 
 import java.io.IOException;
 import java.net.BindException;
@@ -398,16 +398,16 @@ public class KVServer implements IKVServer {
 		/*
 		 * Move data to another server via socket request
 		 */
-		GenericSocketsModule module = null;
-		UnifiedRequestResponse req, resp;
+		TCPSockModule module = null;
+		UnifiedMessage req, resp;
 		try {
-			module = new GenericSocketsModule(
+			module = new TCPSockModule(
 				server.getNodeHost(), server.getNodePort()
 			);
 
 			KVDataSet dataSet = new KVDataSet(entries);
 			logger.info("DATA SET TO TRANSFER: " + dataSet.serialize());
-			req = new UnifiedRequestResponse.Builder()
+			req = new UnifiedMessage.Builder()
 				.withMessageType(MessageType.SERVER_TO_SERVER)
 				.withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
 				.withDataSet(dataSet)

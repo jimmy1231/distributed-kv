@@ -6,19 +6,15 @@ import java.util.*;
 import java.util.function.Predicate;
 
 import app_kvECS.impl.KVServerMetadataImpl;
-import com.google.gson.Gson;
-import com.google.gson.annotations.JsonAdapter;
 
 import app_kvECS.impl.HashRingImpl;
 
-import app_kvServer.KVServer;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
-import shared.messages.UnifiedRequestResponse;
-import sun.reflect.annotation.ExceptionProxy;
+import shared.messages.UnifiedMessage;
 
 
 public class ECSClient implements IECSClient {
@@ -94,12 +90,12 @@ public class ECSClient implements IECSClient {
         List<ECSNode> servers = ring.filterServer(filter);
 
         KVServerMetadata metadata = null;
-        UnifiedRequestResponse req = null;
-        UnifiedRequestResponse res;
+        UnifiedMessage req = null;
+        UnifiedMessage res;
 
         String host;
         int port;
-        GenericSocketsModule socketModule;
+        TCPSockModule socketModule;
         for (ECSNode server : servers) {
             host = server.getNodeHost();
             port = server.getNodePort();
@@ -108,13 +104,13 @@ public class ECSClient implements IECSClient {
                 metadata = new KVServerMetadataImpl(server.getNodeName(),
                         server.getNodeHost(), server.getEcsNodeFlag(), ring);
 
-                req = new UnifiedRequestResponse.Builder()
+                req = new UnifiedMessage.Builder()
                         .withMessageType(MessageType.ECS_TO_SERVER)
                         .withStatusType(requestType)
                         .withMetadata(metadata)
                         .build();
 
-                socketModule = new GenericSocketsModule(host, port);
+                socketModule = new TCPSockModule(host, port);
                 System.out.println("Created generic sockets module");
                 res = socketModule.doRequest(req);
                 socketModule.close();
@@ -166,7 +162,7 @@ public class ECSClient implements IECSClient {
     @Override
     public IECSNode addNode(String cacheStrategy, int cacheSize) {
         ECSNode NodeToAdd = null;
-        GenericSocketsModule conn;
+        TCPSockModule conn;
 
         for (int i = 0; i<allNodes.size(); i++) {
             ECSNode currNode = allNodes.get(i);
@@ -178,10 +174,10 @@ public class ECSClient implements IECSClient {
                         currNode.getNodeHost(), IECSNode.ECSNodeFlag.STOP, ring); //update the state to stopped
 
                 try {
-                    conn = new GenericSocketsModule(currNode.getNodeHost(), currNode.getNodePort());
+                    conn = new TCPSockModule(currNode.getNodeHost(), currNode.getNodePort());
 
                     // prepare a message to server to make it call initKVServer()
-                    UnifiedRequestResponse initKVCall = new UnifiedRequestResponse.Builder()
+                    UnifiedMessage initKVCall = new UnifiedMessage.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_INIT)
                             .withCacheSize(cacheSize)
@@ -200,15 +196,15 @@ public class ECSClient implements IECSClient {
                     }
 
                     System.out.println("SUCCESSOR NODE: " + succssorNode.getUuid());
-                    conn = new GenericSocketsModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
+                    conn = new TCPSockModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
 
                     // prepare a message to server to make it call initKVServer()
-                    UnifiedRequestResponse lockUnlockWriteCall = new UnifiedRequestResponse.Builder()
+                    UnifiedMessage lockUnlockWriteCall = new UnifiedMessage.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
                             .build();
 
-                    UnifiedRequestResponse moveDataCall = new UnifiedRequestResponse.Builder()
+                    UnifiedMessage moveDataCall = new UnifiedMessage.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
                         .withKeyRange(ring.getServerHashRange(currNode).toArray())
@@ -237,18 +233,18 @@ public class ECSClient implements IECSClient {
     }
 
     public void broadcastMetaDataUpdates(){
-        GenericSocketsModule socketModule;
+        TCPSockModule socketModule;
 
         for (ECSNode server : allNodes) {
             String host = server.getNodeHost();
             int port = server.getNodePort();
             try {
-                socketModule = new GenericSocketsModule(host, port);
+                socketModule = new TCPSockModule(host, port);
                 System.out.println("Created generic sockets module");
                 KVServerMetadata newMetaData = new KVServerMetadataImpl(server.getNodeName(), host,
                         server.getEcsNodeFlag(), ring);
 
-                UnifiedRequestResponse notification = new UnifiedRequestResponse.Builder()
+                UnifiedMessage notification = new UnifiedMessage.Builder()
                         .withMessageType(MessageType.ECS_TO_SERVER)
                         .withStatusType(KVMessage.StatusType.SERVER_UPDATE)
                         .withMetadata(newMetaData)
@@ -264,7 +260,7 @@ public class ECSClient implements IECSClient {
     @Override
     public Collection<IECSNode> addNodes(int count, String cacheStrategy, int cacheSize) {
         ArrayList<IECSNode> addedNodes = new ArrayList<IECSNode>();
-        GenericSocketsModule conn;
+        TCPSockModule conn;
 
         for (int i = 0; i<allNodes.size(); i++) {
             ECSNode currNode = allNodes.get(i);
@@ -277,10 +273,10 @@ public class ECSClient implements IECSClient {
                         currNode.getNodeHost(), IECSNode.ECSNodeFlag.STOP, ring); //update the state to stopped
 
                 try {
-                    conn = new GenericSocketsModule(currNode.getNodeHost(), currNode.getNodePort());
+                    conn = new TCPSockModule(currNode.getNodeHost(), currNode.getNodePort());
 
                     // prepare a message to server to make it call initKVServer()
-                    UnifiedRequestResponse initKVCall = new UnifiedRequestResponse.Builder()
+                    UnifiedMessage initKVCall = new UnifiedMessage.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_INIT)
                             .withCacheSize(cacheSize)
@@ -291,15 +287,15 @@ public class ECSClient implements IECSClient {
                     conn.close();
 
                     ECSNode succssorNode = ring.getSuccessorServer(currNode);
-                    conn = new GenericSocketsModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
+                    conn = new TCPSockModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
 
                     // prepare a message to server to make it call initKVServer()
-                    UnifiedRequestResponse lockUnlockWriteCall = new UnifiedRequestResponse.Builder()
+                    UnifiedMessage lockUnlockWriteCall = new UnifiedMessage.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
                             .build();
 
-                    UnifiedRequestResponse moveDataCall = new UnifiedRequestResponse.Builder()
+                    UnifiedMessage moveDataCall = new UnifiedMessage.Builder()
                             .withMessageType(MessageType.ECS_TO_SERVER)
                             .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
                             .withKeyRange(ring.getServerHashRange(currNode).toArray())
@@ -351,12 +347,12 @@ public class ECSClient implements IECSClient {
 
             try{
                 // Lock the node to delete
-                GenericSocketsModule conn1 = new GenericSocketsModule(nodeToRemove.getNodeHost(), nodeToRemove.getNodePort());
-                UnifiedRequestResponse removeNodeCalls = new UnifiedRequestResponse.Builder()
+                TCPSockModule conn1 = new TCPSockModule(nodeToRemove.getNodeHost(), nodeToRemove.getNodePort());
+                UnifiedMessage removeNodeCalls = new UnifiedMessage.Builder()
                         .withMessageType(MessageType.ECS_TO_SERVER)
                         .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
                         .build();
-                UnifiedRequestResponse resp = conn1.doRequest(removeNodeCalls);
+                UnifiedMessage resp = conn1.doRequest(removeNodeCalls);
                 //conn1.close();
 
                 if (resp.getStatusType() != KVMessage.StatusType.SUCCESS){
@@ -370,13 +366,13 @@ public class ECSClient implements IECSClient {
                         successorNode.getNodeHost(), successorNode.getEcsNodeFlag(), ring);
 
 
-                UnifiedRequestResponse metadataUpdateCall= new UnifiedRequestResponse.Builder()
+                UnifiedMessage metadataUpdateCall= new UnifiedMessage.Builder()
                         .withMessageType(MessageType.ECS_TO_SERVER)
                         .withStatusType(KVMessage.StatusType.SERVER_UPDATE)
                         .withMetadata(newMetadata)
                         .build();
 
-                GenericSocketsModule conn2 = new GenericSocketsModule(successorNode.getNodeHost(), successorNode.getNodePort());
+                TCPSockModule conn2 = new TCPSockModule(successorNode.getNodeHost(), successorNode.getNodePort());
                 conn2.doRequest(metadataUpdateCall);
                 conn2.close();
 

@@ -9,7 +9,7 @@ import ecs.ECSNode;
 
 import java.util.Objects;
 
-public class UnifiedRequestResponse implements KVMessage {
+public class UnifiedMessage implements KVMessage {
     private static Gson UNIFIED_GSON = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .excludeFieldsWithoutExposeAnnotation()
@@ -74,10 +74,10 @@ public class UnifiedRequestResponse implements KVMessage {
 
 
     public static class Builder {
-        UnifiedRequestResponse object;
+        UnifiedMessage object;
 
         public Builder() {
-            object = new UnifiedRequestResponse();
+            object = new UnifiedMessage();
         }
 
         public Builder withMessageType(MessageType messageType) {
@@ -130,7 +130,7 @@ public class UnifiedRequestResponse implements KVMessage {
             return this;
         }
 
-        public UnifiedRequestResponse build() {
+        public UnifiedMessage build() {
             return object;
         }
     }
@@ -152,7 +152,7 @@ public class UnifiedRequestResponse implements KVMessage {
         return UNIFIED_GSON.toJson(s);
     }
 
-    public UnifiedRequestResponse deserialize(String json) {
+    public UnifiedMessage deserialize(String json) {
         __Serialized__ s = UNIFIED_GSON.fromJson(json, __Serialized__.class);
 
         this.messageType = s.messageType;
@@ -240,7 +240,7 @@ public class UnifiedRequestResponse implements KVMessage {
         return keyRange;
     }
 
-    public UnifiedRequestResponse setKeyRange(String[] keyRange) {
+    public UnifiedMessage setKeyRange(String[] keyRange) {
         this.keyRange = keyRange;
         return this;
     }
@@ -249,7 +249,7 @@ public class UnifiedRequestResponse implements KVMessage {
         return server;
     }
 
-    public UnifiedRequestResponse setServer(ECSNode server) {
+    public UnifiedMessage setServer(ECSNode server) {
         this.server = server;
         return this;
     }
@@ -258,7 +258,7 @@ public class UnifiedRequestResponse implements KVMessage {
         return cacheStrategy;
     }
 
-    public UnifiedRequestResponse setCacheStrategy(String cacheStrategy) {
+    public UnifiedMessage setCacheStrategy(String cacheStrategy) {
         this.cacheStrategy = cacheStrategy;
         return this;
     }
@@ -267,7 +267,7 @@ public class UnifiedRequestResponse implements KVMessage {
         return cacheSize;
     }
 
-    public UnifiedRequestResponse setCacheSize(Integer cacheSize) {
+    public UnifiedMessage setCacheSize(Integer cacheSize) {
         this.cacheSize = cacheSize;
         return this;
     }

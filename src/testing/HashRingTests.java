@@ -2,9 +2,6 @@ package testing;
 
 import app_kvECS.HashRing;
 import app_kvECS.impl.HashRingImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import junit.framework.TestCase;
@@ -16,9 +13,8 @@ import shared.Pair;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
-import shared.messages.UnifiedRequestResponse;
+import shared.messages.UnifiedMessage;
 
-import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Consumer;
@@ -256,7 +252,7 @@ public class HashRingTests extends TestCase {
 
     @Test
     public void testUnifiedDS() {
-        UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+        UnifiedMessage request = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
             .withStatusType(KVMessage.StatusType.START)
             .withKey("Hi")
@@ -269,7 +265,7 @@ public class HashRingTests extends TestCase {
 
         String json = request.serialize();
         System.out.println(json);
-        UnifiedRequestResponse request2 = new UnifiedRequestResponse().deserialize(json);
+        UnifiedMessage request2 = new UnifiedMessage().deserialize(json);
 
         assert(request2.getServer().compareTo(request.getServer()));
         assert(request2.getKeyRange()[0].equals(request.getKeyRange()[0]));
@@ -291,14 +287,14 @@ public class HashRingTests extends TestCase {
         for (Pair<String, String> entry : entries) {
             System.out.println(entry.toString());
         }
-        UnifiedRequestResponse request = new UnifiedRequestResponse.Builder()
+        UnifiedMessage request = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
             .withDataSet(new KVDataSet(entries))
             .build();
 
         String json = request.serialize();
         System.out.println(json);
-        UnifiedRequestResponse request2 = new UnifiedRequestResponse().deserialize(json);
+        UnifiedMessage request2 = new UnifiedMessage().deserialize(json);
 
         List<Pair<String, String>> entries2 = request2.getDataSet().getEntries();
         Pair<String, String> pair1;
