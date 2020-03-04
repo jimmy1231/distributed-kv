@@ -1,6 +1,7 @@
 package client;
 
 import app_kvECS.KVServerMetadata;
+import app_kvECS.TCPSockModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import org.apache.log4j.Logger;
@@ -21,8 +22,8 @@ public class KVStore implements KVCommInterface {
 	private String serverAddress; // The user is expected to know at least one server
 	private int serverPort;
 	private Socket clientSocket;
-	private PrintWriter output;
-	private BufferedReader input;
+	private OutputStream output;
+	private InputStream input;
 	private ObjectMapper objectMapper;
 	private static Logger logger = Logger.getRootLogger();
 	private connectionStatus status;
@@ -48,12 +49,12 @@ public class KVStore implements KVCommInterface {
 	public void connect() throws Exception {
 		try{
 			clientSocket = new Socket(this.serverAddress, this.serverPort);
-			output = new PrintWriter(clientSocket.getOutputStream(), true);
-			input = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+			output = clientSocket.getOutputStream();
+			input = clientSocket.getInputStream();
 			objectMapper = new ObjectMapper();
 
 			// Read the acknowledgment message from the server and print it out
-			String connectionAck = input.readLine();
+			String connectionAck = TCPSockModule.recv(input);
 			System.out.println(connectionAck);
 
 			status = connectionStatus.CONNECTED;
@@ -198,7 +199,7 @@ public class KVStore implements KVCommInterface {
 	private void sendMessage(UnifiedMessage msg) throws Exception {
 		// Convert KVMessage to JSON String
 		String msgAsString = msg.serialize();
-		output.println(msgAsString);
+		TCPSockModule.send(output, msgAsString);
 	}
 
 	/**
@@ -209,7 +210,7 @@ public class KVStore implements KVCommInterface {
 	private KVMessage receiveMessage() throws IOException {
 		UnifiedMessage msg = null;
 		String msgString = null;
-		msgString = input.readLine();
+		msgString = TCPSockModule.recv(input);
 
 		if (msgString != null) {
 			try {
