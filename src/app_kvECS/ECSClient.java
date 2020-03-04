@@ -304,7 +304,7 @@ public class ECSClient implements IECSClient {
             ECSNode nodeToRemove = ring.getServerByName(nodeName);
             ECSNode successorNode = ring.getSuccessorServer(nodeToRemove); // get it before update the ring
 
-            if (successorNode.getNodeName().equals(nodeName)) {
+            if (Objects.isNull(successorNode)) {
                 System.out.printf("NODE %s is the ONLY NODE, CANNOT REMOVE\n", nodeName);
                 return false;
             }
