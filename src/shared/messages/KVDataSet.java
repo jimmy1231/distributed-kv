@@ -61,5 +61,7 @@ public class KVDataSet {
             sb.append(String.format("\tKey: %s\t\t | Data: %s\n",
                 pair.getKey(), pair.getValue()));
         }
+
+        System.out.print(sb.toString());
     }
 }
