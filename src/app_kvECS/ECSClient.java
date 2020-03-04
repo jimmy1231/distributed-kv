@@ -61,7 +61,7 @@ public class ECSClient implements IECSClient {
                 host = serverData[1];
                 port = Integer.parseInt(serverData[2]);
 
-                logger.info("ADD SERVER: {} | {}:{}\n", name, host, port);
+                logger.info("ADD SERVER: {} | {}:{}", name, host, port);
                 /* Create ECSNode and add to ring */
                 node = new ECSNode(name,host, port);
                 node.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE);
@@ -106,14 +106,17 @@ public class ECSClient implements IECSClient {
             port = server.getNodePort();
             try {
                 setServerStatus(server, requestType);
-                metadata = new KVServerMetadataImpl(server.getNodeName(),
-                        server.getNodeHost(), server.getEcsNodeFlag(), ring);
+                metadata = new KVServerMetadataImpl(
+                    server.getNodeName(),
+                    server.getNodeHost(),
+                    server.getEcsNodeFlag(),
+                    ring);
 
                 req = new UnifiedMessage.Builder()
-                        .withMessageType(MessageType.ECS_TO_SERVER)
-                        .withStatusType(requestType)
-                        .withMetadata(metadata)
-                        .build();
+                    .withMessageType(MessageType.ECS_TO_SERVER)
+                    .withStatusType(requestType)
+                    .withMetadata(metadata)
+                    .build();
 
                 socketModule = new TCPSockModule(host, port);
                 res = socketModule.doRequest(req);

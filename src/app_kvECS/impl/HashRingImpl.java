@@ -182,7 +182,6 @@ public class HashRingImpl extends HashRing {
 
     @Override
     public void addServer(ECSNode server) {
-        System.out.println("ADD SERVER: " + new Gson().toJson(server));
         ECSNode _server = servers.get(server.getNodeName());
         if (Objects.nonNull(_server)) {
             return;

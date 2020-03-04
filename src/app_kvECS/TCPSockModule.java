@@ -1,6 +1,7 @@
 package app_kvECS;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.messages.UnifiedMessage;
 
 import java.io.*;
@@ -9,10 +10,9 @@ import java.util.Arrays;
 import java.util.Objects;
 
 public class TCPSockModule {
-    private static String DEADBEEF = "_______DEADBEEF_______";
-
-    private static Logger logger = Logger.getLogger(TCPSockModule.class);
+    private static Logger logger = LoggerFactory.getLogger(TCPSockModule.class);
     private static int MAX_READ_BYTES = 4096;
+    private static String DEADBEEF = "_______DEADBEEF_______";
 
     private InputStream input;
     private OutputStream output;
@@ -22,8 +22,6 @@ public class TCPSockModule {
     public TCPSockModule(String host, int port) throws Exception {
         /* Establish socket connection */
         socket = connect(host, port);
-        System.out.println("CONNECTION ESTABLISHED WITH SERVER");
-
         logger.info(String.format(
             "ECSSocket connection established: %s:%d",
             host, port));
@@ -41,7 +39,7 @@ public class TCPSockModule {
     public UnifiedMessage doRequest(UnifiedMessage request) throws Exception {
         /* Do request */
         if (!send(output, request.serialize())) {
-            System.out.println("Failed to send request");
+            logger.info("Failed to send request");
             throw new Exception("SEND failed");
         }
 
@@ -67,8 +65,7 @@ public class TCPSockModule {
         try {
             socket.close();
         } catch (Exception e) {
-            System.out.println("Error closing sockets");
-            logger.error("Error closing Sockets Module connection", e);
+            logger.error("Error closing socket", e);
         }
     }
 
@@ -76,13 +73,13 @@ public class TCPSockModule {
         message = message + DEADBEEF;
 
         byte[] messageBytes = message.getBytes();
-        System.out.println("REQUEST, # Bytes = " + messageBytes.length);
+        logger.info("REQUEST, # Bytes = {}", messageBytes.length);
         try {
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
-            System.out.println("SEND: " + message);
+            logger.debug("SEND: {}", message.substring(0, 100));
         } catch (Exception e) {
-            System.out.println("Failed to send response");
+            logger.error("Failed to send response", e);
             return false;
         }
 
@@ -106,8 +103,8 @@ public class TCPSockModule {
             int len;
             while ((len = bis.read(buf, 0, MAX_READ_BYTES)) > 0) {
                 int bytesLeft = bis.available();
-                System.out.printf(
-                    "READING. # BYTES = %d | %d BYTES REMAINING\n",
+                logger.debug(
+                    "RECV_READ # BYTES = {} | {} BYTES REMAINING",
                     len, bytesLeft);
 
                 totalBytes += len;
@@ -120,7 +117,8 @@ public class TCPSockModule {
                  */
                 boolean finished = false;
                 if (isDeadbeef(buf, len)) {
-                    System.out.println("DEADBEEF DETECTED!");
+                    logger.debug("\"{}\" - Transmission finished",
+                        DEADBEEF);
                     len -= DEADBEEF.length();
                     finished = true;
                 }
@@ -136,7 +134,7 @@ public class TCPSockModule {
                  * loop to prevent blocking indefinitely.
                  */
                 if (bytesLeft == 0 && finished) {
-                    System.out.printf("TOTAL BYTES: %d\n", totalBytes);
+                    logger.debug("TOTAL BYTES: {}", totalBytes);
                     break;
                 }
             }
@@ -163,8 +161,7 @@ public class TCPSockModule {
                 return null;
             }
         } catch (IOException e) {
-            System.out.println("CONNECTION CLOSED");
-            logger.info("CONNECTION CLOSED", e);
+            logger.info("Stream closed unexpectedly", e);
             response = null;
         }
 
@@ -188,12 +185,12 @@ public class TCPSockModule {
                 String msg = recv(_input);
 
                 if (Objects.nonNull(msg) && !msg.isEmpty()) {
-                    System.out.println("RECEIVED MESSAGE: " + msg);
+                    logger.info("CONNECTION ACK: {}", msg);
                     break;
                 }
             }
         } catch (IOException e) {
-            logger.error("Error initializing sockets module", e);
+            logger.error("Connection error", e);
             throw e;
         }
 
