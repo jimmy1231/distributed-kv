@@ -312,7 +312,7 @@ public class ECSClient implements IECSClient {
                     broadcastMetaDataUpdates();
 
                     count --;
-                    if (count != 0){
+                    if (count == 0){
                         break;
                     }
                 }
