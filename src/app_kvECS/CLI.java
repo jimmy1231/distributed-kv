@@ -1,6 +1,8 @@
 package app_kvECS;
 
 import ecs.IECSNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
 
 import java.util.ArrayList;
@@ -9,6 +11,8 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class CLI {
+	private static Logger logger = LoggerFactory.getLogger(CLI.class);
+
 	private static final String PROMPT = "ECSClient> ";
 	private static final String ADD_NODES = "add_nodes";
 	private static final String ADD_NODE = "add_node";
@@ -202,7 +206,11 @@ public class CLI {
 		while(running){
 			System.out.print(PROMPT);
 			cmd = command.nextLine();
-			running = handleCommand(cmd);
+			try {
+				running = handleCommand(cmd);
+			} catch (Exception e) {
+				logger.error("Invalid command!", e);
+			}
 		}
 
 		System.out.println(PROMPT + "Exiting ECSClient! Goodbye.");
