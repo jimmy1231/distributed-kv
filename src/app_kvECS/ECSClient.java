@@ -23,7 +23,7 @@ public class ECSClient implements IECSClient {
     private static final String KVSERVER_START_FILE = "./run_kvserver.sh";
     private static final String ECS_CONFIG_FILE = CONFIG_DIR_PATH + "ecs.config";
     private int poolSize; // max number of servers that can participate in the service
-    List<ECSNode> allNodes = new ArrayList<ECSNode>();
+    private List<ECSNode> allNodes = new ArrayList<>();
     int serverCacheSize = 50000;
     String serverCacheStrategy = "FIFO";
 
@@ -168,9 +168,7 @@ public class ECSClient implements IECSClient {
             ECSNode currNode = allNodes.get(i);
             System.out.println("ADD NODE: " + currNode.getUuid());
             if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE) {
-                currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
                 ring.addServer(currNode);
-                ring.updateRing();
                 KVServerMetadata metadata = new KVServerMetadataImpl(currNode.getNodeName(),
                         currNode.getNodeHost(), IECSNode.ECSNodeFlag.STOP, ring); //update the state to stopped
 
@@ -193,6 +191,7 @@ public class ECSClient implements IECSClient {
                     if (Objects.isNull(succssorNode)) {
                         NodeToAdd = currNode;
                         currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+                        ring.updateRing();
                         break;
                     }
 
@@ -222,6 +221,7 @@ public class ECSClient implements IECSClient {
                     broadcastMetaDataUpdates();
                     NodeToAdd = currNode;
                     currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+                    ring.updateRing();
                     break;
                 }
                 catch (Exception e){
@@ -258,70 +258,23 @@ public class ECSClient implements IECSClient {
             }
         }
     }
+
     @Override
     public Collection<IECSNode> addNodes(int count, String cacheStrategy, int cacheSize) {
-        ArrayList<IECSNode> addedNodes = new ArrayList<IECSNode>();
-        TCPSockModule conn;
+        ArrayList<IECSNode> addedNodes = new ArrayList<>();
+        IECSNode addedNode;
 
-        for (int i = 0; i<allNodes.size(); i++) {
-            ECSNode currNode = allNodes.get(i);
-            if (currNode.getEcsNodeFlag() == IECSNode.ECSNodeFlag.IDLE) {
-                currNode.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
-                addedNodes.add(currNode);
-                ring.addServer(currNode);
-                ring.updateRing();
-                KVServerMetadata metadata = new KVServerMetadataImpl(currNode.getNodeName(),
-                        currNode.getNodeHost(), IECSNode.ECSNodeFlag.STOP, ring); //update the state to stopped
-
-                try {
-                    conn = new TCPSockModule(currNode.getNodeHost(), currNode.getNodePort());
-
-                    // prepare a message to server to make it call initKVServer()
-                    UnifiedMessage initKVCall = new UnifiedMessage.Builder()
-                            .withMessageType(MessageType.ECS_TO_SERVER)
-                            .withStatusType(KVMessage.StatusType.SERVER_INIT)
-                            .withCacheSize(cacheSize)
-                            .withCacheStrategy(cacheStrategy)
-                            .withMetadata(metadata).build();
-
-                    conn.doRequest(initKVCall);
-                    conn.close();
-
-                    ECSNode succssorNode = ring.getSuccessorServer(currNode);
-                    conn = new TCPSockModule(succssorNode.getNodeHost(), succssorNode.getNodePort());
-
-                    // prepare a message to server to make it call initKVServer()
-                    UnifiedMessage lockUnlockWriteCall = new UnifiedMessage.Builder()
-                            .withMessageType(MessageType.ECS_TO_SERVER)
-                            .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
-                            .build();
-
-                    UnifiedMessage moveDataCall = new UnifiedMessage.Builder()
-                            .withMessageType(MessageType.ECS_TO_SERVER)
-                            .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
-                            .withKeyRange(ring.getServerHashRange(currNode).toArray())
-                            .withServer(currNode)
-                            .build();
-
-                    lockUnlockWriteCall.setStatusType(KVMessage.StatusType.SERVER_WRITE_UNLOCK);
-
-                    conn.doRequest(lockUnlockWriteCall);
-                    conn.doRequest(moveDataCall);
-                    conn.doRequest(lockUnlockWriteCall);
-                    conn.close();
-
-                    broadcastMetaDataUpdates();
-
-                    count --;
-                    if (count == 0){
-                        break;
-                    }
-                }
-                catch (Exception e){
-                    logger.error("Error while adding server " + currNode.getNodeHost());
-                }
+        int i;
+        for (i=0; i<count; i++) {
+            addedNode = addNode(cacheStrategy, cacheSize);
+            if (Objects.nonNull(addedNode)) {
+                addedNodes.add(addedNode);
+            } else {
+                break;
             }
         }
+
+        System.out.printf("ADD_NODES: ADDED %d NODES\n", addedNodes.size());
         return addedNodes;
     }
 
