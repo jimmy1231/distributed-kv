@@ -136,8 +136,7 @@ public class ECSClient implements IECSClient {
         Predicate<ECSNode> pred = new Predicate<ECSNode>() {
             @Override
             public boolean test(ECSNode ecsNode) {
-                return IECSNode.ECSNodeFlag.IDLE_START.equals(ecsNode.getEcsNodeFlag()) ||
-                        IECSNode.ECSNodeFlag.STOP.equals(ecsNode.getEcsNodeFlag());
+                return IECSNode.ECSNodeFlag.IDLE_START.equals(ecsNode.getEcsNodeFlag());
             }
         };
 
