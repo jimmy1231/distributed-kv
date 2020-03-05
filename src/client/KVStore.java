@@ -16,6 +16,7 @@ import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.rmi.server.ServerNotActiveException;
+import java.util.Objects;
 
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
@@ -199,7 +200,9 @@ public class KVStore implements KVCommInterface {
 
 	@Override
 	public void printRing() {
-		recentHashring.print();
+		if (Objects.nonNull(recentHashring)) {
+			recentHashring.print();
+		}
 	}
 
 	/**

@@ -216,12 +216,12 @@ public class TCPSockModule {
             return "NULL";
         }
 
-        if (message.length() <= 80) {
+        if (message.length() <= 200) {
             return message;
         } else {
             return String.format("%s ... %s",
-                StringUtils.left(message, 40),
-                StringUtils.right(message, 40)
+                StringUtils.left(message, 60),
+                StringUtils.right(message, 60)
             );
         }
     }

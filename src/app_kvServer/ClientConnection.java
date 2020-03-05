@@ -181,18 +181,18 @@ public class ClientConnection extends Thread {
 
         switch(msg.getStatusType()) {
             case START:
-                server.start();
                 server.update(metadata);
+                server.start();
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
             case STOP:
-                server.shutdown();
                 server.update(metadata);
+                server.shutdown();
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
             case SHUTDOWN:
-                server.shutdown();
                 server.update(metadata);
+                server.shutdown();
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
             case SERVER_INIT:
