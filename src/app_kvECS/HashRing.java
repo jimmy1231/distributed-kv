@@ -192,6 +192,14 @@ public abstract class HashRing {
             };
         }
 
+        public Hash getLower() {
+            return lower;
+        }
+
+        public Hash getUpper() {
+            return upper;
+        }
+
         public boolean inRange(Hash value) {
             if (upper.gt(lower)) {
                 return value.gt(lower) && value.lte(upper);

@@ -28,7 +28,7 @@ public class KVClient implements IKVClient {
 
     public static void main(String[] args) {
         try {
-            new LogSetup("logs/client.log", Level.OFF);
+            new LogSetup("logs/client.log", Level.ALL);
             client.CLI app = new CLI();
             app.run();
         } catch (IOException e) {

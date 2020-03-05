@@ -1,9 +1,9 @@
 package app_kvServer;
 
+import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ecs.IECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
@@ -13,7 +13,6 @@ import shared.messages.UnifiedMessage;
 
 import java.io.*;
 import java.net.Socket;
-import java.text.MessageFormat;
 import java.util.Objects;
 
 /**
@@ -78,20 +77,20 @@ public class ClientConnection extends Thread {
                     switch(request.getMessageType()) {
                         case CLIENT_TO_SERVER:
                         case SERVER_TO_CLIENT:
-                            logger.info("SERVER_TO_CLIENT request: " + request.serialize());
-                            response = handleMessage(request);
+                            logger.info("CLIENT request: {}", request.serialize());
+                            response = handleClientMessage(request);
                             break;
                         case ECS_TO_SERVER:
-                        case SERVER_TO_ECES:
-                            logger.info("ECS_TO_SERVER request: " + request.serialize());
+                        case SERVER_TO_ECS:
+                            logger.info("ECS request: {}", request.serialize());
                             response = handleAdminMessage(request);
                             break;
                         case SERVER_TO_SERVER:
-                            logger.info("SERVER_TO_SERVER request: " + request.serialize());
+                            logger.info("SERVER request: {}", request.serialize());
                             response = handleServerMessage(request);
                             break;
                         default:
-                            logger.info("UNKNOWN request: " + request.serialize());
+                            logger.info("UNKNOWN request: {}", request.serialize());
                             throw new Exception("Invalid message type");
                     }
 
@@ -123,8 +122,8 @@ public class ClientConnection extends Thread {
         }
     }
 
-    private UnifiedMessage handleMessage(UnifiedMessage msg) {
-        if (!server.getStatus().equals(IECSNode.ECSNodeFlag.START)) {
+    private UnifiedMessage handleClientMessage(UnifiedMessage msg) {
+        if (!server.getStatus().equals(KVMessage.StatusType.START)) {
             logger.info("SERVER: {}. Not accepting client requests",
                 server.getStatus());
             msg.setStatusType(KVMessage.StatusType.SERVER_STOPPED);
@@ -132,6 +131,33 @@ public class ClientConnection extends Thread {
         }
 
         UnifiedMessage replyMsg = msg;
+        /*
+         * Check if the key requested is in the server's hash range.
+         * If it is in range, process as normal, if it isn't, reply
+         * SERVER_NOT_RESPONSIBLE to the client along with the updated
+         * HashRing (embedded in metadata).
+         *
+         * Since the server has the latest version of metadata,
+         * the client should, upon receiving the reply, be able to
+         * (1) reconnect, and (2) retry the request.
+         */
+        assert(Objects.nonNull(msg.getKey()));
+        HashRing.Hash hashedKey = new HashRing.Hash(msg.getKey());
+        HashRing.HashRange acceptedRange = server.getMetdata()
+            .getHashRing()
+            .getServerHashRange(server.getMetdata().getName());
+        if (!acceptedRange.inRange(hashedKey)) {
+            logger.info("{}: Object key: <{}>->{} invalid." +
+                "Accepted range=({},{}]",
+                server.getMetdata().getName(),
+                msg.getKey(), hashedKey.toHexString(),
+                acceptedRange.getLower(), acceptedRange.getUpper()
+            );
+            replyMsg.setMetadata(server.getMetdata());
+            replyMsg.setStatusType(KVMessage.StatusType.SERVER_NOT_RESPONSIBLE);
+            return replyMsg;
+        }
+
         switch(msg.getStatusType()) {
             case PUT:
                 replyMsg = handleClientPut(msg);
@@ -201,6 +227,8 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleServerMessage(UnifiedMessage msg) {
+        assert(server.getStatus().equals(KVMessage.StatusType.SERVER_WRITE_LOCK));
+
         if (msg.getStatusType().equals(KVMessage.StatusType.SERVER_MOVEDATA)) {
             server.recvData(msg.getDataSet());
         }
@@ -218,6 +246,8 @@ public class ClientConnection extends Thread {
             logger.info("PUT: {} <{}, {}>", status, key, value);
         } catch (Exception e){
             logger.error("PUT failed. <{}, {}>", key, value, e);
+
+
 
             // Delete scenario
             if (Objects.isNull(value) || value.equals("null") || value.equals("")) {

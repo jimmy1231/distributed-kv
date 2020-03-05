@@ -4,7 +4,8 @@ import app_kvECS.KVServerMetadata;
 import app_kvECS.TCPSockModule;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.messages.KVMessage;
 import shared.messages.Message;
 import app_kvECS.HashRing;
@@ -19,13 +20,14 @@ import java.rmi.server.ServerNotActiveException;
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
 public class KVStore implements KVCommInterface {
+	private static Logger logger = LoggerFactory.getLogger(KVStore.class);
+
 	private String serverAddress; // The user is expected to know at least one server
 	private int serverPort;
 	private Socket clientSocket;
 	private OutputStream output;
 	private InputStream input;
 	private ObjectMapper objectMapper;
-	private static Logger logger = Logger.getRootLogger();
 	private connectionStatus status;
 	private HashRing recentHashring;
 
@@ -60,7 +62,7 @@ public class KVStore implements KVCommInterface {
 			status = connectionStatus.CONNECTED;
 		}
 		catch (ConnectException e){
-			System.out.println("Error! " +  "Connection refused. Check if server is running");
+			System.out.println("Error! Connection refused. Check if server is running");
 			logger.error("Could not establish connection!", e);
 		}
 	}
@@ -129,6 +131,7 @@ public class KVStore implements KVCommInterface {
 
 			// check if the message needs to be retransmitted
 			if (replyMsg.getStatus() == Message.StatusType.SERVER_NOT_RESPONSIBLE) {
+				logger.info("NOT_RESPONSIBLE: HashRing is stale, updating..");
 				KVServerMetadata returnedMetadata = replyMsg.getMetadata();
 				recentHashring = returnedMetadata.getHashRing();
 			}
@@ -177,6 +180,7 @@ public class KVStore implements KVCommInterface {
 
 			// check if the message needs to be retransmitted
 			if (replyMsg.getStatus() == Message.StatusType.SERVER_NOT_RESPONSIBLE) {
+				logger.info("NOT_RESPONSIBLE: HashRing is stale, updating..");
 				KVServerMetadata returnedMetadata = replyMsg.getMetadata();
 				recentHashring = returnedMetadata.getHashRing();
 			}
@@ -191,6 +195,11 @@ public class KVStore implements KVCommInterface {
 			}
 		}
 		return replyMsg;
+	}
+
+	@Override
+	public void printRing() {
+		recentHashring.print();
 	}
 
 	/**

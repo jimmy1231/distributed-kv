@@ -29,7 +29,7 @@ public class CLI {
     }
 
     private void disconnect() {
-        if(client != null) {
+        if (client != null) {
             client.getStore().disconnect();
             client = null;
         }
@@ -38,19 +38,19 @@ public class CLI {
     private void handleCommand(String cmdLine) {
         String[] tokens = cmdLine.split("\\s+");
 
-        if(tokens[0].equals("quit")) {
+        if (tokens[0].equals("quit")) {
             stop = true;
             disconnect();
             System.out.println(PROMPT + "Application exit!");
             //TODO call system exit
 
-        } else if (tokens[0].equals("connect")){
-            if(tokens.length == 3) {
-                try{
+        } else if (tokens[0].equals("connect")) {
+            if (tokens.length == 3) {
+                try {
                     serverAddress = tokens[1];
                     serverPort = Integer.parseInt(tokens[2]);
                     connect(serverAddress, serverPort);
-                } catch(NumberFormatException nfe) {
+                } catch (NumberFormatException nfe) {
                     printError("No valid address. Port must be a number!");
                     logger.info("Unable to parse argument <port>", nfe);
                 } catch (UnknownHostException e) {
@@ -80,7 +80,7 @@ public class CLI {
                 value = String.join(" ", tokens);
 
                 // string of null should be considered an empty string
-                if (value.equals("null")){
+                if (value.equals("null")) {
                     value = null;
                 }
 
@@ -88,17 +88,16 @@ public class CLI {
                     logger.info(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
                     System.out.println(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
 
-                    try{
+                    try {
                         KVMessage result = client.getStore().put(key, value);
                         logger.info(MessageFormat.format("{0} Inserted <{1}, {2}>", result.getStatus(),
-                                result.getKey(), result.getValue()));
+                            result.getKey(), result.getValue()));
                         System.out.println(MessageFormat.format("{0} Inserted <{1}, {2}>",
-                                result.getStatus(), result.getKey(), result.getValue()));
-                    }
-                    catch(Exception e){
+                            result.getStatus(), result.getKey(), result.getValue()));
+                    } catch (Exception e) {
                         String error_msg = MessageFormat.format("Request failed: PUT <{1}, {2}>",
-                                key,
-                                value);
+                            key,
+                            value);
                         System.out.print(error_msg);
                         logger.error(error_msg, e);
                     }
@@ -112,66 +111,67 @@ public class CLI {
                 printError("Too few arguments");
             }
 
-        } else  if (tokens[0].equals("get")) {
-                if(tokens.length == 2) {
-                    if(client != null && client.isRunning()){
-                        String key = tokens[1];
-                        logger.info(MessageFormat.format("Sending GET <{0}>", key));
-                        System.out.println(MessageFormat.format("Sending GET <{0}>", key));
+        } else if (tokens[0].equals("get")) {
+            if (tokens.length == 2) {
+                if (client != null && client.isRunning()) {
+                    String key = tokens[1];
+                    logger.info(MessageFormat.format("Sending GET <{0}>", key));
+                    System.out.println(MessageFormat.format("Sending GET <{0}>", key));
 
-                        try{
-                            KVMessage result = client.getStore().get(key);
-                            logger.info(MessageFormat.format("{0} retrieved <{1}, {2}>", result.getStatus(),
-                                    result.getKey(), result.getValue()));
-                            System.out.println(MessageFormat.format("{0} retrieved <{1}, {2}>",
-                                    result.getStatus(), result.getKey(), result.getValue()));
-                        }
-                        catch (Exception e){
-                            String error_msg = MessageFormat.format("Request failed: GET <{1}>", key);
-                            System.out.print(error_msg);
-                            logger.error(error_msg, e);
-                        }
-
-                    } else {
-                        printError("Not connected!");
+                    try {
+                        KVMessage result = client.getStore().get(key);
+                        logger.info(MessageFormat.format("{0} retrieved <{1}, {2}>", result.getStatus(),
+                            result.getKey(), result.getValue()));
+                        System.out.println(MessageFormat.format("{0} retrieved <{1}, {2}>",
+                            result.getStatus(), result.getKey(), result.getValue()));
+                    } catch (Exception e) {
+                        String error_msg = MessageFormat.format("Request failed: GET <{1}>", key);
+                        System.out.print(error_msg);
+                        logger.error(error_msg, e);
                     }
-                } else if (tokens.length > 2) {
-                    printError("Too many arguments");
-                } else {
-                    printError("Too few arguments");
-                }
 
-        } else if(tokens[0].equals("disconnect")) {
+                } else {
+                    printError("Not connected!");
+                }
+            } else if (tokens.length > 2) {
+                printError("Too many arguments");
+            } else {
+                printError("Too few arguments");
+            }
+
+        } else if (tokens[0].equals("disconnect")) {
             disconnect();
 
-            if (client == null){
+            if (client == null) {
                 System.out.println(PROMPT + "Successfully disconnected from the server");
                 logger.info("Client requested disconnection from the server");
             }
-        } else if(tokens[0].equals("logLevel")) {
-            if(tokens.length == 2) {
+        } else if (tokens[0].equals("logLevel")) {
+            if (tokens.length == 2) {
                 String level = setLevel(tokens[1]);
-                if(level.equals(LogSetup.UNKNOWN_LEVEL)) {
+                if (level.equals(LogSetup.UNKNOWN_LEVEL)) {
                     printError("No valid log level!");
                     printPossibleLogLevels();
                 } else {
                     System.out.println(PROMPT +
-                            "Log level changed to level " + level);
+                        "Log level changed to level " + level);
                 }
             } else {
                 printError("Invalid number of parameters!");
             }
 
-        } else if(tokens[0].equals("help")) {
+        } else if (tokens[0].equals("help")) {
             printHelp();
+        } else if (tokens[0].equals("print_ring")) {
+            client.getStore().printRing();
         } else {
             printError("Unknown command");
             printHelp();
         }
     }
 
-    public void run(){
-        while(!stop) {
+    public void run() {
+        while (!stop) {
             stdin = new BufferedReader(new InputStreamReader(System.in));
             System.out.print(PROMPT);
 
@@ -187,25 +187,25 @@ public class CLI {
 
     private String setLevel(String levelString) {
 
-        if(levelString.equals(Level.ALL.toString())) {
+        if (levelString.equals(Level.ALL.toString())) {
             logger.setLevel(Level.ALL);
             return Level.ALL.toString();
-        } else if(levelString.equals(Level.DEBUG.toString())) {
+        } else if (levelString.equals(Level.DEBUG.toString())) {
             logger.setLevel(Level.DEBUG);
             return Level.DEBUG.toString();
-        } else if(levelString.equals(Level.INFO.toString())) {
+        } else if (levelString.equals(Level.INFO.toString())) {
             logger.setLevel(Level.INFO);
             return Level.INFO.toString();
-        } else if(levelString.equals(Level.WARN.toString())) {
+        } else if (levelString.equals(Level.WARN.toString())) {
             logger.setLevel(Level.WARN);
             return Level.WARN.toString();
-        } else if(levelString.equals(Level.ERROR.toString())) {
+        } else if (levelString.equals(Level.ERROR.toString())) {
             logger.setLevel(Level.ERROR);
             return Level.ERROR.toString();
-        } else if(levelString.equals(Level.FATAL.toString())) {
+        } else if (levelString.equals(Level.FATAL.toString())) {
             logger.setLevel(Level.FATAL);
             return Level.FATAL.toString();
-        } else if(levelString.equals(Level.OFF.toString())) {
+        } else if (levelString.equals(Level.OFF.toString())) {
             logger.setLevel(Level.OFF);
             return Level.OFF.toString();
         } else {
@@ -213,8 +213,8 @@ public class CLI {
         }
     }
 
-    private void printError(String error){
-        System.out.println(PROMPT + "Error! " +  error);
+    private void printError(String error) {
+        System.out.println(PROMPT + "Error! " + error);
     }
 
     private void printHelp() {
@@ -242,8 +242,8 @@ public class CLI {
 
     private void printPossibleLogLevels() {
         System.out.println(PROMPT
-                + "Possible log levels are:");
+            + "Possible log levels are:");
         System.out.println(PROMPT
-                + "ALL | DEBUG | INFO | WARN | ERROR | FATAL | OFF");
+            + "ALL | DEBUG | INFO | WARN | ERROR | FATAL | OFF");
     }
 }

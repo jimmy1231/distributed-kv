@@ -81,8 +81,8 @@ public class KVServer implements IKVServer {
 		});
 	}
 
-	public IECSNode.ECSNodeFlag getStatus() {
-		return metadata.getEcsNodeFlag();
+	public KVMessage.StatusType getStatus() {
+		return serverStatus;
 	}
 	public KVServerMetadata getMetdata() {
 		return metadata;
