@@ -8,7 +8,7 @@ public interface IECSNode {
         STOP,               /* Node has stopped */
         START,              /* Node has started */
         STATE_CHANGE,       /* Node state has changed */
-        KV_TRANSFER,        /* Data transfer occurred */
+        KV_TRANSFER,        /* Data transfer occurred, aka. WRITE_LOCK */
         SHUT_DOWN,          /* Node has shut down */
         UPDATE,             /* Node has updated */
         TRANSFER_FINISH,    /* Data transfer operation finished */

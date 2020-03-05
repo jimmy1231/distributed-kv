@@ -4,6 +4,7 @@ import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ecs.IECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
@@ -123,9 +124,9 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleClientMessage(UnifiedMessage msg) {
-        if (!server.getStatus().equals(KVMessage.StatusType.START)) {
-            logger.info("SERVER: {}. Not accepting client requests",
-                server.getStatus());
+        IECSNode.ECSNodeFlag flg = server.getStatus();
+        if (!flg.equals(IECSNode.ECSNodeFlag.START)) {
+            logger.info("SERVER: {}. Not accepting client requests", flg);
             msg.setStatusType(KVMessage.StatusType.SERVER_STOPPED);
             return msg;
         }
@@ -176,6 +177,7 @@ public class ClientConnection extends Thread {
     private UnifiedMessage handleAdminMessage(UnifiedMessage msg) throws Exception {
         KVMessage.StatusType responseStatus;
         KVServerMetadata metadata = msg.getMetadata();
+        IECSNode.ECSNodeFlag flg = server.getStatus();
 
         switch(msg.getStatusType()) {
             case START:
@@ -202,10 +204,12 @@ public class ClientConnection extends Thread {
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
             case SERVER_WRITE_UNLOCK:
+                assert(flg.equals(IECSNode.ECSNodeFlag.KV_TRANSFER));
                 server.unLockWrite();
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
             case SERVER_MOVEDATA:
+                assert(flg.equals(IECSNode.ECSNodeFlag.KV_TRANSFER));
                 server.moveData(msg.getKeyRange(), msg.getServer());
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
@@ -227,8 +231,6 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleServerMessage(UnifiedMessage msg) {
-        assert(server.getStatus().equals(KVMessage.StatusType.SERVER_WRITE_LOCK));
-
         if (msg.getStatusType().equals(KVMessage.StatusType.SERVER_MOVEDATA)) {
             server.recvData(msg.getDataSet());
         }

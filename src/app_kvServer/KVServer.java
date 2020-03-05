@@ -32,7 +32,6 @@ public class KVServer implements IKVServer {
 	private volatile boolean running;
 	private KVServerDaemon daemon;
 	private KVServerMetadata metadata;
-	private KVMessage.StatusType serverStatus;
 	private Disk disk;
 
 	class KVServerDaemon extends Thread {
@@ -63,7 +62,6 @@ public class KVServer implements IKVServer {
 		this.port = port;
 		running = false;
 		listener = null;
-		serverStatus = KVMessage.StatusType.SERVER_STOPPED;
 		metadata = new KVServerMetadataImpl(null, "localhost", IECSNode.ECSNodeFlag.IDLE, null);
 
         daemon = new KVServerDaemon(this);
@@ -81,9 +79,6 @@ public class KVServer implements IKVServer {
 		});
 	}
 
-	public KVMessage.StatusType getStatus() {
-		return serverStatus;
-	}
 	public KVServerMetadata getMetdata() {
 		return metadata;
 	}
@@ -349,7 +344,7 @@ public class KVServer implements IKVServer {
 	 */
 	@Override
 	public void lockWrite() {
-		serverStatus = KVMessage.StatusType.SERVER_WRITE_LOCK;
+		metadata.setECSNodeFlag(IECSNode.ECSNodeFlag.KV_TRANSFER);
 	}
 
 	/**
@@ -357,8 +352,9 @@ public class KVServer implements IKVServer {
 	 */
 	@Override
 	public void unLockWrite() {
-		if (serverStatus.equals(KVMessage.StatusType.SERVER_WRITE_LOCK)) {
-			serverStatus = KVMessage.StatusType.SERVER_STARTED;
+		IECSNode.ECSNodeFlag flag = metadata.getEcsNodeFlag();
+		if (flag.equals(IECSNode.ECSNodeFlag.KV_TRANSFER)) {
+			metadata.setECSNodeFlag(IECSNode.ECSNodeFlag.START);
 		}
 	}
 
@@ -438,6 +434,10 @@ public class KVServer implements IKVServer {
 				e.getMessage(), dataSet.serialize()
 			), e);
 		}
+	}
+
+	public IECSNode.ECSNodeFlag getStatus() {
+		return metadata.getEcsNodeFlag();
 	}
 
 	/**
