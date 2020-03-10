@@ -80,7 +80,15 @@ public class ECSNode implements IECSNode {
         return new Gson().toJson(this);
     }
 
-    public boolean compareTo(ECSNode o) {
+    @Override
+    public boolean compareTo(IECSNode _o) {
+        ECSNode o;
+        if (_o instanceof ECSNode) {
+            o = (ECSNode) _o;
+        } else {
+            return false;
+        }
+
         if (Objects.isNull(range)) {
             return uuid.equals(o.uuid)
                 && name.equals(o.name)
