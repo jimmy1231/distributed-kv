@@ -21,11 +21,12 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.text.MessageFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = Logger.getRootLogger();
-	private final HashMap <String, ClientConnection> connectionStatusTable = new HashMap<>();
+	private final ConcurrentHashMap <String, ClientConnection> connectionStatusTable = new ConcurrentHashMap<>();
 	private ServerSocket listener;
 	private DSCache cache;
 	private int port;
@@ -293,10 +294,8 @@ public class KVServer implements IKVServer {
 	}
 
 	public void closeConnection(String connectionId) {
-		synchronized (connectionStatusTable) {
 			System.out.println("SERVER: closing connection with ID=" + connectionId);
 			connectionStatusTable.remove(connectionId);
-		}
 	}
 
 	@Override
