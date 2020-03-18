@@ -181,19 +181,21 @@ public class HashRingTests extends TestCase {
         assert(pred.test("iphone", "server-0"));
     }
 
-    private boolean isSame(Map<String, ECSNode> s1, Map<String, ECSNode> s2) {
+    private boolean isSame(Map<String, IECSNode> s1, Map<String, IECSNode> s2) {
         if (s1.size() != s2.size()) {
             return false;
         }
 
-        Iterator<Map.Entry<String, ECSNode>> it = s1.entrySet().iterator();
-        Map.Entry<String, ECSNode> entry;
-        ECSNode s1_n, s2_n;
+        Iterator<Map.Entry<String, IECSNode>> it = s1.entrySet().iterator();
+        Map.Entry<String, IECSNode> entry;
+        IECSNode s1_n, s2_n;
+        String s1_h;
         while (it.hasNext()) {
             entry = it.next();
+            s1_h = entry.getKey();
             s1_n = entry.getValue();
 
-            s2_n = s2.get(entry.getKey());
+            s2_n = s2.get(s1_h);
             if (Objects.isNull(s2_n)) {
                 return false;
             }
@@ -206,7 +208,7 @@ public class HashRingTests extends TestCase {
         return true;
     }
 
-    private boolean isSame(TreeMap<HashRing.Hash, ECSNode> s1, TreeMap<HashRing.Hash, ECSNode> s2) {
+    private boolean isSameRing(Map<HashRing.Hash, ECSNode> s1, Map<HashRing.Hash, ECSNode> s2) {
         if (s1.size() != s2.size()) {
             return false;
         }
@@ -246,7 +248,7 @@ public class HashRingTests extends TestCase {
         String serialized = hashRing.serialize();
         HashRing hashRingCpy = new HashRingImpl().deserialize(serialized);
 
-        assert(isSame(hashRing.getRing(), hashRingCpy.getRing()));
+        assert(isSameRing(hashRing.getRing(), hashRingCpy.getRing()));
         assert(isSame(hashRing.getServers(), hashRingCpy.getServers()));
     }
 

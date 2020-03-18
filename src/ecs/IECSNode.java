@@ -39,4 +39,5 @@ public interface IECSNode {
      */
     public String[] getNodeHashRange();
 
+    public boolean compareTo(IECSNode _o);
 }
