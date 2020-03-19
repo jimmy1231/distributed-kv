@@ -23,6 +23,10 @@ public class ReplicationTests extends TestCase {
         ECSNode s2 = new ECSNode("Server2", "localhost", 50001);
         ECSNode s3 = new ECSNode("Server3", "localhost", 50002);
 
+        s1.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+        s2.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+        s3.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+
         hashRing.addServer(s1);
         hashRing.addServer(s2);
         hashRing.addServer(s3);
@@ -44,8 +48,8 @@ public class ReplicationTests extends TestCase {
             System.out.println(e.fillInStackTrace());
         }
 
-        assertTrue(ex == null);
-                //&& (replicas[0].getNodeName() == "Server2" || replicas[1].getNodeName() == "Server3")
-                //&& (replicas[1].getNodeName() == "Server2" || replicas[0].getNodeName() == "Server3"));
+        assertTrue(ex == null
+            && (replicas[0].getNodeName() == "Server2" || replicas[0].getNodeName() == "Server3")
+            && (replicas[1].getNodeName() == "Server2" || replicas[1].getNodeName() == "Server3"));
     }
 }
