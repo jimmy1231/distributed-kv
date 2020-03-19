@@ -178,6 +178,7 @@ public class HashRingImpl extends HashRing {
     @Override
     public void removeServer(ECSNode server) {
         server.setEcsNodeFlag(IECSNode.ECSNodeFlag.START_STOP);
+        numOfServersInRing--;
     }
 
     @Override
@@ -188,6 +189,7 @@ public class HashRingImpl extends HashRing {
         }
 
         servers.put(server.getNodeName(), server);
+        numOfServersInRing++;
     }
 
     private void recomputeHashRanges() {

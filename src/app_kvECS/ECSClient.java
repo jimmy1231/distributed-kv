@@ -373,8 +373,8 @@ public class ECSClient implements IECSClient {
             ECSNode nodeToRemove = ring.getServerByName(nodeName);
             ECSNode successorNode = ring.getSuccessorServer(nodeToRemove); // get it before update the ring
 
-            if (Objects.isNull(successorNode)) {
-                logger.info("Cannot remove {}: only node", nodeName);
+            if (ring.getNumOfServers() < 4) {
+                logger.info("Cannot remove {}: at least 3 servers need to be running", nodeName);
                 return false;
             }
 
