@@ -4,6 +4,7 @@ import app_kvECS.TCPSockModule;
 import app_kvECS.HashRing;
 import app_kvECS.KVServerMetadata;
 import app_kvECS.impl.KVServerMetadataImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import shared.Pair;
@@ -177,7 +178,37 @@ public class KVServer implements IKVServer {
 			status = KVMessage.StatusType.PUT_SUCCESS;
 		}
 
+		// TODO
+		// Find two successors and replicate the data
+		// Wait until get acks from both
+		// when all acks are received, respond to the client
+
 		return status;
+	}
+
+	public ECSNode[] getReplicas(){
+		ECSNode[] replicas = new ECSNode[2];
+		HashRing ring = metadata.getHashRing();
+		String myNodeName = metadata.getName();
+		ECSNode myNode = ring.getServerByName(myNodeName);
+		ECSNode succNode1 = ring.getSuccessorServer(myNode); // this throws an error
+		ECSNode succNode2 = ring.getSuccessorServer(succNode1);
+
+		// sanity check
+		//assert (Objects.nonNull(succNode1) && Objects.nonNull(succNode2));
+
+		replicas[0] = succNode1;
+		replicas[1] = succNode2;
+
+		return replicas;
+	}
+
+	private void getAcks(){
+		//TODO
+	}
+
+	private void replicateData(){
+		//TODO
 	}
 
 	private KVMessage.StatusType checkMessageFormat(String key, String value){
