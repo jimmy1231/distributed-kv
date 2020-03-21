@@ -222,6 +222,10 @@ public class ClientConnection extends Thread {
                 msg.setDataSet(data);
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
+            case ECS_HEARTBEAT:
+                logger.info("ECS HEARTBEAT RECEIVED");
+                responseStatus = KVMessage.StatusType.SERVER_HEARTBEAT;
+                break;
             default:
                 throw new Exception("Unrecognized message");
         }

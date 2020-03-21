@@ -134,6 +134,7 @@ public class CLI {
 
 		if (input.equals(QUIT)) {
 			handleShutdown();
+			client.quit();
 			return false;
 		}
 		if (cmd.equals(SETUP)) {
