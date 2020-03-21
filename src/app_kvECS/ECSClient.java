@@ -599,7 +599,7 @@ public class ECSClient implements IECSClient {
 
     public static void main(String[] args) {
         try {
-            new LogSetup("logs/ecs.log", Level.ALL);
+            new LogSetup("logs/ecs.log", Level.INFO);
             CLI app = new CLI();
             app.run();
         } catch (IOException e) {
