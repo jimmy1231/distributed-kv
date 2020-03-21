@@ -1,6 +1,7 @@
 package testing;
 
 import app_kvECS.HashRing;
+import app_kvECS.TCPSockModule;
 import app_kvECS.impl.HashRingImpl;
 import ecs.ECSNode;
 import ecs.IECSNode;

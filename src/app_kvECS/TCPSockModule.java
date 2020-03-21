@@ -9,6 +9,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterOutputStream;
 
 public class TCPSockModule {
     private static Logger logger = LoggerFactory.getLogger(TCPSockModule.class);
@@ -82,16 +84,21 @@ public class TCPSockModule {
     }
 
     public static boolean send(OutputStream output, String message) {
-        message = message + DEADBEEF;
+        byte[] messageBytes;
+        try {
+            message = compress(message) + DEADBEEF;
+            messageBytes = message.getBytes();
+        } catch (Exception e) {
+            return false;
+        }
 
-        byte[] messageBytes = message.getBytes();
         logger.info("REQUEST, # Bytes = {}", messageBytes.length);
         try {
             logger.debug("SEND_MESSAGE: {}", format(message));
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
         } catch (Exception e) {
-            logger.error("Failed to send response", e);
+            logger.error("Failed to send message", e);
             return false;
         }
 
@@ -168,17 +175,50 @@ public class TCPSockModule {
              * returned, and no data was read, it must mean
              * the underlying connection has been closed.
              */
-            response = bas.toString("UTF-8");
+            response = decompress(bas.toString("UTF-8"));
             if (len < 0 && response.isEmpty()) {
                 return null;
             }
         } catch (IOException e) {
             logger.info("Stream closed unexpectedly", e);
             response = null;
+        } catch (Exception e) {
+            logger.error("RECV was incomplete", e);
+            response = null;
         }
 
         logger.debug("RECV_MESSAGE: {}", format(response));
         return response;
+    }
+
+    public static String compress(String in) throws Exception {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            DeflaterOutputStream defl = new DeflaterOutputStream(out);
+            defl.write(in.getBytes());
+            defl.flush();
+            defl.close();
+
+            return new String(out.toByteArray());
+        } catch (Exception e) {
+            logger.debug("Compression failed");
+            throw e;
+        }
+    }
+
+    public static String decompress(String in) throws Exception {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            InflaterOutputStream infl = new InflaterOutputStream(out);
+            infl.write(in.getBytes());
+            infl.flush();
+            infl.close();
+
+            return new String(out.toByteArray());
+        } catch (Exception e) {
+            logger.debug("Decompression failed");
+            throw e;
+        }
     }
 
     private Socket connect(String host, int port) throws Exception {
