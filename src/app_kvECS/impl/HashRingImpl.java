@@ -476,9 +476,10 @@ public class HashRingImpl extends HashRing {
                 entry = it.next();
                 ecsNode = entry.getValue();
 
-                sb.append(String.format("%s: %s:%d | %s\n",
-                    ecsNode.getNodeName(), ecsNode.getNodeHost(),
-                    ecsNode.getNodePort(), ecsNode.getEcsNodeFlag())
+                sb.append(String.format("%s: %s => %s | %s\n",
+                    ecsNode.getNodeName(), ecsNode.getUuid(),
+                    new Hash(ecsNode.getUuid()),
+                    ecsNode.getEcsNodeFlag())
                 );
             }
         }
