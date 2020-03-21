@@ -223,6 +223,7 @@ public class ClientConnection extends Thread {
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
             case ECS_HEARTBEAT:
+                logger.info("ECS HEARTBEAT RECEIVED");
                 responseStatus = KVMessage.StatusType.SERVER_HEARTBEAT;
                 break;
             default:
