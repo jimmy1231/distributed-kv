@@ -467,6 +467,10 @@ public class ECSClient implements IECSClient {
     }
 
     public void recoverServers(List<ECSNode> failedServers) {
+        if (failedServers.isEmpty()) {
+            return;
+        }
+
         // TODO: we should probably lock this..
         HashRange S_i_range, S_i_succ_range;
         ECSNode S_i_succ, S_i_pred;
