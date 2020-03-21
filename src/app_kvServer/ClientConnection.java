@@ -249,7 +249,7 @@ public class ClientConnection extends Thread {
                 break;
             case REPLICATE_DATA:
                 // TODO: M3 - integrate with KVServer
-                logger.info("REPLICATE_DATA: {}:{} -> {} | range=%s",
+                logger.info("REPLICATE_DATA: {}:{} -> {} | range={}",
                     server.getHostname(), server.getPort(),
                     msg.getServer().getUuid(),
                     new HashRing.HashRange(msg.getKeyRange()));
