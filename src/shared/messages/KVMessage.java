@@ -32,7 +32,6 @@ public interface KVMessage {
 		SERVER_HEARTBEAT,	/* Server response to ECS heartbeat */
 		SERVER_REPLICATE, 	/* ECS sends this to server, upon receiving, server replicates based on Hash Ring in request */
 		REPLICATE_DATA, 	/* ECS sends this to a replica server telling it to send some of its replicated data to another server */
-		SERVER_REPLICATE_UPDATE, /* Updates status and metadata */
 
 		START,				/* ECSClient sending a START request to Server */
 		STOP,				/* ECS sends STOP request to server */

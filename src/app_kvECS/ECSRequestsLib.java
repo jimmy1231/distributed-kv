@@ -165,11 +165,11 @@ public class ECSRequestsLib {
         send(server, msg);
     }
 
-    public static void updateServerReplicate(ECSNode server,
-                                             KVServerMetadata metadata) throws Exception {
+    public static void updateServer(ECSNode server,
+                                    KVServerMetadata metadata) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
-            .withStatusType(KVMessage.StatusType.SERVER_REPLICATE_UPDATE)
+            .withStatusType(KVMessage.StatusType.SERVER_UPDATE)
             .withMetadata(metadata)
             .build();
 

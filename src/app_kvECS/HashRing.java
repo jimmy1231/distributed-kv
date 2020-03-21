@@ -206,6 +206,11 @@ public abstract class HashRing {
             };
         }
 
+        @Override
+        public String toString() {
+            return String.format("(%s,%s]", lower, upper);
+        }
+
         public Hash getLower() {
             return lower;
         }

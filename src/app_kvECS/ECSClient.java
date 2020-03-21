@@ -23,7 +23,6 @@ import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
 import static shared.messages.KVMessage.StatusType.SERVER_REPLICATE;
-import static shared.messages.KVMessage.StatusType.SHUTDOWN;
 
 
 public class ECSClient implements IECSClient {
@@ -567,7 +566,7 @@ public class ECSClient implements IECSClient {
                     );
                 }
 
-                ECSRequestsLib.updateServerReplicate(S_n,
+                ECSRequestsLib.updateServer(S_n,
                     new KVServerMetadataImpl(
                         S_n.getNodeName(),
                         S_n.getNodeHost(),

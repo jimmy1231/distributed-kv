@@ -4,6 +4,7 @@ import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import ecs.ECSNode;
 import ecs.IECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,7 +12,9 @@ import shared.messages.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Represents a connection end point for a particular client that is
@@ -243,20 +246,24 @@ public class ClientConnection extends Thread {
                     .withMessageType(MessageType.SERVER_TO_ECS)
                     .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
-            case SERVER_REPLICATE_UPDATE:
-                // TODO: M3 - integrate with KVServer
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
             case REPLICATE_DATA:
                 // TODO: M3 - integrate with KVServer
+                logger.info("REPLICATE_DATA: {}:{} -> {} | range=%s",
+                    server.getHostname(), server.getPort(),
+                    msg.getServer().getUuid(),
+                    new HashRing.HashRange(msg.getKeyRange()));
                 respBuilder
                     .withMessageType(MessageType.SERVER_TO_ECS)
                     .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_REPLICATE:
                 // TODO: M3 - integrate with KVServer
+                HashRing _ring = msg.getMetadata().getHashRing();
+                List<String> replicas = _ring.getReplicas(
+                    _ring.getServerByName(server.getMetdata().getName())
+                ).stream().map(ECSNode::getNodeName).collect(Collectors.toList());
+                logger.info("SERVER_REPLICATE: {}:{} -> {}",
+                    server.getHostname(), server.getPort(), replicas);
                 respBuilder
                     .withMessageType(MessageType.SERVER_TO_ECS)
                     .withStatusType(KVMessage.StatusType.SUCCESS);

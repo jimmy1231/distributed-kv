@@ -459,9 +459,9 @@ public class HashRingImpl extends HashRing {
                 ecsNode = entry.getValue();
                 hashRange = ecsNode.getNodeHashRange();
 
-                sb.append(String.format("%3d: %s => %s | RANGE=(%s,%s] | %s\n",
+                sb.append(String.format("%3d: %s => %s | RANGE=%s | %s\n",
                     i, ecsNode.getNodeName(), hash.toHexString(),
-                    hashRange[0], hashRange[1],
+                    new HashRange(hashRange).toString(),
                     ecsNode.getEcsNodeFlag())
                 );
 
