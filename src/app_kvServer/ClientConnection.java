@@ -238,6 +238,17 @@ public class ClientConnection extends Thread {
         if (msg.getStatusType().equals(KVMessage.StatusType.SERVER_MOVEDATA)) {
             server.recvData(msg.getDataSet());
         }
+        else if (msg.getStatusType().equals(KVMessage.StatusType.PUT)){
+            try {
+                KVMessage.StatusType respType = server.replicate(msg.getServer().getNodeName(),
+                        msg.getKey(), msg.getValue());
+                msg.setStatusType(respType);
+            }
+            catch (NullPointerException e){
+                // need to set up msg response to the primary server
+                logger.error(e.getMessage());
+            }
+        }
 
         return msg;
     }

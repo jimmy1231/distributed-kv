@@ -37,19 +37,6 @@ public class ReplicationTests extends TestCase {
     }
 
     public void testGetReplicas() {
-        Exception ex = null;
-        ECSNode[] replicas = new ECSNode[2];
 
-        try {
-            replicas = server.getReplicas();
-        } catch (Exception e) {
-            ex = e;
-            System.out.println(e);
-            System.out.println(e.fillInStackTrace());
-        }
-
-        assertTrue(ex == null
-            && (replicas[0].getNodeName() == "Server2" || replicas[0].getNodeName() == "Server3")
-            && (replicas[1].getNodeName() == "Server2" || replicas[1].getNodeName() == "Server3"));
     }
 }
