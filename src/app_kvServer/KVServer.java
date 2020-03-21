@@ -35,6 +35,7 @@ public class KVServer implements IKVServer {
 	private KVServerDaemon daemon;
 	private KVServerMetadata metadata;
 	private Disk disk;
+	private Map<String, Disk> replicatedDisks;
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -61,6 +62,7 @@ public class KVServer implements IKVServer {
 	 */
 	public KVServer(int port, int cacheSize, String strategy) {
 		disk = new Disk(String.format("kv_store_%d.txt", port));
+		replicatedDisks = new HashMap<String, Disk>();
 		cache = new DSCache(cacheSize, strategy, disk);
 		this.port = port;
 		running = false;
@@ -196,7 +198,7 @@ public class KVServer implements IKVServer {
 		ECSNode succNode2 = ring.getSuccessorServer(succNode1);
 
 		// sanity check
-		//assert (Objects.nonNull(succNode1) && Objects.nonNull(succNode2));
+		assert (Objects.nonNull(succNode1) && Objects.nonNull(succNode2));
 
 		replicas[0] = succNode1;
 		replicas[1] = succNode2;
@@ -491,6 +493,14 @@ public class KVServer implements IKVServer {
 	@Override
 	public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy) {
 		this.update(metadata);
+
+		// Now that we have metadata available, create disks for replicated data
+		ECSNode[] replicas = this.getReplicas();
+		replicatedDisks.put(replicas[0].getNodeHost(),
+							new Disk(String.format("kv_store_%d.txt", replicas[0].getNodePort())));
+		replicatedDisks.put(replicas[1].getNodeHost(),
+				new Disk(String.format("kv_store_%d.txt", replicas[1].getNodePort())));
+
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 	}
 
