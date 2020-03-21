@@ -52,7 +52,13 @@ public class TCPSockModule {
      * @param request
      */
     public UnifiedMessage doRequest(UnifiedMessage request) throws Exception {
+        UnifiedMessage resp;
+
         /* Do request */
+        logger.info("REQUEST -> {}:{} MessageType={}, StatusType={}",
+            socket.getLocalAddress(), socket.getPort(),
+            request.getMessageType(),
+            request.getStatusType());
         if (!send(output, request.serialize())) {
             logger.info("Failed to send request");
             throw new Exception("SEND failed");
@@ -63,7 +69,13 @@ public class TCPSockModule {
         if (Objects.isNull(responseStr)) {
             throw new Exception("CONNECTION WAS CLOSED");
         }
-        return new UnifiedMessage().deserialize(responseStr);
+
+        resp = new UnifiedMessage().deserialize(responseStr);
+        logger.info("RESPONSE <- {}:{} MessageType={}, StatusType={}",
+            socket.getLocalAddress(), socket.getPort(),
+            request.getMessageType(),
+            request.getStatusType());
+        return resp;
     }
 
     public void close() {
@@ -96,7 +108,7 @@ public class TCPSockModule {
 
         logger.info("REQUEST, # Bytes = {}", messageBytes.length);
         try {
-            logger.debug("SEND_MESSAGE: {}", format(message));
+            logger.debug("SEND_MESSAGE: {}", message);
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
         } catch (Exception e) {
@@ -189,7 +201,7 @@ public class TCPSockModule {
             response = null;
         }
 
-        logger.debug("RECV_MESSAGE: {}", format(response));
+        logger.debug("RECV_MESSAGE: {}", response);
         return response;
     }
 
