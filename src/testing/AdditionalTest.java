@@ -24,9 +24,11 @@ public class AdditionalTest extends TestCase {
 	@Rule
 	public Timeout globalTimeout = new Timeout(10000);
 	private KVStore kvClient;
+	private Disk disk;
 
 	public void setUp() {
 		kvClient = new KVStore("localhost", 50000);
+		disk = new Disk("test.txt");
 		try {
 			kvClient.connect();
 		} catch (Exception e) {
@@ -35,11 +37,12 @@ public class AdditionalTest extends TestCase {
 
 	public void tearDown() {
 		kvClient.disconnect();
+		disk.clearStorage();
 	}
 
 	@Test
 	public void testCacheFunc() throws Exception {
-		DSCache dsCache = new DSCache(100, "FIFO");
+		DSCache dsCache = new DSCache(100, "FIFO", disk);
 		dsCache.putKV("1", "1265309548");
 		dsCache.putKV("2", "9665117208");
 		dsCache.putKV("3", "3979847452");
@@ -57,7 +60,7 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testCacheFlush() throws Exception {
-		DSCache dsCache = new DSCache(100, "FIFO");
+		DSCache dsCache = new DSCache(100, "FIFO", disk);
 		dsCache.putKV("1", "1265309548");
 		dsCache.putKV("2", "9665117208");
 		dsCache.putKV("3", "3979847452");
@@ -77,7 +80,7 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testDelete() throws Exception {
-		DSCache dsCache = new DSCache(100, "FIFO", true);
+		DSCache dsCache = new DSCache(100, "FIFO", disk,true);
 		dsCache.putKV("1", "1265309548");
 		dsCache.putKV("2", "9665117208");
 		dsCache.putKV("3", "3979847452");
@@ -96,9 +99,9 @@ public class AdditionalTest extends TestCase {
 		assertFalse(dsCache.inCache("1"));
 		assertFalse(dsCache.inCache("2"));
 		assertFalse(dsCache.inCache("3"));
-        assertFalse(Disk.inStorage("1"));
-        assertFalse(Disk.inStorage("2"));
-        assertFalse(Disk.inStorage("3"));
+        assertFalse(disk.inStorage("1"));
+        assertFalse(disk.inStorage("2"));
+        assertFalse(disk.inStorage("3"));
 
 
         boolean passed = false;
@@ -128,7 +131,7 @@ public class AdditionalTest extends TestCase {
 
 	@Test
     public void testWriteThrough() throws Exception {
-        DSCache dsCache = new DSCache(100, "FIFO");
+        DSCache dsCache = new DSCache(100, "FIFO", disk);
         dsCache.putKV("1", "1265309548");
         dsCache.putKV("2", "9665117208");
         dsCache.putKV("3", "3979847452");
@@ -136,14 +139,14 @@ public class AdditionalTest extends TestCase {
         assertTrue(dsCache.inCache("1"));
         assertTrue(dsCache.inCache("2"));
         assertTrue(dsCache.inCache("3"));
-        assertTrue(Disk.inStorage("1"));
-        assertTrue(Disk.inStorage("2"));
-        assertTrue(Disk.inStorage("3"));
+        assertTrue(disk.inStorage("1"));
+        assertTrue(disk.inStorage("2"));
+        assertTrue(disk.inStorage("3"));
     }
 
 	@Test
 	public void testPutKVReturnCodes() throws Exception {
-		DSCache dsCache = new DSCache(100, "FIFO");
+		DSCache dsCache = new DSCache(100, "FIFO", disk);
 		assertEquals(dsCache.putKV("1", "abc"), DSCache.CODE_PUT_SUCCESS);
 		assertEquals(dsCache.putKV("2", "abc"), DSCache.CODE_PUT_SUCCESS);
 		assertEquals(dsCache.putKV("3", "abc"), DSCache.CODE_PUT_SUCCESS);
@@ -156,7 +159,7 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testCacheLRU() throws Exception {
-		DSCache dsCache = new DSCache(4, "LRU");
+		DSCache dsCache = new DSCache(4, "LRU", disk);
 		// Fill up cache
 		dsCache.putKV("1", "1265309548"); // t=0
 		dsCache.putKV("2", "9665117208"); // t=1
@@ -212,7 +215,7 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testCacheFIFO() throws Exception {
-		DSCache dsCache = new DSCache(4, "FIFO");
+		DSCache dsCache = new DSCache(4, "FIFO", disk);
 		// Fill up cache
 		dsCache.putKV("1", "1265309548"); // t=0
 		dsCache.putKV("2", "9665117208"); // t=1
@@ -268,7 +271,7 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testCacheLFU() throws Exception {
-		DSCache dsCache = new DSCache(4, "LFU");
+		DSCache dsCache = new DSCache(4, "LFU", disk);
 		// Fill up cache
 		dsCache.putKV("1", "1265309548"); // t=0
 		dsCache.putKV("2", "9665117208"); // t=1
@@ -353,7 +356,7 @@ public class AdditionalTest extends TestCase {
 	@Test
 	public void testCacheToDisk() throws Exception {
 		// Choose arbitrary replacement strategy (any will do)
-		DSCache dsCache = new DSCache(1, "FIFO");
+		DSCache dsCache = new DSCache(1, "FIFO", disk);
 		String key1 = "1";
 		String value1 = UUID.randomUUID().toString();
 		String key2 = "2";
@@ -468,7 +471,7 @@ public class AdditionalTest extends TestCase {
 		 * no real functionality is being tested here. Refer to
 		 * above test cases for functionality.
 		 */
-		DSCache cache = new DSCache(100, "FIFO");
+		DSCache cache = new DSCache(100, "FIFO", disk);
 		List<String> keys = new ArrayList<>();
 		int i;
 		for (i=0; i<200; i++) {
@@ -529,11 +532,11 @@ public class AdditionalTest extends TestCase {
 			key = Integer.toString(i);
 			value = UUID.randomUUID().toString();
 
-			Disk.putKV(key, value);
-			_value = Disk.getKV(key);
+			disk.putKV(key, value);
+			_value = disk.getKV(key);
 
 			assertEquals(value, _value);
-			assertTrue(Disk.inStorage(key));
+			assertTrue(disk.inStorage(key));
 		}
 	}
 
@@ -550,11 +553,11 @@ public class AdditionalTest extends TestCase {
 		for (int i=0; i < 200; i++) {
 			value = UUID.randomUUID().toString();
 
-			Disk.putKV(key, value);
-			_value = Disk.getKV(key);
+			disk.putKV(key, value);
+			_value = disk.getKV(key);
 
 			assertEquals(value, _value);
-			assertTrue(Disk.inStorage(key));
+			assertTrue(disk.inStorage(key));
 		}
 	}
 
@@ -567,54 +570,54 @@ public class AdditionalTest extends TestCase {
 		String key = "random_key";
 		String _value;
 		for (int i=0; i < 200; i++) {
-			_value = Disk.getKV(key);
+			_value = disk.getKV(key);
 
 			assertNull(_value);
-			assertFalse(Disk.inStorage(key));
+			assertFalse(disk.inStorage(key));
 		}
 	}
 
 	@Test
 	public void testDeleteDisk() {
 		/* Case 1: Key exists - should be removed from storage */
-		Disk.putKV("1", "abcdefghij");
-		Disk.putKV("2", "abc-123");
-		Disk.putKV("3", "a = 1, b = 2, c = 3");
-		Disk.putKV("4", "{a: 1}, {b: 2}, {c: 3}");
+		disk.putKV("1", "abcdefghij");
+		disk.putKV("2", "abc-123");
+		disk.putKV("3", "a = 1, b = 2, c = 3");
+		disk.putKV("4", "{a: 1}, {b: 2}, {c: 3}");
 
-		assertTrue(Disk.inStorage("1"));
-		assertTrue(Disk.inStorage("2"));
-		assertTrue(Disk.inStorage("3"));
-		assertTrue(Disk.inStorage("4"));
+		assertTrue(disk.inStorage("1"));
+		assertTrue(disk.inStorage("2"));
+		assertTrue(disk.inStorage("3"));
+		assertTrue(disk.inStorage("4"));
 
-		Disk.putKV("1", null);
-		Disk.putKV("2", null);
-		Disk.putKV("3", null);
-		Disk.putKV("4", null);
+		disk.putKV("1", null);
+		disk.putKV("2", null);
+		disk.putKV("3", null);
+		disk.putKV("4", null);
 
-		assertNull(Disk.getKV("1"));
-		assertNull(Disk.getKV("2"));
-		assertNull(Disk.getKV("3"));
-		assertNull(Disk.getKV("4"));
-		assertFalse(Disk.inStorage("1"));
-		assertFalse(Disk.inStorage("2"));
-		assertFalse(Disk.inStorage("3"));
-		assertFalse(Disk.inStorage("4"));
+		assertNull(disk.getKV("1"));
+		assertNull(disk.getKV("2"));
+		assertNull(disk.getKV("3"));
+		assertNull(disk.getKV("4"));
+		assertFalse(disk.inStorage("1"));
+		assertFalse(disk.inStorage("2"));
+		assertFalse(disk.inStorage("3"));
+		assertFalse(disk.inStorage("4"));
 
 		/* Case 2: Key DNE - do nothing */
-		Disk.putKV("a", null);
-		Disk.putKV("b", null);
-		Disk.putKV("c", null);
-		Disk.putKV("d", null);
+		disk.putKV("a", null);
+		disk.putKV("b", null);
+		disk.putKV("c", null);
+		disk.putKV("d", null);
 
-		assertNull(Disk.getKV("a"));
-		assertNull(Disk.getKV("b"));
-		assertNull(Disk.getKV("c"));
-		assertNull(Disk.getKV("d"));
-		assertFalse(Disk.inStorage("a"));
-		assertFalse(Disk.inStorage("b"));
-		assertFalse(Disk.inStorage("c"));
-		assertFalse(Disk.inStorage("d"));
+		assertNull(disk.getKV("a"));
+		assertNull(disk.getKV("b"));
+		assertNull(disk.getKV("c"));
+		assertNull(disk.getKV("d"));
+		assertFalse(disk.inStorage("a"));
+		assertFalse(disk.inStorage("b"));
+		assertFalse(disk.inStorage("c"));
+		assertFalse(disk.inStorage("d"));
 	}
 
 	@Test
@@ -623,7 +626,7 @@ public class AdditionalTest extends TestCase {
 		 * Verify all contents of cache are
 		 * flushed to disk when cleared.
 		 */
-		DSCache dsCache = new DSCache(4, "FIFO");
+		DSCache dsCache = new DSCache(4, "FIFO", disk);
 
 		/* Fill up cache */
 		dsCache.putKV("1", "one");
@@ -635,10 +638,10 @@ public class AdditionalTest extends TestCase {
 		dsCache.clearCache(false);
 
 		/* Verify contents are persisted */
-		assertEquals("one", Disk.getKV("1"));
-		assertEquals("one_two", Disk.getKV("2"));
-		assertEquals("one_two_three", Disk.getKV("3"));
-		assertEquals("one_two_three_four", Disk.getKV("4"));
+		assertEquals("one", disk.getKV("1"));
+		assertEquals("one_two", disk.getKV("2"));
+		assertEquals("one_two_three", disk.getKV("3"));
+		assertEquals("one_two_three_four", disk.getKV("4"));
 	}
 
 	@Test
@@ -766,7 +769,7 @@ public class AdditionalTest extends TestCase {
 
 	@Test
 	public void testPerformance() throws Exception {
-		Disk.clearStorage();
+		disk.clearStorage();
 		int NUM_PUT = 800;
 		int NUM_GET = 200;
 

@@ -12,12 +12,16 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Disk {
-    private static final String KV_STORE_FILE = String.format("kvstore_%s.txt", UUID.randomUUID().toString());
+    private String KV_STORE_FILE;
     private static ReadWriteLock RW_LOCK = new ReentrantReadWriteLock();
     private static Logger logger = Logger.getLogger(Disk.class);
 
-    public Disk() {
-        // do nothing for now
+    /**
+     * Constructor - sets the file name to store disk data for this server
+     * @param filename
+     */
+    public Disk(String filename) {
+        KV_STORE_FILE = filename;
     }
 
     /**
@@ -32,14 +36,14 @@ public class Disk {
      * @param value
      * @return
      */
-    private static String formatKVPair(String key, String value) {
+    private String formatKVPair(String key, String value) {
         return key + " " + value;
     }
 
     /**
      * Creates kv_store.txt file if DNE
      */
-    private static void createKVStoreFile() {
+    private void createKVStoreFile() {
         Lock writeLock = RW_LOCK.writeLock();
         writeLock.lock();
         try {
@@ -65,7 +69,7 @@ public class Disk {
      * @param kvPairs
      * @return
      */
-    private static boolean updateKV(String key, String value, List<String> kvPairs) {
+    private boolean updateKV(String key, String value, List<String> kvPairs) {
         boolean exists = false;
         try {
             FileReader fr = new FileReader(KV_STORE_FILE);
@@ -102,7 +106,7 @@ public class Disk {
      * @param kvPairs
      * @return
      */
-    private static boolean deleteKV(String key, List<String> kvPairs) {
+    private boolean deleteKV(String key, List<String> kvPairs) {
         boolean exists = false;
         try {
             FileReader fr = new FileReader(KV_STORE_FILE);
@@ -135,7 +139,7 @@ public class Disk {
      *
      * @return
      */
-    public static List<Pair<String, String>> getAll() {
+    public List<Pair<String, String>> getAll() {
         // Create KV Store File if DNE
         createKVStoreFile();
 
@@ -176,7 +180,7 @@ public class Disk {
      * @param key
      * @return value of KV pair
      */
-    public static String getKV(String key) {
+    public String getKV(String key) {
         // Create KV Store File if DNE
         createKVStoreFile();
 
@@ -217,7 +221,7 @@ public class Disk {
      * @param key
      * @param value
      */
-    public static boolean putKV(String key, String value) {
+    public boolean putKV(String key, String value) {
         logger.info("PUTKV REQUEST FOR: { " + key + ", " + value + " }");
         // Create KV Store File if DNE
         createKVStoreFile();
@@ -289,7 +293,7 @@ public class Disk {
      * @param key
      * @return
      */
-    public static boolean inStorage(String key) {
+    public boolean inStorage(String key) {
         String val = getKV(key);
         return val != null;
     }
@@ -298,7 +302,7 @@ public class Disk {
      * Clears all contents of persistent storage
      * Simply writes an empty string to the file.
      */
-    public static void clearStorage() {
+    public void clearStorage() {
         // Create KV Store File if DNE
         createKVStoreFile();
 
@@ -322,16 +326,17 @@ public class Disk {
 
     /* For debugging */
     public static void main(String[] args) {
-        putKV("key", "value");
-        System.out.println(getKV("key"));
-        putKV("key", "value_2");
-        System.out.println(getKV("key"));
-        putKV("hello", "world how are you 38108301");
-        System.out.println(getKV("hello"));
-        putKV("hello", null);
-        System.out.println(getKV("hello"));
-        putKV("jello", null);
-        System.out.println(getKV("jello"));
-        clearStorage();
+        Disk disk = new Disk("test.txt");
+        disk.putKV("key", "value");
+        System.out.println(disk.getKV("key"));
+        disk.putKV("key", "value_2");
+        System.out.println(disk.getKV("key"));
+        disk.putKV("hello", "world how are you 38108301");
+        System.out.println(disk.getKV("hello"));
+        disk.putKV("hello", null);
+        System.out.println(disk.getKV("hello"));
+        disk.putKV("jello", null);
+        System.out.println(disk.getKV("jello"));
+        disk.clearStorage();
     }
 }

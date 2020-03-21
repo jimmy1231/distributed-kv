@@ -60,7 +60,8 @@ public class KVServer implements IKVServer {
 	 *           and "LFU".
 	 */
 	public KVServer(int port, int cacheSize, String strategy) {
-		cache = new DSCache(cacheSize, strategy);
+		disk = new Disk(String.format("kv_store_%d.txt", port));
+		cache = new DSCache(cacheSize, strategy, disk);
 		this.port = port;
 		running = false;
 		listener = null;
@@ -107,7 +108,7 @@ public class KVServer implements IKVServer {
 
 	@Override
     public boolean inStorage(String key){
-		boolean instorage = Disk.inStorage(key);
+		boolean instorage = disk.inStorage(key);
 		System.out.println("IN STORAGE? " + key + " " + instorage);
 		return instorage;
 	}
@@ -254,7 +255,7 @@ public class KVServer implements IKVServer {
 	@Override
     public void clearStorage(){
 	    clearCache();
-		Disk.clearStorage();
+		disk.clearStorage();
 	}
 
 	private boolean initializeServer() {
@@ -481,7 +482,7 @@ public class KVServer implements IKVServer {
 	}
 
 	public KVDataSet getAllData() {
-		List<Pair<String, String>> entries = Disk.getAll();
+		List<Pair<String, String>> entries = disk.getAll();
 		KVDataSet dataSet = new KVDataSet(entries);
 		logger.info("GET ALL DATA: " + dataSet.serialize());
 		return dataSet;
@@ -490,7 +491,7 @@ public class KVServer implements IKVServer {
 	@Override
 	public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy) {
 		this.update(metadata);
-		this.cache = new DSCache(cacheSize, cacheStrategy);
+		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 	}
 
 	/**

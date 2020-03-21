@@ -75,11 +75,12 @@ public class DSCache {
     private boolean writeThrough;
     private IKVServer.CacheStrategy strategy;
     private Lock gl;
+    private Disk disk;
 
     /* Monotonically non-decreasing number -> enforces FIFO ordering */
     private int n = 0;
 
-    public DSCache(int size, String strategy, boolean writeThrough) {
+    public DSCache(int size, String strategy, Disk disk, boolean writeThrough) {
         IKVServer.CacheStrategy strat = IKVServer.CacheStrategy.valueOf(strategy);
         switch (strat) {
             case LRU:
@@ -99,13 +100,14 @@ public class DSCache {
 
         this.strategy = strat;
         this.writeThrough = writeThrough;
+        this.disk = disk;
         _cache = new HashMap<>();
         cacheSize = size;
         gl = new ReentrantLock();
     }
 
-    public DSCache(int size, String strategy) {
-        this(size, strategy, true);
+    public DSCache(int size, String strategy, Disk disk) {
+        this(size, strategy, disk, true);
     }
 
     public void clearCache(boolean isThreadSafe) throws Exception {
@@ -119,7 +121,7 @@ public class DSCache {
         try {
             for (CacheEntry entry : _cache.values()) {
                 if (entry.dirty) {
-                    Disk.putKV(entry.key, entry.data);
+                    disk.putKV(entry.key, entry.data);
                 }
                 cnt++;
             }
@@ -202,12 +204,12 @@ public class DSCache {
         List<Pair<String, String>> entries;
         try {
             clearCache(true);
-            entries = Disk.getAll().stream().filter(
+            entries = disk.getAll().stream().filter(
                 new Predicate<Pair<String, String>>() {
                     @Override
                     public boolean test(Pair<String, String> entry) {
                         if (pred.test(entry)) {
-                            Disk.putKV(entry.getKey(), null);
+                            disk.putKV(entry.getKey(), null);
                             return true;
                         }
                         return false;
@@ -285,7 +287,7 @@ public class DSCache {
          * can't call putKV because we have to ensure atomicity, so
          * have to replicate putKV code here.
          */
-        if (Objects.nonNull(data = Disk.getKV(key))) {
+        if (Objects.nonNull(data = disk.getKV(key))) {
             /* Special case - no cache used */
             if (cacheSize == 0) {
                 assert(_cache.size() == 0);
@@ -305,7 +307,7 @@ public class DSCache {
                 /* Only write to disk if disk data is stale */
                 if (evict.dirty) {
                     try {
-                        Disk.putKV(evict.key, evict.data);
+                        disk.putKV(evict.key, evict.data);
                     } catch (Exception e) {
                         n--;
                         gl.unlock();
@@ -379,7 +381,7 @@ public class DSCache {
 
             try {
                 /* Do DELETE */
-                boolean result = Disk.putKV(key, null);
+                boolean result = disk.putKV(key, null);
                 if (!result && Objects.isNull(deleteEntry)) {
                     throw new Exception(String.format(
                         "Key to delete: %s does not exist",
@@ -431,7 +433,7 @@ public class DSCache {
             /* Write-through to DISK */
             if (writeThrough) {
                 try {
-                    Disk.putKV(key, value);
+                    disk.putKV(key, value);
                 } catch (Exception e) {
                     entry.l.unlock();
                     /* ENTRY CRITICAL REGION - END */
@@ -460,7 +462,7 @@ public class DSCache {
             /* Write-through to DISK */
             if (writeThrough) {
                 try {
-                    Disk.putKV(key, value);
+                    disk.putKV(key, value);
                 } catch (Exception e) {
                     gl.unlock();
                     /* GLOBAL CRITICAL REGION - END */
@@ -491,7 +493,7 @@ public class DSCache {
         if (cacheSize == 0) {
             assert(_cache.size() == 0);
             try {
-                Disk.putKV(key, value);
+                disk.putKV(key, value);
             } catch (Exception e) {
                 logger.error(String.format(
                     "Direct persistence to disk error: %s",
@@ -535,7 +537,7 @@ public class DSCache {
         /* Only write to disk if disk data is stale */
         if (evict.dirty) {
             try {
-                Disk.putKV(evict.key, evict.data);
+                disk.putKV(evict.key, evict.data);
             } catch (Exception e) {
                 evict.l.unlock();
                 gl.unlock();
@@ -556,7 +558,7 @@ public class DSCache {
         /* Write-through to DISK */
         if (writeThrough) {
             try {
-                Disk.putKV(key, value);
+                disk.putKV(key, value);
             } catch (Exception e) {
                 gl.unlock();
                 /* GLOBAL CRITICAL REGION - END */
