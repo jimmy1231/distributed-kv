@@ -472,8 +472,14 @@ public class ECSClient implements IECSClient {
         HashRange S_i_range, S_i_succ_range;
         ECSNode S_i_succ, S_i_pred;
         for (ECSNode S_i : failedServers) {
+            logger.info("Recovering Server: {}", S_i.getUuid());
             List<ECSNode> replicas = ring.getReplicas(S_i);
-            if (replicas.size() < 1) {
+            if (replicas.size() == 0) {
+                logger.info("No replicas for Server: {}", S_i.getUuid());
+
+                // Always do this..
+                ring.removeServer(S_i);
+                ring.updateRing();
                 continue;
             }
 
@@ -490,7 +496,26 @@ public class ECSClient implements IECSClient {
             );
             if (Objects.isNull(S_n)) {
                 /* No new nodes to add.. */
-                break;
+                logger.info("Could not find new node to add, " +
+                    "try our best to recover data to successor " +
+                    "node: {}->{}",
+                    S_i.getUuid(), S_i_succ.getUuid());
+                try {
+                    ECSRequestsLib.moveReplicatedData(
+                        replicas.get(0), S_i_succ,
+                        new HashRange(S_i.getNodeHashRange())
+                    );
+                } catch (Exception e) {
+                    logger.error("ERROR: recovery failed!" +
+                        " Tried to recover replicated data to" +
+                        " new node..", e);
+                    continue;
+                }
+
+                // Always do this..
+                ring.removeServer(S_i);
+                ring.updateRing();
+                continue;
             }
 
             S_n.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
@@ -506,104 +531,58 @@ public class ECSClient implements IECSClient {
                         IECSNode.ECSNodeFlag.STOP,
                         ring
                     ));
-            } catch (Exception e) {
-                logger.error("Failed to initialize server", e);
-                continue;
-            }
 
-            // Case 1:
-            if (S_i_range.inRange(HS_n)) {
-                try {
+                // Case 1:
+                if (S_i_range.inRange(HS_n)) {
                     ECSRequestsLib.moveReplicatedData(
                         replicas.get(0), S_n,
                         new HashRange(S_n.getNodeHashRange())
                     );
-                } catch (Exception e) {
-                    logger.error("ERROR: recovery failed!" +
-                        " Tried to recover replicated data to" +
-                        " new node..", e);
-                    continue;
-                }
-
-                try {
                     ECSRequestsLib.moveReplicatedData(
                         replicas.get(0), S_i_succ,
                         new HashRange(S_i.getNodeHashRange())
                     );
-                } catch (Exception e) {
-                    logger.error("ERROR: recovery failed!" +
-                        " Tried to ", e);
-                    continue;
                 }
-            }
-            // Case 2:
-            else if (S_i_succ_range.inRange(HS_n)) {
-                try {
+                // Case 2:
+                else if (S_i_succ_range.inRange(HS_n)) {
                     ECSRequestsLib.moveReplicatedData(
                         replicas.get(0), S_n,
                         new HashRange(S_i.getNodeHashRange())
                     );
-                } catch (Exception e) {
-                    logger.error("ERROR: recovery failed!" +
-                        " Tried to recover replicated data to" +
-                        " new node..", e);
-                    continue;
-                }
-
-                try {
                     ECSRequestsLib.moveData(
                         ring.getSuccessorServer(S_n), S_n,
                         new HashRange(S_n.getNodeHashRange())
                     );
-                } catch (Exception e) {
-                    logger.error("ERROR: recovery failed!" +
-                        " Tried to recover replicated data to" +
-                        " new node..", e);
-                    continue;
                 }
-            }
-            // Case 3:
-            else {
-                try {
+                // Case 3:
+                else {
                     ECSRequestsLib.moveReplicatedData(
                         replicas.get(0), S_i_succ,
                         new HashRange(S_i.getNodeHashRange())
                     );
-                } catch (Exception e) {
-                    logger.error("ERROR: recovery failed!" +
-                        " Tried to recover replicated data to" +
-                        " new node..", e);
-                    continue;
-                }
-
-                try {
                     ECSRequestsLib.moveData(
                         ring.getSuccessorServer(S_n), S_n,
                         new HashRange(S_n.getNodeHashRange())
                     );
-                } catch (Exception e) {
-                    logger.error("ERROR: recovery failed!" +
-                        " Tried to recover replicated data to" +
-                        " new node..", e);
-                    continue;
                 }
-            }
 
-            try {
-                ECSRequestsLib.updateServerReplicate(S_n, new KVServerMetadataImpl(
-                    S_n.getNodeName(),
-                    S_n.getNodeHost(),
-                    S_i.getEcsNodeFlag(),
-                    ring
-                ));
+                ECSRequestsLib.updateServerReplicate(S_n,
+                    new KVServerMetadataImpl(
+                        S_n.getNodeName(),
+                        S_n.getNodeHost(),
+                        S_i.getEcsNodeFlag(),
+                        ring
+                    )
+                );
             } catch (Exception e) {
-                logger.error("Failed to update server", e);
-                continue;
+                logger.error("ERROR: recovery failed!" +
+                    " Tried to recover replicated data to" +
+                    " new node..", e);
+            } finally {
+                // Always do this..
+                ring.removeServer(S_i);
+                ring.updateRing();
             }
-
-            // finally:
-            ring.removeServer(S_i);
-            ring.updateRing();
         }
 
         /*

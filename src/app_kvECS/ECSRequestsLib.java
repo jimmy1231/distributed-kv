@@ -9,7 +9,6 @@ import shared.messages.UnifiedMessage;
 import java.util.Objects;
 import java.util.concurrent.TimeoutException;
 
-import static shared.messages.KVMessage.StatusType.SERVER_REPLICATE;
 
 public class ECSRequestsLib {
     /**
