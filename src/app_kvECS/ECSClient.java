@@ -299,8 +299,8 @@ public class ECSClient implements IECSClient {
         IECSNode.ECSNodeFlag status;
         for (ECSNode server : allNodes) {
             status = server.getEcsNodeFlag();
-            if (status.equals(IECSNode.ECSNodeFlag.STOP)
-                || status.equals(IECSNode.ECSNodeFlag.SHUT_DOWN)) {
+            if (status.equals(IECSNode.ECSNodeFlag.SHUT_DOWN)
+                || status.equals(IECSNode.ECSNodeFlag.IDLE)) {
                 continue;
             }
 
@@ -392,7 +392,6 @@ public class ECSClient implements IECSClient {
 
     @Override
     public boolean removeNodes(Collection<String> nodeNames) {
-
         for (String nodeName : nodeNames){
             ECSNode nodeToRemove = ring.getServerByName(nodeName);
             ECSNode successorNode = ring.getSuccessorServer(nodeToRemove); // get it before update the ring
