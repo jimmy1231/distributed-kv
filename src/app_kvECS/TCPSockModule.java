@@ -30,6 +30,17 @@ public class TCPSockModule {
         input = this.socket.getInputStream();
         output = this.socket.getOutputStream();
     }
+
+    public TCPSockModule(String host, int port, int timeout) throws Exception {
+        /* Establish socket connection with timeout */
+        socket = connect(host, port, timeout);
+        logger.info(String.format(
+            "ECSSocket connection established: %s:%d",
+            host, port));
+
+        input = this.socket.getInputStream();
+        output = this.socket.getOutputStream();
+    }
     /****************************************************/
 
     /**
@@ -171,9 +182,18 @@ public class TCPSockModule {
     }
 
     private Socket connect(String host, int port) throws Exception {
-        Socket _socket = null;
+        Socket _socket = new Socket(host, port);
+        return connect(_socket);
+    }
+
+    private Socket connect(String host, int port, int timeout) throws Exception {
+        Socket _socket = new Socket(host, port);
+        _socket.setSoTimeout(timeout);
+        return connect(_socket);
+    }
+
+    private Socket connect(Socket _socket) throws Exception {
         try {
-            _socket = new Socket(host, port);
             InputStream _input = _socket.getInputStream();
 
             /*

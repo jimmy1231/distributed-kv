@@ -16,6 +16,16 @@ import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 
+/**
+ * There's 2 data structures for HashRing, a map that
+ * keeps track of all servers that was added and the ring
+ * itself.
+ *
+ * When you call addServer, it puts it in the map but not
+ * the ring. When you call updateRing, it will search
+ * through this map for any servers in the IDLE_START state
+ * only and put it on the ring.
+ */
 public abstract class HashRing {
     private static Logger logger = Logger.getLogger(HashRing.class);
     private static MessageDigest md;

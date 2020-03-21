@@ -27,16 +27,21 @@ public class ECSClient implements IECSClient {
     private static final String CONFIG_DIR_PATH = "./src/app_kvECS/config/";
     private static final String KVSERVER_START_FILE = "./run_kvserver.sh";
     private static final String ECS_CONFIG_FILE = CONFIG_DIR_PATH + "ecs.config";
+    private static final long HEARTBEAT_TIMEOUT = 1000*30; // 30 seconds
     private int poolSize; // max number of servers that can participate in the service
     private List<ECSNode> allNodes = new ArrayList<>();
     int serverCacheSize = 50000;
     String serverCacheStrategy = "FIFO";
 
     private HashRing ring;
+    private HeartbeatMonitor heartbeatMonitor;
 
     public ECSClient() {
         ring = new HashRingImpl();
+        heartbeatMonitor = new HeartbeatMonitor(this, HEARTBEAT_TIMEOUT);
         parseConfigFile();
+
+        heartbeatMonitor.start();
     }
 
     /**
@@ -441,6 +446,10 @@ public class ECSClient implements IECSClient {
     @Override
     public IECSNode getNodeByKey(String Key) {
         return ring.getServerByHash(new HashRing.Hash(Key));
+    }
+
+    public void recoverServers(List<ECSNode> failedServers) {
+        // TODO: implement
     }
 
     public void printRing() {

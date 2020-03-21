@@ -7,5 +7,5 @@ public enum MessageType {
     CLIENT_TO_SERVER,   /* CLIENT to SERVER message */
     SERVER_TO_CLIENT,   /* SERVER to CLIENT message */
 
-    SERVER_TO_SERVER    /* SERVER to SERVER message */
+    SERVER_TO_SERVER   /* SERVER to SERVER message */
 }
