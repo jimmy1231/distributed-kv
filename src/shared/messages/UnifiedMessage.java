@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import ecs.ECSNode;
 
+import java.util.Base64;
 import java.util.Objects;
 
 public class UnifiedMessage implements KVMessage {
@@ -149,10 +150,12 @@ public class UnifiedMessage implements KVMessage {
             Objects.nonNull(cacheSize) ? cacheSize : null
         );
 
-        return UNIFIED_GSON.toJson(s);
+        String str = UNIFIED_GSON.toJson(s);
+        return Base64.getEncoder().encodeToString(str.getBytes());
     }
 
-    public UnifiedMessage deserialize(String json) {
+    public UnifiedMessage deserialize(String b64str) {
+        String json = new String(Base64.getDecoder().decode(b64str));
         __Serialized__ s = UNIFIED_GSON.fromJson(json, __Serialized__.class);
 
         this.messageType = s.messageType;

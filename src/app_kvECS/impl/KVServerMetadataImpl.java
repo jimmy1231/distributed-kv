@@ -7,6 +7,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import ecs.IECSNode;
 
+import java.util.Base64;
+
 public class KVServerMetadataImpl extends KVServerMetadata {
     private Gson METADATA_GSON = new GsonBuilder()
         .enableComplexMapKeySerialization()
@@ -68,11 +70,13 @@ public class KVServerMetadataImpl extends KVServerMetadata {
         serialized.port = this.port;
         serialized.serializedHashRing = this.hashRing.serialize();
 
-        return METADATA_GSON.toJson(serialized);
+        String str = METADATA_GSON.toJson(serialized);
+        return Base64.getEncoder().encodeToString(str.getBytes());
     }
 
     @Override
-    public KVServerMetadata deserialize(String json) {
+    public KVServerMetadata deserialize(String b64str) {
+        String json = new String(Base64.getDecoder().decode(b64str));
         SerializedKVServerMetadata serialized = METADATA_GSON.fromJson(
             json, SerializedKVServerMetadata.class
         );

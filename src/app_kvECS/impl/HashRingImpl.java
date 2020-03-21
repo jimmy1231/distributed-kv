@@ -411,11 +411,13 @@ public class HashRingImpl extends HashRing {
         serialized.serializedRing = HASH_RING_GSON.toJson(this.getRing());
         serialized.serializedServers = HASH_RING_GSON.toJson(this.getServers());
 
-        return HASH_RING_GSON.toJson(serialized);
+        String str = HASH_RING_GSON.toJson(serialized);
+        return Base64.getEncoder().encodeToString(str.getBytes());
     }
 
     @Override
-    public HashRing deserialize(String json) {
+    public HashRing deserialize(String b64str) {
+        String json = new String(Base64.getDecoder().decode(b64str));
         SerializedHashRing serialized = HASH_RING_GSON.fromJson(
             json, SerializedHashRing.class
         );
