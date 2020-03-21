@@ -106,7 +106,7 @@ public class TCPSockModule {
             return false;
         }
 
-        logger.info("REQUEST, # Bytes = {}", messageBytes.length);
+        logger.info("SEND: # Bytes = {}", messageBytes.length);
         try {
             logger.debug("SEND_MESSAGE: {}", message);
             output.write(messageBytes, 0, messageBytes.length);
@@ -167,7 +167,7 @@ public class TCPSockModule {
                  * loop to prevent blocking indefinitely.
                  */
                 if (bytesLeft == 0 && finished) {
-                    logger.debug("TOTAL BYTES: {}", totalBytes);
+                    logger.info("RECV: Total # bytes={}", totalBytes);
                     break;
                 }
             }
