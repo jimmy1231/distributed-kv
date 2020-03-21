@@ -49,7 +49,7 @@ public class HeartbeatMonitor extends Thread {
 			while (it.hasNext()) {
 				entry = it.next();
 				server = (ECSNode) entry.getValue();
-				logger.info("{}: Server={}", server.getUuid());
+				logger.info("{}: Server={}", LOG_PREFIX, server.getUuid());
 
 				if (WHITELIST_FLAGS.contains(server.getEcsNodeFlag())) {
 					logger.info("{}: Pinging server {}", LOG_PREFIX,
