@@ -249,6 +249,7 @@ public class HashRingTests extends TestCase {
         String serialized = hashRing.serialize();
         HashRing hashRingCpy = new HashRingImpl().deserialize(serialized);
 
+        assert(TCPSockModule.decompress(TCPSockModule.compress(serialized)).equals(serialized));
         assert(isSameRing(hashRing.getRing(), hashRingCpy.getRing()));
         assert(isSame(hashRing.getServers(), hashRingCpy.getServers()));
     }

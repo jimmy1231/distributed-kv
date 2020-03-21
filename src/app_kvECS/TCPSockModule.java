@@ -1,5 +1,6 @@
 package app_kvECS;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,8 +87,9 @@ public class TCPSockModule {
     public static boolean send(OutputStream output, String message) {
         byte[] messageBytes;
         try {
-            message = compress(message) + DEADBEEF;
-            messageBytes = message.getBytes();
+            messageBytes = ArrayUtils.addAll(
+                compress(message), DEADBEEF.getBytes()
+            );
         } catch (Exception e) {
             return false;
         }
@@ -175,7 +177,7 @@ public class TCPSockModule {
              * returned, and no data was read, it must mean
              * the underlying connection has been closed.
              */
-            response = decompress(bas.toString("UTF-8"));
+            response = decompress(bas.toByteArray());
             if (len < 0 && response.isEmpty()) {
                 return null;
             }
@@ -191,7 +193,7 @@ public class TCPSockModule {
         return response;
     }
 
-    public static String compress(String in) throws Exception {
+    public static byte[] compress(String in) throws Exception {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             DeflaterOutputStream defl = new DeflaterOutputStream(out);
@@ -199,18 +201,18 @@ public class TCPSockModule {
             defl.flush();
             defl.close();
 
-            return new String(out.toByteArray());
+            return out.toByteArray();
         } catch (Exception e) {
             logger.debug("Compression failed");
             throw e;
         }
     }
 
-    public static String decompress(String in) throws Exception {
+    public static String decompress(byte[] in) throws Exception {
         try {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             InflaterOutputStream infl = new InflaterOutputStream(out);
-            infl.write(in.getBytes());
+            infl.write(in);
             infl.flush();
             infl.close();
 
