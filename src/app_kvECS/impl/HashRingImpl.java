@@ -343,6 +343,26 @@ public class HashRingImpl extends HashRing {
         return predecessor;
     }
 
+    @Override
+    public List<ECSNode> getReplicas(ECSNode server) {
+        List<ECSNode> replicas = new ArrayList<>();
+        ECSNode replica;
+
+        /*
+         * Only supports 2 replicas by convention.
+         */
+        replica = getSuccessorServer(server);
+        if (Objects.nonNull(replica)) {
+            replicas.add(replica);
+            replica = getSuccessorServer(replica);
+            if (Objects.nonNull(replica)) {
+                replicas.add(replica);
+            }
+        }
+
+        return replicas;
+    }
+
     /**
      * {@link #getServerHashRange(ECSNode)}
      * Gets the HashRange for the specified server given

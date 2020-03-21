@@ -5,6 +5,7 @@ import com.google.gson.annotations.Expose;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import org.apache.log4j.Logger;
+import shared.Pair;
 
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;
@@ -355,9 +356,15 @@ public abstract class HashRing {
      * {@link #getPredecessorServer(ECSNode)}
      *      Gets the server immediately preceding the current
      *      server in the HashRing (look "behind" the current server)
+     * {@link #getReplicas(ECSNode)}
+     *      Gets 2 replicas for server (as defined, replicas are the
+     *      2 successors to server). Elements of returned list are
+     *      always sorted in ascending hash range order (e.g. first
+     *      element is immediate successor to server)
      */
     public abstract ECSNode getSuccessorServer(ECSNode server);
     public abstract ECSNode getPredecessorServer(ECSNode server);
+    public abstract List<ECSNode> getReplicas(ECSNode server);
 
     /**
      * {@link #getServerHashRange(ECSNode)}

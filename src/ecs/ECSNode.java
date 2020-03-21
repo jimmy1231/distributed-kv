@@ -21,6 +21,10 @@ public class ECSNode implements IECSNode {
     private String[] range = null;
     @Expose
     private ECSNodeFlag ecsNodeFlag;
+    @Expose
+    private String cacheStrategy;
+    @Expose
+    private int cacheSize;
 
     public ECSNode(String name, String host, int port) {
         this.uuid = String.format("%s:%d", host, port);
@@ -62,6 +66,23 @@ public class ECSNode implements IECSNode {
         return range;
     }
 
+    public String getCacheStrategy() {
+        return cacheStrategy;
+    }
+
+    public ECSNode setCacheStrategy(String cacheStrategy) {
+        this.cacheStrategy = cacheStrategy;
+        return this;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public ECSNode setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+        return this;
+    }
 
     public ECSNodeFlag getEcsNodeFlag() {
         return ecsNodeFlag;

@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import app_kvECS.impl.KVServerMetadataImpl;
 
 import app_kvECS.impl.HashRingImpl;
+import app_kvECS.HashRing.*;
 
 import ecs.ECSNode;
 import ecs.IECSNode;
@@ -21,6 +22,8 @@ import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
+import static shared.messages.KVMessage.StatusType.SERVER_REPLICATE;
+
 
 public class ECSClient implements IECSClient {
     private static Logger logger = LoggerFactory.getLogger(ECSClient.class);
@@ -30,8 +33,8 @@ public class ECSClient implements IECSClient {
     private static final long HEARTBEAT_TIMEOUT = 1000*30; // 30 seconds
     private int poolSize; // max number of servers that can participate in the service
     private List<ECSNode> allNodes = new ArrayList<>();
-    int serverCacheSize = 50000;
-    String serverCacheStrategy = "FIFO";
+    private int serverCacheSize = 50000;
+    private String serverCacheStrategy = "FIFO";
 
     private HashRing ring;
     private HeartbeatMonitor heartbeatMonitor;
@@ -110,7 +113,7 @@ public class ECSClient implements IECSClient {
         }
     }
 
-    private boolean sendFilteredRequest(Predicate<ECSNode> filter, KVMessage.StatusType requestType) {
+    public boolean sendFilteredRequest(Predicate<ECSNode> filter, KVMessage.StatusType requestType) {
         boolean success = true;
         List<ECSNode> servers = ring.filterServer(filter);
 
@@ -199,6 +202,8 @@ public class ECSClient implements IECSClient {
 
         ring.addServer(nodeToAdd);
         nodeToAdd.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+        nodeToAdd.setCacheStrategy(cacheStrategy);
+        nodeToAdd.setCacheSize(cacheSize);
         ring.updateRing();
 
         TCPSockModule newNodeConn;
@@ -290,7 +295,6 @@ public class ECSClient implements IECSClient {
 
     public void broadcastMetaDataUpdates(){
         TCPSockModule socketModule;
-
 
         IECSNode.ECSNodeFlag status;
         for (ECSNode server : allNodes) {
@@ -464,7 +468,156 @@ public class ECSClient implements IECSClient {
     }
 
     public void recoverServers(List<ECSNode> failedServers) {
-        // TODO: implement
+        // TODO: we should probably lock this..
+        HashRange S_i_range, S_i_succ_range;
+        ECSNode S_i_succ, S_i_pred;
+        for (ECSNode S_i : failedServers) {
+            List<ECSNode> replicas = ring.getReplicas(S_i);
+            if (replicas.size() < 1) {
+                continue;
+            }
+
+            S_i_succ = ring.getSuccessorServer(S_i);
+            S_i_pred = ring.getPredecessorServer(S_i);
+            assert(Objects.nonNull(S_i_succ));
+            assert(Objects.nonNull(S_i_pred));
+
+            S_i_range = new HashRange(S_i.getNodeHashRange());
+            S_i_succ_range = new HashRange(S_i_succ.getNodeHashRange());
+
+            ECSNode S_n = ring.findServer(node ->
+                node.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.IDLE)
+            );
+            if (Objects.isNull(S_n)) {
+                /* No new nodes to add.. */
+                break;
+            }
+
+            S_n.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+            ring.updateRing();
+            S_n.setEcsNodeFlag(S_i.getEcsNodeFlag());
+            Hash HS_n = new Hash(S_n.getUuid());
+            try {
+                ECSRequestsLib.initServer(S_n,
+                    S_i.getCacheStrategy(), S_i.getCacheSize(),
+                    new KVServerMetadataImpl(
+                        S_n.getNodeName(),
+                        S_n.getNodeHost(),
+                        IECSNode.ECSNodeFlag.STOP,
+                        ring
+                    ));
+            } catch (Exception e) {
+                logger.error("Failed to initialize server", e);
+                continue;
+            }
+
+            // Case 1:
+            if (S_i_range.inRange(HS_n)) {
+                try {
+                    ECSRequestsLib.moveReplicatedData(
+                        replicas.get(0), S_n,
+                        new HashRange(S_n.getNodeHashRange())
+                    );
+                } catch (Exception e) {
+                    logger.error("ERROR: recovery failed!" +
+                        " Tried to recover replicated data to" +
+                        " new node..", e);
+                    continue;
+                }
+
+                try {
+                    ECSRequestsLib.moveReplicatedData(
+                        replicas.get(0), S_i_succ,
+                        new HashRange(S_i.getNodeHashRange())
+                    );
+                } catch (Exception e) {
+                    logger.error("ERROR: recovery failed!" +
+                        " Tried to ", e);
+                    continue;
+                }
+            }
+            // Case 2:
+            else if (S_i_succ_range.inRange(HS_n)) {
+                try {
+                    ECSRequestsLib.moveReplicatedData(
+                        replicas.get(0), S_n,
+                        new HashRange(S_i.getNodeHashRange())
+                    );
+                } catch (Exception e) {
+                    logger.error("ERROR: recovery failed!" +
+                        " Tried to recover replicated data to" +
+                        " new node..", e);
+                    continue;
+                }
+
+                try {
+                    ECSRequestsLib.moveData(
+                        ring.getSuccessorServer(S_n), S_n,
+                        new HashRange(S_n.getNodeHashRange())
+                    );
+                } catch (Exception e) {
+                    logger.error("ERROR: recovery failed!" +
+                        " Tried to recover replicated data to" +
+                        " new node..", e);
+                    continue;
+                }
+            }
+            // Case 3:
+            else {
+                try {
+                    ECSRequestsLib.moveReplicatedData(
+                        replicas.get(0), S_i_succ,
+                        new HashRange(S_i.getNodeHashRange())
+                    );
+                } catch (Exception e) {
+                    logger.error("ERROR: recovery failed!" +
+                        " Tried to recover replicated data to" +
+                        " new node..", e);
+                    continue;
+                }
+
+                try {
+                    ECSRequestsLib.moveData(
+                        ring.getSuccessorServer(S_n), S_n,
+                        new HashRange(S_n.getNodeHashRange())
+                    );
+                } catch (Exception e) {
+                    logger.error("ERROR: recovery failed!" +
+                        " Tried to recover replicated data to" +
+                        " new node..", e);
+                    continue;
+                }
+            }
+
+            try {
+                ECSRequestsLib.updateServerReplicate(S_n, new KVServerMetadataImpl(
+                    S_n.getNodeName(),
+                    S_n.getNodeHost(),
+                    S_i.getEcsNodeFlag(),
+                    ring
+                ));
+            } catch (Exception e) {
+                logger.error("Failed to update server", e);
+                continue;
+            }
+
+            // finally:
+            ring.removeServer(S_i);
+            ring.updateRing();
+        }
+
+        /*
+         * Broadcast all servers for them to replicate based on
+         * the sent hash ring.
+         */
+        sendFilteredRequest(n -> {
+                IECSNode.ECSNodeFlag flg = n.getEcsNodeFlag();
+                return flg.equals(IECSNode.ECSNodeFlag.START)
+                    || flg.equals(IECSNode.ECSNodeFlag.STOP)
+                    || flg.equals(IECSNode.ECSNodeFlag.IDLE_START);
+            },
+            SERVER_REPLICATE
+        );
     }
 
     public void printRing() {

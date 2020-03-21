@@ -223,8 +223,19 @@ public class ClientConnection extends Thread {
                 responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
             case ECS_HEARTBEAT:
-                logger.info("ECS HEARTBEAT RECEIVED");
                 responseStatus = KVMessage.StatusType.SERVER_HEARTBEAT;
+                break;
+            case SERVER_REPLICATE_UPDATE:
+                // TODO: M3 - integrate with KVServer
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case REPLICATE_DATA:
+                // TODO: M3 - integrate with KVServer
+                responseStatus = KVMessage.StatusType.SUCCESS;
+                break;
+            case SERVER_REPLICATE:
+                // TODO: M3 - integrate with KVServer
+                responseStatus = KVMessage.StatusType.SUCCESS;
                 break;
             default:
                 throw new Exception("Unrecognized message");
