@@ -13,7 +13,7 @@ public class HeartbeatMonitor extends Thread {
 		IECSNode.ECSNodeFlag.START,
 		IECSNode.ECSNodeFlag.STOP
 	);
-	private static final int TIMEOUT_MS = 5000;
+	public static final int TIMEOUT_MS = 5000;
 	private static final String LOG_PREFIX = "[HEARTBEAT_MONITOR]";
 
 	private ECSClient thisClient;
@@ -80,9 +80,7 @@ public class HeartbeatMonitor extends Thread {
 
 	private boolean pingServerSync(ECSNode server) {
 		try {
-			ECSRequestsLib.heartbeat(server.getNodeHost(),
-				server.getNodePort(), TIMEOUT_MS
-			);
+			ECSRequestsLib.heartbeat(server, TIMEOUT_MS);
 		} catch (Exception e) {
 			return false;
 		}

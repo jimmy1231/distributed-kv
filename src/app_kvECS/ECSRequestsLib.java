@@ -6,19 +6,17 @@ import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
+import java.time.chrono.HijrahEra;
+import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 
 public class ECSRequestsLib {
     /**
-     * Throws TimeoutException if request fails
-     *
-     * @param host
-     * @param port
-     * @throws TimeoutException
+     * Throws Exception if request fails / times out
      */
-    public static void heartbeat(String host, int port, int timeout) throws Exception {
+    public static void heartbeat(ECSNode server, int timeout) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
             .withStatusType(KVMessage.StatusType.ECS_HEARTBEAT)
@@ -27,7 +25,8 @@ public class ECSRequestsLib {
         TCPSockModule module;
         UnifiedMessage resp;
         try {
-            module = new TCPSockModule(host, port, timeout);
+            module = new TCPSockModule(server.getNodeHost(),
+                server.getNodePort(), timeout);
             resp = module.doRequest(msg);
             assert(resp.getStatusType().equals(KVMessage.StatusType.SERVER_HEARTBEAT));
         } catch (Exception e) {
@@ -55,11 +54,11 @@ public class ECSRequestsLib {
 
     public static void moveReplicatedData(ECSNode src,
                                           ECSNode dest,
-                                          HashRing.HashRange range) throws Exception {
+                                          String[] range) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
             .withStatusType(KVMessage.StatusType.REPLICATE_DATA)
-            .withKeyRange(range.toArray())
+            .withKeyRange(range)
             .withServer(dest)
             .build();
 
@@ -68,19 +67,87 @@ public class ECSRequestsLib {
         unlockServer(dest);
     }
 
+    public static void availMoveReplicatedData(List<ECSNode> replicas,
+                                               ECSNode dest,
+                                               String[] range,
+                                               HashRing hashRing) throws Exception {
+        // Choose replica
+        ECSNode replica = null;
+        for (ECSNode _replica : replicas) {
+            try {
+                heartbeat(_replica, HeartbeatMonitor.TIMEOUT_MS);
+                replica = _replica;
+                break;
+            } catch (Exception e) {
+                /* Swallow */
+            }
+        }
+
+        // Choose dest
+        ECSNode chosenDest = null, _dest = dest;
+        do {
+            try {
+                heartbeat(_dest, HeartbeatMonitor.TIMEOUT_MS);
+                chosenDest = _dest;
+            } catch (Exception e) {
+                /* Swallow */
+            }
+            _dest = hashRing.getSuccessorServer(_dest);
+        } while (Objects.isNull(chosenDest) && !_dest.getUuid().equals(dest.getUuid()));
+
+        // Check if both dest and replica exist
+        if (Objects.isNull(replica) || Objects.isNull(chosenDest)) {
+            List<String> replicaNames = replicas.stream()
+                .map(ECSNode::getUuid)
+                .collect(Collectors.toList());
+
+            throw new Exception(String.format(
+                "Failed to replicate data to %s, " +
+                    "all replicas failed: %s",
+                dest.getUuid(), replicaNames));
+        }
+
+        // Then, do it
+        moveReplicatedData(replica, chosenDest, range);
+    }
+
     public static void moveData(ECSNode src,
                                 ECSNode dest,
-                                HashRing.HashRange range) throws Exception {
+                                String[] range) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
             .withStatusType(KVMessage.StatusType.SERVER_MOVEDATA)
-            .withKeyRange(range.toArray())
+            .withKeyRange(range)
             .withServer(dest)
             .build();
 
         lockServer(dest);
         send(src, msg);
         unlockServer(dest);
+    }
+
+    public static void availMoveData(ECSNode src,
+                                     ECSNode dest,
+                                     String[] range,
+                                     HashRing hashRing) throws Exception {
+        /*
+         * Note: we only check heartbeat of src node because dest
+         * this function is only used in recoverServers for ECSClient,
+         * where dest node is the newly created node and assumed
+         * to be available (or else it would've failed)
+         *
+         * If use for any other case, consider implementing a
+         * heartbeat for dest server as well.
+         */
+        try {
+            heartbeat(src, HeartbeatMonitor.TIMEOUT_MS);
+
+            // Heartbeat success, src server is alive
+            moveData(src, dest, range);
+        } catch (Exception e) {
+            availMoveReplicatedData(hashRing.getReplicas(src),
+                dest, range, hashRing);
+        }
     }
 
     public static void initServer(ECSNode server,
