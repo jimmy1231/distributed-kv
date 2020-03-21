@@ -23,6 +23,7 @@ import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
 import static shared.messages.KVMessage.StatusType.SERVER_REPLICATE;
+import static shared.messages.KVMessage.StatusType.SHUTDOWN;
 
 
 public class ECSClient implements IECSClient {
@@ -481,6 +482,7 @@ public class ECSClient implements IECSClient {
                 logger.info("No replicas for Server: {}", S_i.getUuid());
 
                 // Always do this..
+                S_i.setEcsNodeFlag(IECSNode.ECSNodeFlag.SHUT_DOWN);
                 ring.removeServer(S_i);
                 ring.updateRing();
                 continue;
@@ -515,6 +517,7 @@ public class ECSClient implements IECSClient {
                 }
 
                 // Always do this..
+                S_i.setEcsNodeFlag(IECSNode.ECSNodeFlag.SHUT_DOWN);
                 ring.removeServer(S_i);
                 ring.updateRing();
                 continue;
@@ -578,6 +581,7 @@ public class ECSClient implements IECSClient {
                     " new node..", e);
             } finally {
                 // Always do this..
+                S_i.setEcsNodeFlag(IECSNode.ECSNodeFlag.SHUT_DOWN);
                 ring.removeServer(S_i);
                 ring.updateRing();
             }

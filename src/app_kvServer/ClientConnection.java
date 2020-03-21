@@ -7,10 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.IECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import shared.messages.KVDataSet;
-import shared.messages.KVMessage;
-import shared.messages.Message;
-import shared.messages.UnifiedMessage;
+import shared.messages.*;
 
 import java.io.*;
 import java.net.Socket;
@@ -175,74 +172,100 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleAdminMessage(UnifiedMessage msg) throws Exception {
-        KVMessage.StatusType responseStatus;
         KVServerMetadata metadata = msg.getMetadata();
         IECSNode.ECSNodeFlag flg = server.getStatus();
+        UnifiedMessage.Builder respBuilder = new UnifiedMessage.Builder();
 
         switch(msg.getStatusType()) {
             case START:
                 server.update(metadata);
                 server.start();
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case STOP:
                 server.update(metadata);
                 server.shutdown();
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SHUTDOWN:
                 server.update(metadata);
                 server.shutdown();
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_INIT:
-                server.initKVServer(msg.getMetadata(), msg.getCacheSize(), msg.getCacheStrategy());
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                server.initKVServer(msg.getMetadata(),
+                    msg.getCacheSize(), msg.getCacheStrategy());
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_WRITE_LOCK:
                 server.lockWrite();
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_WRITE_UNLOCK:
                 assert(flg.equals(IECSNode.ECSNodeFlag.KV_TRANSFER));
                 server.unLockWrite();
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_MOVEDATA:
                 assert(flg.equals(IECSNode.ECSNodeFlag.KV_TRANSFER));
                 server.moveData(msg.getKeyRange(), msg.getServer());
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_UPDATE:
                 server.update(msg.getMetadata());
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_DUMP_DATA:
                 KVDataSet data = server.getAllData();
                 msg.setDataSet(data);
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case ECS_HEARTBEAT:
-                responseStatus = KVMessage.StatusType.SERVER_HEARTBEAT;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_REPLICATE_UPDATE:
                 // TODO: M3 - integrate with KVServer
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case REPLICATE_DATA:
                 // TODO: M3 - integrate with KVServer
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             case SERVER_REPLICATE:
                 // TODO: M3 - integrate with KVServer
-                responseStatus = KVMessage.StatusType.SUCCESS;
+                respBuilder
+                    .withMessageType(MessageType.SERVER_TO_ECS)
+                    .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
             default:
                 throw new Exception("Unrecognized message");
         }
 
-        msg.setStatusType(responseStatus);
-        return msg;
+        return respBuilder.build();
     }
 
     private UnifiedMessage handleServerMessage(UnifiedMessage msg) {
