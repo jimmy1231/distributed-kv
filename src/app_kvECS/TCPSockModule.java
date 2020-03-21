@@ -55,7 +55,7 @@ public class TCPSockModule {
         UnifiedMessage resp;
 
         /* Do request */
-        String rheader = StringUtils.repeat("-",25);
+        String rheader = StringUtils.repeat("-",35);
         logger.info(rheader);
         logger.info("REQUEST -> {}:{} MessageType={}, StatusType={}",
             socket.getLocalAddress(), socket.getPort(),
