@@ -27,7 +27,7 @@
 
   <!-- path to libraries-->
   <path id="external.jars">
-    <fileset dir="${lib.dir}" includes="**/*.jar"/>
+    <fileset dir="${lib.dir}" includes="**/*.*"/>
   </path>
 
   <!-- Build path -->
