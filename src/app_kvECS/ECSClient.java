@@ -42,6 +42,21 @@ public class ECSClient implements IECSClient {
         parseConfigFile();
 
         heartbeatMonitor.start();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            /*
+             * Interrupt will wake heartbeat from sleep,
+             * then heartbeat monitor will shutdown
+             * automatically.
+             */
+            heartbeatMonitor.interrupt();
+        }));
+    }
+
+    public void quit() {
+        heartbeatMonitor.interrupt();
+        /*
+         * Add other ECSClient shutdown code here..
+         */
     }
 
     /**

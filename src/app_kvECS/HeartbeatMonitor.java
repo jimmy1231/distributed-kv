@@ -74,6 +74,10 @@ public class HeartbeatMonitor extends Thread {
 		}
 	}
 
+	public void setIsRunning(boolean isRunning) {
+		this.isRunning = isRunning;
+	}
+
 	private boolean pingServerSync(ECSNode server) {
 		try {
 			ECSRequestsLib.heartbeat(server.getNodeHost(),
