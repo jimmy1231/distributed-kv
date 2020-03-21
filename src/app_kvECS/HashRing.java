@@ -208,7 +208,8 @@ public abstract class HashRing {
 
         @Override
         public String toString() {
-            return String.format("(%s,%s]", lower, upper);
+            String [] hexRange = this.toArray();
+            return String.format("(%s,%s]", hexRange[0], hexRange[1]);
         }
 
         public Hash getLower() {
