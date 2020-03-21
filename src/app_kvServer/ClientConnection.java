@@ -175,6 +175,7 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleAdminMessage(UnifiedMessage msg) throws Exception {
+        logger.info("HANDLE_ADMIN_MESSAGE: StatusType={}", msg.getStatus());
         KVServerMetadata metadata = msg.getMetadata();
         IECSNode.ECSNodeFlag flg = server.getStatus();
         UnifiedMessage.Builder respBuilder = new UnifiedMessage.Builder();

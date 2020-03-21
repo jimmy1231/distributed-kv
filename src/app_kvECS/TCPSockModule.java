@@ -75,8 +75,8 @@ public class TCPSockModule {
         resp = new UnifiedMessage().deserialize(responseStr);
         logger.info("RESPONSE <- {}:{} MessageType={}, StatusType={}",
             socket.getLocalAddress(), socket.getPort(),
-            request.getMessageType(),
-            request.getStatusType());
+            resp.getMessageType(),
+            resp.getStatusType());
         logger.info(rheader);
         return resp;
     }
