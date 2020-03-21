@@ -37,7 +37,7 @@ public class TCPSockModule {
     public TCPSockModule(String host, int port, int timeout) throws Exception {
         /* Establish socket connection with timeout */
         socket = connect(host, port, timeout);
-        logger.info(String.format(
+        logger.debug(String.format(
             "ECSSocket connection established: %s:%d",
             host, port));
 
@@ -55,6 +55,8 @@ public class TCPSockModule {
         UnifiedMessage resp;
 
         /* Do request */
+        String rheader = StringUtils.repeat("-",25);
+        logger.info(rheader);
         logger.info("REQUEST -> {}:{} MessageType={}, StatusType={}",
             socket.getLocalAddress(), socket.getPort(),
             request.getMessageType(),
@@ -75,6 +77,7 @@ public class TCPSockModule {
             socket.getLocalAddress(), socket.getPort(),
             request.getMessageType(),
             request.getStatusType());
+        logger.info(rheader);
         return resp;
     }
 
@@ -261,7 +264,7 @@ public class TCPSockModule {
                 String msg = recv(_input);
 
                 if (Objects.nonNull(msg) && !msg.isEmpty()) {
-                    logger.info("CONNECTION ACK: {}", msg);
+                    logger.debug("CONNECTION ACK: {}", msg);
                     break;
                 }
             }
