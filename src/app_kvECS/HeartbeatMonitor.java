@@ -21,7 +21,7 @@ public class HeartbeatMonitor extends Thread {
 	private long restPeriodMS;
 
 	public HeartbeatMonitor(ECSClient client, long restPeriodMS) {
-		logger.info("{}: Initialized. Rest Period={}", LOG_PREFIX, restPeriodMS);
+		//logger.info("{}: Initialized. Rest Period={}", LOG_PREFIX, restPeriodMS);
 		thisClient = client;
 		isRunning = true;
 		this.restPeriodMS = restPeriodMS;
@@ -40,7 +40,7 @@ public class HeartbeatMonitor extends Thread {
 		Map.Entry<String, IECSNode> entry;
 		List<ECSNode> failed;
 		while (isRunning) {
-			logger.info("{}: Awake, check server status..", LOG_PREFIX);
+			//logger.info("{}: Awake, check server status..", LOG_PREFIX);
 			failed = new ArrayList<>();
 
 			// (1)
@@ -49,17 +49,17 @@ public class HeartbeatMonitor extends Thread {
 			while (it.hasNext()) {
 				entry = it.next();
 				server = (ECSNode) entry.getValue();
-				logger.info("{}: Server={}", LOG_PREFIX, server.getUuid());
+				//logger.info("{}: Server={}", LOG_PREFIX, server.getUuid());
 
 				if (WHITELIST_FLAGS.contains(server.getEcsNodeFlag())) {
-					logger.info("{}: Pinging server {}", LOG_PREFIX,
-						server.getUuid());
+					//logger.info("{}: Pinging server {}", LOG_PREFIX,
+					//	server.getUuid());
 
 					// (2)
 					if (!pingServerSync(server)) {
-						logger.info("{}: Server failure detected: {} | STATUS={}",
-							LOG_PREFIX,
-							server.getUuid(), server.getEcsNodeFlag());
+						//logger.info("{}: Server failure detected: {} | STATUS={}",
+						//	LOG_PREFIX,
+						//	server.getUuid(), server.getEcsNodeFlag());
 						failed.add(server);
 					}
 				}
@@ -69,7 +69,7 @@ public class HeartbeatMonitor extends Thread {
 			thisClient.recoverServers(failed);
 
 			if (!sleepFor(restPeriodMS)) {
-				logger.info("{}: Thread interrupted, exiting", LOG_PREFIX);
+				//logger.info("{}: Thread interrupted, exiting", LOG_PREFIX);
 				isRunning = false;
 			}
 		}
@@ -86,8 +86,8 @@ public class HeartbeatMonitor extends Thread {
 			return false;
 		}
 
-		logger.info("{}: Server {} is alive!", LOG_PREFIX,
-			server.getUuid());
+		//logger.info("{}: Server {} is alive!", LOG_PREFIX,
+		//	server.getUuid());
 		return true;
 	}
 

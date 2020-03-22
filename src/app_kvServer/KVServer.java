@@ -194,7 +194,8 @@ public class KVServer implements IKVServer {
 			status = KVMessage.StatusType.PUT_SUCCESS;
 		}
 
-		if (Objects.nonNull(this.replicas)) {
+		// Only forward if replicas are known
+		if (replicas[0] != null && replicas[1] !=null) {
 			// Forward client's request to the replicas through socket message
 			UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas[0], key, value, KVMessage.StatusType.PUT);
 			UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas[1], key, value, KVMessage.StatusType.PUT);
@@ -296,6 +297,7 @@ public class KVServer implements IKVServer {
 			this.replicas[0] = rep1;
 			this.replicas[1] = rep2;
 
+			logger.info("I am " + myNodeName + " my replicas are " + rep1 + " and " + rep2);
 			initReplicatedDisks();
 		}
 	}
@@ -349,8 +351,8 @@ public class KVServer implements IKVServer {
 		assert(type == KVMessage.StatusType.PUT);
 		assert(replicaName != null);
 		assert(replica != null);
+		logger.fatal(replicaName);
 		logger.fatal(replica);
-		logger.fatal(replica.getNodeHost());
 
 		try {
 			// Sending message to the replica servers

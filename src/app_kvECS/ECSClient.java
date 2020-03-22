@@ -359,9 +359,11 @@ public class ECSClient implements IECSClient {
 
         TCPSockModule conn = null;
         try {
+	    logger.info("PRIMARY HOST: " + primary.getNodeHost().toString());
+	    logger.info("PRIMARY PORT: " + String.valueOf(primary.getNodePort()));
             conn = new TCPSockModule(
-                    primary.getNodeHost(), primary.getNodePort()
-            );
+                    primary.getNodeHost(), primary.getNodePort());
+	    
         } catch (Exception e) {
             logger.error("Failed to connect", e);
         }
