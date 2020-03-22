@@ -156,7 +156,7 @@ public class TCPSockModule {
                 if (isDeadbeef(buf, lastNBytes, len)) {
                     logger.debug("\"{}\": Transmission finished",
                         DEADBEEF);
-                    len -= DEADBEEF.length();
+                    len = Math.max(0, len-DEADBEEF.length());
                     finished = true;
                 }
                 bas.write(buf, 0, len);
