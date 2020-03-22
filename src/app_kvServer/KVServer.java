@@ -277,21 +277,27 @@ public class KVServer implements IKVServer {
 	/**
 	 * Update Node names of the current Server's replicas using the current metadata available
 	 */
-	private void updateReplicas(){
+	public void updateReplicas(){
 		HashRing ring = metadata.getHashRing();
-		String myNodeName = metadata.getName();
-		ECSNode myNode = ring.getServerByName(myNodeName);
-		ECSNode succNode1 = ring.getSuccessorServer(myNode); // this throws an error
-		ECSNode succNode2 = ring.getSuccessorServer(succNode1);
 
-		// sanity check
-		assert (Objects.nonNull(succNode1) && Objects.nonNull(succNode2));
+		// Case 1: First time doing replica setup
+		if (this.replicas == null && ring.getNumOfServers() >= 3) {
+			String myNodeName = metadata.getName();
+			ECSNode myNode = ring.getServerByName(myNodeName);
+			ECSNode succNode1 = ring.getSuccessorServer(myNode); // this throws an error
+			ECSNode succNode2 = ring.getSuccessorServer(succNode1);
 
-		String rep1 = succNode1.getNodeName();
-		String rep2 = succNode2.getNodeName();
+			// sanity check
+			assert (Objects.nonNull(succNode1) && Objects.nonNull(succNode2));
 
-		this.replicas[0] = rep1;
-		this.replicas[1] = rep2;
+			String rep1 = succNode1.getNodeName();
+			String rep2 = succNode2.getNodeName();
+
+			this.replicas[0] = rep1;
+			this.replicas[1] = rep2;
+
+			initReplicatedDisks();
+		}
 	}
 
 	/**
@@ -673,14 +679,14 @@ public class KVServer implements IKVServer {
 		this.update(metadata);
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 		logger.info("Updated metadata");
-		if (metadata.getHashRing().getNumOfServers() >= 3) {
+		/*if (metadata.getHashRing().getNumOfServers() >= 3) {
 	       		logger.info("More than 3 servers exist. start replication");
 			this.updateReplicas();
 			this.initReplicatedDisks();
 		}
 		else{
 			logger.info("Less than 3 servers!");
-		}
+		}*/
 	}
 
 	/**

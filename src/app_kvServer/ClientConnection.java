@@ -275,6 +275,7 @@ public class ClientConnection extends Thread {
                 case SERVER_REPLICATE:
                     // TODO: M3 - integrate with KVServer
                     server.update(msg.getMetadata());
+                    server.updateReplicas();
 
                     HashRing _ring = msg.getMetadata().getHashRing();
                     List<String> replicas = _ring.getReplicas(
