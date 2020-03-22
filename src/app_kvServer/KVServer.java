@@ -231,6 +231,11 @@ public class KVServer implements IKVServer {
 	}
 
 	public void printReplicatedDisk(ECSNode primary){
+		logger.info("PRINT_REPLICATED_DISK: {}:{} " +
+			"primary={}, replicatedDisk={}",
+			getHostname(), getPort(),
+			primary.getNodeName(), replicatedDisks);
+
 		Disk disk = this.replicatedDisks.get(primary.getNodeName());
 		logger.info(disk.getAll().toString());
 	}
@@ -331,11 +336,13 @@ public class KVServer implements IKVServer {
 		String coordName2 = coordinator2.getNodeName();
 
 		this.replicatedDisks.put(coordName1,
-				new Disk(String.format("%s_%d.txt",
-					REPLICA_DISK_PREFIX, coordinator1.getNodePort())));
+				new Disk(String.format("%s_%d_%d.txt",
+					REPLICA_DISK_PREFIX, getPort(),
+					coordinator1.getNodePort())));
 		this.replicatedDisks.put(coordName2,
-				new Disk(String.format("%s_%d.txt",
-					REPLICA_DISK_PREFIX, coordinator2.getNodePort())));
+				new Disk(String.format("%s_%d_%d.txt",
+					REPLICA_DISK_PREFIX, getPort(),
+					coordinator2.getNodePort())));
 
 		// Also initialize putRequestList to keep track of replication requests
 		this.replicatedPutRequestList.put(coordName1, new ArrayList<>());
