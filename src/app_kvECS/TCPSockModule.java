@@ -137,6 +137,7 @@ public class TCPSockModule {
              */
             int totalBytes = 0;
             int len;
+            byte[] lastNBytes = new byte[0];
             while ((len = bis.read(buf, 0, MAX_READ_BYTES)) > 0) {
                 int bytesLeft = bis.available();
                 logger.debug(
@@ -152,7 +153,7 @@ public class TCPSockModule {
                  * true).
                  */
                 boolean finished = false;
-                if (isDeadbeef(buf, len)) {
+                if (isDeadbeef(buf, lastNBytes, len)) {
                     logger.debug("\"{}\": Transmission finished",
                         DEADBEEF);
                     len -= DEADBEEF.length();
@@ -173,6 +174,9 @@ public class TCPSockModule {
                     logger.info("RECV: Total # bytes={}", totalBytes);
                     break;
                 }
+
+                lastNBytes = ArrayUtils.subarray(buf,
+                    buf.length-DEADBEEF.length(), buf.length);
             }
 
             /*
@@ -276,9 +280,9 @@ public class TCPSockModule {
         return _socket;
     }
 
-    private static boolean isDeadbeef(byte[] bytes, int len) {
+    private static boolean isDeadbeef(byte[] bytes, byte[] patchBytes, int len) {
         if (len < DEADBEEF.length()) {
-            return false;
+            bytes = ArrayUtils.addAll(patchBytes, bytes);
         }
 
         String lastChars = new String(Arrays.copyOfRange(
