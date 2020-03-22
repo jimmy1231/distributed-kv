@@ -604,7 +604,7 @@ public class KVServer implements IKVServer {
 	public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy) {
 		this.update(metadata);
 //		this.updateReplicas();
-		this.initReplicatedDisks();
+//		this.initReplicatedDisks();
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 	}
 
