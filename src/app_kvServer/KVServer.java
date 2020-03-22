@@ -381,6 +381,7 @@ public class KVServer implements IKVServer {
 			req = new UnifiedMessage.Builder()
 					.withMessageType(MessageType.SERVER_TO_SERVER)
 					.withStatusType(type)
+					.withPrimary(myNode)
 					.withKey(key)
 					.withValue(value)
 					.build();
