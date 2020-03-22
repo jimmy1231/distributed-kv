@@ -194,21 +194,26 @@ public class KVServer implements IKVServer {
 			status = KVMessage.StatusType.PUT_SUCCESS;
 		}
 
-		// Forward client's request to the replicas through socket message
-		UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas[0], key, value, KVMessage.StatusType.PUT);
-		UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas[1], key, value, KVMessage.StatusType.PUT);
+		if (Objects.nonNull(this.replicas)) {
+			// Forward client's request to the replicas through socket message
+			UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas[0], key, value, KVMessage.StatusType.PUT);
+			UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas[1], key, value, KVMessage.StatusType.PUT);
 
-		// Add to the head of the list (Index = 0 -> most recent request)
-		primaryPutRequestList.add(0, new Pair<>(uuid, status));
+			// Add to the head of the list (Index = 0 -> most recent request)
+			primaryPutRequestList.add(0, new Pair<>(uuid, status));
 
-		// when all acks are received, respond to the client
-		if (status.equals(rsp1.getStatusType()) && status.equals(rsp2.getStatusType())) {
-			logger.info("Returning " + status.toString() + "to the client");
-			return status;
+			// when all acks are received, respond to the client
+			if (status.equals(rsp1.getStatusType()) && status.equals(rsp2.getStatusType())) {
+				logger.info("Returning " + status.toString() + "to the client");
+				return status;
+			} else {
+				logger.error("Primary and replicas responses are not consistent, Return PUT_ERROR to the client");
+				return KVMessage.StatusType.PUT_ERROR;
+			}
 		}
+
 		else{
-			logger.error("Primary and replicas responses are not consistent, Return PUT_ERROR to the client");
-			return KVMessage.StatusType.PUT_ERROR;
+			return status;
 		}
 	}
 
@@ -654,8 +659,10 @@ public class KVServer implements IKVServer {
 	@Override
 	public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy) {
 		this.update(metadata);
-//		this.updateReplicas();
-//		this.initReplicatedDisks();
+		if (metadata.getHashRing().getNumOfServers() >= 3) {
+			this.updateReplicas();
+			this.initReplicatedDisks();
+		}
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 	}
 
