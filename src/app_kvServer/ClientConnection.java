@@ -180,115 +180,122 @@ public class ClientConnection extends Thread {
         IECSNode.ECSNodeFlag flg = server.getStatus();
         UnifiedMessage.Builder respBuilder = new UnifiedMessage.Builder();
 
-        switch(msg.getStatusType()) {
-            case START:
-                server.update(metadata);
-                server.start();
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case STOP:
-                server.update(metadata);
-                server.shutdown();
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case SHUTDOWN:
-                server.update(metadata);
-                server.shutdown();
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case SERVER_INIT:
-                server.initKVServer(msg.getMetadata(),
-                    msg.getCacheSize(), msg.getCacheStrategy());
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case SERVER_WRITE_LOCK:
-                server.lockWrite();
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case SERVER_WRITE_UNLOCK:
-                assert(flg.equals(IECSNode.ECSNodeFlag.KV_TRANSFER));
-                server.unLockWrite();
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case SERVER_MOVEDATA:
-                assert(flg.equals(IECSNode.ECSNodeFlag.KV_TRANSFER));
-                server.moveData(msg.getKeyRange(), msg.getServer());
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case SERVER_UPDATE:
-                server.update(msg.getMetadata());
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case SERVER_DUMP_DATA:
-                KVDataSet data = server.getAllData();
-                msg.setDataSet(data);
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case ECS_HEARTBEAT:
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case RECOVER_DATA:
-                /*
-                 * Functionality:
-                 * Transfer data from THIS replica to msg.getServer()'s primary
-                 * disk. (e.g. find a new home for this data)
-                 * -> opposite of replication (recovery): replica sending data
-                 *    to primary, rather than server sending data to replica.
-                 * -> do not remove the data transferred from this replica.
-                 *
-                 * getServer(): server to send replicated data to (new primary)
-                 * getKeyRange(): all objects within this keyrange should be
-                 *                sent to getServer()
-                 * getPrimary(): the old primary which the data in keyrange belonged to
-                 */
-                // TODO: M3 - integrate with KVServer
-                logger.info("RECOVER_DATA for old primary: {}. {}:{} -> {} | range={}",
-                    msg.getPrimary().getUuid(),
-                    server.getHostname(), server.getPort(),
-                    msg.getServer().getUuid(),
-                    new HashRing.HashRange(msg.getKeyRange()));
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
-            case SERVER_REPLICATE:
-                // TODO: M3 - integrate with KVServer
-                HashRing _ring = msg.getMetadata().getHashRing();
-                List<String> replicas = _ring.getReplicas(
-                    _ring.getServerByName(server.getMetdata().getName())
-                ).stream().map(ECSNode::getNodeName).collect(Collectors.toList());
-                logger.info("SERVER_REPLICATE: {}:{} -> {}",
-                    server.getHostname(), server.getPort(), replicas);
-                respBuilder
-                    .withMessageType(MessageType.SERVER_TO_ECS)
-                    .withStatusType(KVMessage.StatusType.SUCCESS);
-                break;
+        try {
+            switch (msg.getStatusType()) {
+                case START:
+                    server.update(metadata);
+                    server.start();
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case STOP:
+                    server.update(metadata);
+                    server.shutdown();
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SHUTDOWN:
+                    server.update(metadata);
+                    server.shutdown();
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SERVER_INIT:
+                    server.initKVServer(msg.getMetadata(),
+                        msg.getCacheSize(), msg.getCacheStrategy());
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SERVER_WRITE_LOCK:
+                    server.lockWrite();
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SERVER_WRITE_UNLOCK:
+                    assert (flg.equals(IECSNode.ECSNodeFlag.KV_TRANSFER));
+                    server.unLockWrite();
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SERVER_MOVEDATA:
+                    assert (flg.equals(IECSNode.ECSNodeFlag.KV_TRANSFER));
+                    server.moveData(msg.getKeyRange(), msg.getServer());
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SERVER_UPDATE:
+                    server.update(msg.getMetadata());
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SERVER_DUMP_DATA:
+                    KVDataSet data = server.getAllData();
+                    msg.setDataSet(data);
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case ECS_HEARTBEAT:
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case RECOVER_DATA:
+                    /*
+                     * Functionality:
+                     * Transfer data from THIS replica to msg.getServer()'s primary
+                     * disk. (e.g. find a new home for this data)
+                     * -> opposite of replication (recovery): replica sending data
+                     *    to primary, rather than server sending data to replica.
+                     * -> do not remove the data transferred from this replica.
+                     *
+                     * getServer(): server to send replicated data to (new primary)
+                     * getKeyRange(): all objects within this keyrange should be
+                     *                sent to getServer()
+                     * getPrimary(): the old primary which the data in keyrange belonged to
+                     */
+                    // TODO: M3 - integrate with KVServer
+                    logger.info("RECOVER_DATA for old primary: {}. {}:{} -> {} | range={}",
+                        msg.getPrimary().getUuid(),
+                        server.getHostname(), server.getPort(),
+                        msg.getServer().getUuid(),
+                        new HashRing.HashRange(msg.getKeyRange()));
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SERVER_REPLICATE:
+                    // TODO: M3 - integrate with KVServer
+                    HashRing _ring = msg.getMetadata().getHashRing();
+                    List<String> replicas = _ring.getReplicas(
+                        _ring.getServerByName(server.getMetdata().getName())
+                    ).stream().map(ECSNode::getNodeName).collect(Collectors.toList());
+                    logger.info("SERVER_REPLICATE: {}:{} -> {}",
+                        server.getHostname(), server.getPort(), replicas);
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
 
-            case SHOW_REPLICATION:
-                server.requestReplicatedDisk();
+                case SHOW_REPLICATION:
+                    server.requestReplicatedDisk();
 
-            default:
-                throw new Exception("Unrecognized message");
+                default:
+                    throw new Exception("Unrecognized message");
+            }
+        } catch (Exception e) {
+            logger.error("Failed to handle ECS request", e);
+            respBuilder
+                .withMessageType(MessageType.SERVER_TO_ECS)
+                .withStatusType(KVMessage.StatusType.ERROR);
         }
 
         return respBuilder.build();

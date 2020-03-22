@@ -78,6 +78,16 @@ public class TCPSockModule {
             resp.getMessageType(),
             resp.getStatusType());
         logger.info(rheader);
+
+        switch (resp.getStatusType()) {
+            case GET_ERROR:
+            case PUT_ERROR:
+            case DELETE_ERROR:
+            case CLIENT_ERROR:
+            case ERROR:
+                throw new Exception("ERROR: request failed");
+        }
+
         return resp;
     }
 
