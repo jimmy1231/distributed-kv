@@ -30,7 +30,6 @@ import java.util.function.Predicate;
 public abstract class HashRing {
     private static Logger logger = Logger.getLogger(HashRing.class);
     private static MessageDigest md;
-    protected int numOfServersInRing;
 
     private static byte[] MAX_MD5_HASH_BYTES = {
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -58,8 +57,6 @@ public abstract class HashRing {
     public static byte[] md5(String stringToHash) {
         return md.digest(stringToHash.getBytes());
     }
-
-    public int getNumOfServers(){ return numOfServersInRing; }
 
     /**
      * Key: MD5 hash of server
@@ -267,7 +264,6 @@ public abstract class HashRing {
         super();
         this.ring = ring;
         this.servers = servers;
-        numOfServersInRing = 0;
     }
     /****************************************************/
 
@@ -295,6 +291,8 @@ public abstract class HashRing {
     public abstract List<ECSNode> filterServer(Predicate<ECSNode> pred);
     public abstract void forEachServer(Consumer<ECSNode> consumer);
     public abstract ECSNode findServer(Predicate<ECSNode> pred);
+    public abstract int getNumServersOnRing();
+    public abstract int getNumServers();
 
     /**
      * {@link #getServerByHash(Hash)}

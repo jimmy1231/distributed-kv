@@ -4,7 +4,6 @@ import app_kvECS.TCPSockModule;
 import app_kvECS.HashRing;
 import app_kvECS.KVServerMetadata;
 import app_kvECS.impl.KVServerMetadataImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import org.slf4j.Logger;
@@ -287,10 +286,10 @@ public class KVServer implements IKVServer {
 		logger.info("UPDATE_REPLICAS {}:{} - Exisitng replicas: {} " +
 				"Number of existing servers: {}",
 			getHostname(), getPort(), replicas,
-			ring.getNumOfServers());
+			ring.getNumServersOnRing());
 
 		// Case 1: First time doing replica setup
-		if (this.replicas.isEmpty() && ring.getNumOfServers() >= 3) {
+		if (this.replicas.isEmpty() && ring.getNumServersOnRing() >= 3) {
 			logger.info("{}:{} - First time doing replica setup", getHostname(), getPort());
 			String myNodeName = metadata.getName();
 			ECSNode myNode = ring.getServerByName(myNodeName);
@@ -689,7 +688,7 @@ public class KVServer implements IKVServer {
 		this.update(metadata);
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 		logger.info("Updated metadata");
-		/*if (metadata.getHashRing().getNumOfServers() >= 3) {
+		/*if (metadata.getHashRing().getNumServersOnRing() >= 3) {
 	       		logger.info("More than 3 servers exist. start replication");
 			this.updateReplicas();
 			this.initReplicatedDisks();

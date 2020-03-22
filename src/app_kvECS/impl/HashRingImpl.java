@@ -95,6 +95,16 @@ public class HashRingImpl extends HashRing {
         return null;
     }
 
+    @Override
+    public int getNumServersOnRing() {
+        return ring.size();
+    }
+
+    @Override
+    public int getNumServers() {
+        return servers.size();
+    }
+
     /**
      * {@link #getServerByHash(Hash)}
      * Gets nearest server -> traverse HashRing in CW order.
@@ -181,13 +191,11 @@ public class HashRingImpl extends HashRing {
     @Override
     public void removeServer(ECSNode server) {
         server.setEcsNodeFlag(START_STOP);
-        numOfServersInRing--;
     }
 
     @Override
     public void shutdownServer(ECSNode server) {
         server.setEcsNodeFlag(START_SHUT_DOWN);
-        numOfServersInRing--;
     }
 
     @Override
@@ -198,7 +206,6 @@ public class HashRingImpl extends HashRing {
         }
 
         servers.put(server.getNodeName(), server);
-        numOfServersInRing++;
     }
 
     private void recomputeHashRanges() {
