@@ -281,17 +281,18 @@ public class ClientConnection extends Thread {
                     List<String> replicas = _ring.getReplicas(
                         _ring.getServerByName(server.getMetdata().getName())
                     ).stream().map(ECSNode::getNodeName).collect(Collectors.toList());
+
                     logger.info("SERVER_REPLICATE: {}:{} -> {}",
                         server.getHostname(), server.getPort(), replicas);
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_ECS)
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
-
                 case SHOW_REPLICATION:
+                    logger.info("SHOW_REPLICATION: {}:{}",
+                        server.getHostname(), server.getPort());
                     server.requestReplicatedDisk();
-		    break;
-
+		            break;
                 default:
                     throw new Exception("Unrecognized message");
             }

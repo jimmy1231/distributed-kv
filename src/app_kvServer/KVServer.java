@@ -7,10 +7,11 @@ import app_kvECS.impl.KVServerMetadataImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import ecs.IECSNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.Pair;
 import logger.LogSetup;
 import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 public class KVServer implements IKVServer {
-	private static Logger logger = Logger.getRootLogger();
+	private static Logger logger = LoggerFactory.getLogger(IKVServer.class);
 	private final ConcurrentHashMap <String, ClientConnection> connectionStatusTable = new ConcurrentHashMap<>();
 	private ServerSocket listener;
 	private DSCache cache;
@@ -38,7 +39,7 @@ public class KVServer implements IKVServer {
 	private ArrayList<Pair<UUID, KVMessage.StatusType>> primaryPutRequestList;
 	private Map<String, Disk> replicatedDisks;
 	private Map<String, ArrayList<Pair<UUID, KVMessage.StatusType>>> replicatedPutRequestList;
-	private String[] replicas; // Name of ECS nodes that are replicas of this server
+	private List<String> replicas; // Name of ECS nodes that are replicas of this server
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -65,7 +66,7 @@ public class KVServer implements IKVServer {
 	 */
 	public KVServer(int port, int cacheSize, String strategy) {
 		disk = new Disk(String.format("kv_store_%d.txt", port));
-		replicas = new String[2];
+		replicas = new ArrayList<>();
 		primaryPutRequestList = new ArrayList<Pair<UUID, KVMessage.StatusType>>();
 		replicatedDisks = new HashMap<String, Disk>();
 		replicatedPutRequestList = new HashMap<String, ArrayList<Pair<UUID, KVMessage.StatusType>>>();
@@ -84,7 +85,7 @@ public class KVServer implements IKVServer {
 					logger.info("sysexit detected, flushing cache");
 					kill();
 				} catch (Exception e) {
-					logger.fatal("failed to flush cache on sysexit");
+					logger.error("failed to flush cache on sysexit");
 				}
 			}
 		});
@@ -195,10 +196,10 @@ public class KVServer implements IKVServer {
 		}
 
 		// Only forward if replicas are known
-		if (replicas[0] != null && replicas[1] !=null) {
+		if (replicas.get(0) != null && replicas.get(1) !=null) {
 			// Forward client's request to the replicas through socket message
-			UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas[0], key, value, KVMessage.StatusType.PUT);
-			UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas[1], key, value, KVMessage.StatusType.PUT);
+			UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas.get(0), key, value, KVMessage.StatusType.PUT);
+			UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas.get(1), key, value, KVMessage.StatusType.PUT);
 
 			// Add to the head of the list (Index = 0 -> most recent request)
 			primaryPutRequestList.add(0, new Pair<>(uuid, status));
@@ -218,10 +219,13 @@ public class KVServer implements IKVServer {
 		}
 	}
 
-
 	public UnifiedMessage requestReplicatedDisk() {
-		this.forwardRequestToReplica(replicas[0], null, null, KVMessage.StatusType.SHOW_REPLICATION);
-		this.forwardRequestToReplica(replicas[1], null, null, KVMessage.StatusType.SHOW_REPLICATION);
+		if (replicas.size() >= 1) {
+			this.forwardRequestToReplica(replicas.get(0), null, null, KVMessage.StatusType.SHOW_REPLICATION);
+		}
+		if (replicas.size() >= 2) {
+			this.forwardRequestToReplica(replicas.get(1), null, null, KVMessage.StatusType.SHOW_REPLICATION);
+		}
 
 		return null; // Just dummy return val since socket call blocks until it receives response
 	}
@@ -282,7 +286,8 @@ public class KVServer implements IKVServer {
 		HashRing ring = metadata.getHashRing();
 
 		// Case 1: First time doing replica setup
-		if (this.replicas == null && ring.getNumOfServers() >= 3) {
+		if (this.replicas.isEmpty() && ring.getNumOfServers() >= 3) {
+			logger.info("{}:{} - First time doing replica setup", getHostname(), getPort());
 			String myNodeName = metadata.getName();
 			ECSNode myNode = ring.getServerByName(myNodeName);
 			ECSNode succNode1 = ring.getSuccessorServer(myNode); // this throws an error
@@ -294,8 +299,8 @@ public class KVServer implements IKVServer {
 			String rep1 = succNode1.getNodeName();
 			String rep2 = succNode2.getNodeName();
 
-			this.replicas[0] = rep1;
-			this.replicas[1] = rep2;
+			this.replicas.add(0, rep1);
+			this.replicas.add(1, rep2);
 
 			logger.info("I am " + myNodeName + " my replicas are " + rep1 + " and " + rep2);
 			initReplicatedDisks();
@@ -351,8 +356,7 @@ public class KVServer implements IKVServer {
 		assert(type == KVMessage.StatusType.PUT);
 		assert(replicaName != null);
 		assert(replica != null);
-		logger.fatal(replicaName);
-		logger.fatal(replica);
+		logger.trace(replicaName);
 
 		try {
 			// Sending message to the replica servers
