@@ -283,6 +283,7 @@ public class TCPSockModule {
     private static boolean isDeadbeef(byte[] bytes, byte[] patchBytes, int len) {
         if (len < DEADBEEF.length()) {
             bytes = ArrayUtils.addAll(patchBytes, bytes);
+            len += patchBytes.length;
         }
 
         String lastChars = new String(Arrays.copyOfRange(
