@@ -39,6 +39,7 @@ public class KVServer implements IKVServer {
 	private Map<String, Disk> replicatedDisks;
 	private Map<String, ArrayList<Pair<UUID, KVMessage.StatusType>>> replicatedPutRequestList;
 	private List<String> replicas; // Name of ECS nodes that are replicas of this server
+	private static final String REPLICA_DISK_PREFIX = "replica_kv_store";
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -330,13 +331,18 @@ public class KVServer implements IKVServer {
 		String coordName2 = coordinator2.getNodeName();
 
 		this.replicatedDisks.put(coordName1,
-				new Disk(String.format("kv_store_%d.txt", coordinator1.getNodePort())));
+				new Disk(String.format("%s_%d.txt",
+					REPLICA_DISK_PREFIX, coordinator1.getNodePort())));
 		this.replicatedDisks.put(coordName2,
-				new Disk(String.format("kv_store_%d.txt", coordinator2.getNodePort())));
+				new Disk(String.format("%s_%d.txt",
+					REPLICA_DISK_PREFIX, coordinator2.getNodePort())));
 
 		// Also initialize putRequestList to keep track of replication requests
 		this.replicatedPutRequestList.put(coordName1, new ArrayList<>());
 		this.replicatedPutRequestList.put(coordName2, new ArrayList<>());
+
+		logger.info("INIT_REPLICATE_DISK {}:{} - Replicas: {}",
+			getHostname(), getPort(), replicatedPutRequestList);
 	}
 
 	/**
