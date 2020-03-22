@@ -289,11 +289,11 @@ public class ECSClient implements IECSClient {
             successorNodeConn.close();
         }
 
-        broadcastMetaDataUpdates();
+        broadcastMetaDataUpdates(SERVER_REPLICATE);
         return nodeToAdd;
     }
 
-    public void broadcastMetaDataUpdates(){
+    public void broadcastMetaDataUpdates(KVMessage.StatusType messageType){
         TCPSockModule socketModule;
 
         IECSNode.ECSNodeFlag status;
@@ -316,7 +316,7 @@ public class ECSClient implements IECSClient {
 
                 UnifiedMessage notification = new UnifiedMessage.Builder()
                     .withMessageType(MessageType.ECS_TO_SERVER)
-                    .withStatusType(KVMessage.StatusType.SERVER_UPDATE)
+                    .withStatusType(messageType)
                     .withMetadata(newMetaData)
                     .build();
 
@@ -474,7 +474,7 @@ public class ECSClient implements IECSClient {
                 removeNodeCalls.setServer(successorNode);
 
                 // broadcast updates to all node
-                broadcastMetaDataUpdates();
+                broadcastMetaDataUpdates(SERVER_REPLICATE);
                 removeNodeCalls.setStatusType(KVMessage.StatusType.SHUTDOWN); // don't need to worry about other fields already populated
                 conn1.doRequest(removeNodeCalls);
                 conn1.close();
