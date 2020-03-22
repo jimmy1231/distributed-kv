@@ -11,7 +11,10 @@ import ecs.IECSNode;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static ecs.IECSNode.ECSNodeFlag.*;
 
 public class HashRingImpl extends HashRing {
     /**
@@ -177,7 +180,13 @@ public class HashRingImpl extends HashRing {
 
     @Override
     public void removeServer(ECSNode server) {
-        server.setEcsNodeFlag(IECSNode.ECSNodeFlag.START_STOP);
+        server.setEcsNodeFlag(START_STOP);
+        numOfServersInRing--;
+    }
+
+    @Override
+    public void shutdownServer(ECSNode server) {
+        server.setEcsNodeFlag(START_SHUT_DOWN);
         numOfServersInRing--;
     }
 
@@ -246,10 +255,16 @@ public class HashRingImpl extends HashRing {
             while (it.hasNext()) {
                 server = it.next().getValue();
                 flag = server.getEcsNodeFlag();
-                if (flag.equals(IECSNode.ECSNodeFlag.START_STOP)) {
+                if (flag.equals(START_STOP) ||
+                    flag.equals(START_SHUT_DOWN)) {
                     /* IMPORTANT: remove from ring */
                     ECSNode removed = ring.remove(new Hash(server.getUuid()));
-                    server.setEcsNodeFlag(IECSNode.ECSNodeFlag.STOP);
+
+                    if (flag.equals(START_STOP)) {
+                        server.setEcsNodeFlag(STOP);
+                    } else {
+                        server.setEcsNodeFlag(SHUT_DOWN);
+                    }
                     server.setNodeHashRange(null);
 
                     assert(removed.getUuid().equals(server.getUuid()));
@@ -351,11 +366,18 @@ public class HashRingImpl extends HashRing {
         /*
          * Only supports 2 replicas by convention.
          */
-        replica = getSuccessorServer(server);
-        if (Objects.nonNull(replica)) {
+        Function<ECSNode, ECSNode> getReplica = s -> {
+            ECSNode _s = s;
+            do {
+                _s = getSuccessorServer(_s);
+            } while (_s.isRecovering() && !_s.isSameServer(s));
+
+            return !_s.isSameServer(s) ? _s : null;
+        };
+
+        if (Objects.nonNull(replica = getReplica.apply(server))) {
             replicas.add(replica);
-            replica = getSuccessorServer(replica);
-            if (Objects.nonNull(replica)) {
+            if (Objects.nonNull(replica = getReplica.apply(replica))) {
                 replicas.add(replica);
             }
         }

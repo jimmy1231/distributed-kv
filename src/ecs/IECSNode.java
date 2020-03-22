@@ -16,7 +16,11 @@ public interface IECSNode {
 
         /* Transition states */
         IDLE_START,         /* In transition from IDLE to START */
-        START_STOP          /* In transition from START to STOP */
+        START_STOP,         /* In transition from START to STOP */
+        START_SHUT_DOWN,    /* In transition from START to SHUT_DOWN */
+        RECOVER_STOP,       /* In transition recovered to STOP -> use in recovery only */
+        RECOVER_START,      /* In transition recovered to START -> use in recovery only */
+        RECOVER_IDLE_START  /* In transition recovered to IDLE_START -> use in recovery only */
     }
 
     /**

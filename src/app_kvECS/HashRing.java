@@ -352,6 +352,7 @@ public abstract class HashRing {
     public abstract void removeServerByHash(Hash hash);
     public abstract void removeServerByName(String serverName);
     public abstract void removeServer(ECSNode server);
+    public abstract void shutdownServer(ECSNode server);
     public abstract void addServer(ECSNode server);
     public abstract void updateRing();
 
