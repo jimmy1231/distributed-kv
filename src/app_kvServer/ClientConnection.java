@@ -290,6 +290,7 @@ public class ClientConnection extends Thread {
 
                 case SHOW_REPLICATION:
                     server.requestReplicatedDisk();
+		    break;
 
                 default:
                     throw new Exception("Unrecognized message");
