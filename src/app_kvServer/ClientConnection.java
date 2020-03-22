@@ -296,7 +296,8 @@ public class ClientConnection extends Thread {
         }
         else if (msg.getStatusType().equals(KVMessage.StatusType.PUT)){
             try {
-                KVMessage.StatusType respType = server.replicate(msg.getServer().getNodeName(),
+                assert(Objects.nonNull(msg.getUUID()));
+                KVMessage.StatusType respType = server.replicate(msg.getPrimary().getNodeName(), msg.getUUID(),
                         msg.getKey(), msg.getValue());
                 msg.setStatusType(respType);
             }
@@ -310,12 +311,14 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleClientPut(UnifiedMessage msg) {
-        String key = msg.getKey(), value = msg.getValue();
+        // If there is no UUID, that's a big no-no
+        assert (Objects.nonNull(msg.getUUID()));
 
+        String key = msg.getKey(), value = msg.getValue();
         logger.info("Received PUT <{}, {}>", key, value);
         KVMessage.StatusType status;
         try{
-            status = server.putKVWithStatusCheck(key, value);
+            status = server.putKVWithStatusCheck(msg.getUUID(), key, value);
             logger.info("PUT: {} <{}, {}>", status, key, value);
         } catch (Exception e){
             logger.error("PUT failed. <{}, {}>", key, value, e);

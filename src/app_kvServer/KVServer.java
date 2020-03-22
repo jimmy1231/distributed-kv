@@ -35,7 +35,9 @@ public class KVServer implements IKVServer {
 	private KVServerDaemon daemon;
 	private KVServerMetadata metadata;
 	private Disk disk;
+	private ArrayList<Pair<UUID, KVMessage.StatusType>> primaryPutRequestList;
 	private Map<String, Disk> replicatedDisks;
+	private Map<String, ArrayList<Pair<UUID, KVMessage.StatusType>>> replicatedPutRequestList;
 	private String[] replicas; // Name of ECS nodes that are replicas of this server
 
 	class KVServerDaemon extends Thread {
@@ -64,7 +66,9 @@ public class KVServer implements IKVServer {
 	public KVServer(int port, int cacheSize, String strategy) {
 		disk = new Disk(String.format("kv_store_%d.txt", port));
 		replicas = new String[2];
+		primaryPutRequestList = new ArrayList<Pair<UUID, KVMessage.StatusType>>();
 		replicatedDisks = new HashMap<String, Disk>();
+		replicatedPutRequestList = new HashMap<String, ArrayList<Pair<UUID, KVMessage.StatusType>>>();
 		cache = new DSCache(cacheSize, strategy, disk);
 		this.port = port;
 		running = false;
@@ -158,7 +162,14 @@ public class KVServer implements IKVServer {
 	 * @return
 	 * @throws Exception
 	 */
-	public KVMessage.StatusType putKVWithStatusCheck(String key, String value) throws Exception{
+	public KVMessage.StatusType putKVWithStatusCheck(UUID uuid, String key, String value) throws Exception{
+		// Check if the request with 'uuid' was processed last time
+        // Even if it has been processed before, the last result was ERROR then try again
+		if (primaryPutRequestList.get(0).getKey() == uuid
+				&& primaryPutRequestList.get(0).getValue() != KVMessage.StatusType.PUT_ERROR){
+			return primaryPutRequestList.get(0).getValue();
+		}
+
 		KVMessage.StatusType status = checkMessageFormat(key, value);
 
 		// If format is invalid, just return ERROR status right away
@@ -187,6 +198,9 @@ public class KVServer implements IKVServer {
 		UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas[0], key, value);
 		UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas[1], key, value);
 
+		// Add to the head of the list (Index = 0 -> most recent request)
+		primaryPutRequestList.add(0, new Pair<>(uuid, status));
+
 		// when all acks are received, respond to the client
 		if (status.equals(rsp1.getStatusType()) && status.equals(rsp2.getStatusType())) {
 			logger.info("Returning " + status.toString() + "to the client");
@@ -198,7 +212,16 @@ public class KVServer implements IKVServer {
 		}
 	}
 
-	public KVMessage.StatusType replicate(String coordinatorName, String key, String value){
+	public KVMessage.StatusType replicate(String coordinatorName, UUID uuid, String key, String value){
+	    // Check if this replicate request has been processed the last time
+	    ArrayList<Pair<UUID, KVMessage.StatusType>> putRequestList = this.replicatedPutRequestList.get(coordinatorName);
+        Pair<UUID, KVMessage.StatusType> mostRecentRequest = putRequestList.get(0);
+
+        if (mostRecentRequest.getKey() == uuid
+                && mostRecentRequest.getValue() != KVMessage.StatusType.PUT_ERROR){
+            return mostRecentRequest.getValue();
+        }
+
 		Disk disk = replicatedDisks.get(coordinatorName);
 		KVMessage.StatusType status;
 
@@ -220,6 +243,8 @@ public class KVServer implements IKVServer {
 				status = KVMessage.StatusType.PUT_SUCCESS;
 			}
 			disk.putKV(key, value);
+			putRequestList.add(0, new Pair<>(uuid, status));
+
 			return status;
 		}
 		else{
@@ -270,6 +295,10 @@ public class KVServer implements IKVServer {
 				new Disk(String.format("kv_store_%d.txt", coordinator1.getNodePort())));
 		this.replicatedDisks.put(coordName2,
 				new Disk(String.format("kv_store_%d.txt", coordinator2.getNodePort())));
+
+		// Also initialize putRequestList to keep track of replication requests
+		this.replicatedPutRequestList.put(coordName1, new ArrayList<>());
+		this.replicatedPutRequestList.put(coordName2, new ArrayList<>());
 	}
 
 	/**
@@ -309,7 +338,7 @@ public class KVServer implements IKVServer {
 			resp = new UnifiedMessage.Builder()
 					.withMessageType(MessageType.SERVER_TO_SERVER)
 					.withStatusType(KVMessage.StatusType.PUT_ERROR)
-					.withServer(myNode) // This is the sender node (indicate who primary server is)
+					.withPrimary(myNode) // This is the sender node (indicate who primary server is)
 					.withKey(key)
 					.withValue(value)
 					.build();

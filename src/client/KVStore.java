@@ -17,6 +17,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.rmi.server.ServerNotActiveException;
 import java.util.Objects;
+import java.util.UUID;
 
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
@@ -112,6 +113,7 @@ public class KVStore implements KVCommInterface {
 		boolean retransmit = true;
 
 		UnifiedMessage request = new UnifiedMessage.Builder()
+			.withUUID(UUID.randomUUID())
 			.withMessageType(MessageType.CLIENT_TO_SERVER)
 			.withKey(key)
 			.withValue(value)

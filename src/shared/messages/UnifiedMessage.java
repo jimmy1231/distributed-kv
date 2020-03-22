@@ -9,6 +9,7 @@ import ecs.ECSNode;
 
 import java.util.Base64;
 import java.util.Objects;
+import java.util.UUID;
 
 public class UnifiedMessage implements KVMessage {
     private static Gson UNIFIED_GSON = new GsonBuilder()
@@ -17,6 +18,8 @@ public class UnifiedMessage implements KVMessage {
         .create();
 
     private class __Serialized__ {
+        @Expose
+        UUID uuid;
         @Expose
         MessageType messageType;
         @Expose
@@ -42,7 +45,8 @@ public class UnifiedMessage implements KVMessage {
         @Expose
         String message;
 
-        __Serialized__(MessageType messageType,
+        __Serialized__(UUID uuid,
+                       MessageType messageType,
                        KVMessage.StatusType statusType,
                        String metadata,
                        String dataSet,
@@ -54,6 +58,7 @@ public class UnifiedMessage implements KVMessage {
                        String cacheStrategy,
                        Integer cacheSize,
                        String message) {
+            this.uuid = uuid;
             this.messageType = messageType;
             this.statusType = statusType;
             this.metadata = metadata;
@@ -69,6 +74,7 @@ public class UnifiedMessage implements KVMessage {
         }
     }
 
+    private UUID uuid;
     private MessageType messageType;
     private KVMessage.StatusType statusType;
     private KVServerMetadata metadata;
@@ -90,6 +96,11 @@ public class UnifiedMessage implements KVMessage {
 
         public Builder() {
             object = new UnifiedMessage();
+        }
+
+        public Builder withUUID(UUID uuid){
+            object.uuid = uuid;
+            return this;
         }
 
         public Builder withMessageType(MessageType messageType) {
@@ -159,6 +170,7 @@ public class UnifiedMessage implements KVMessage {
 
     public String serialize() {
         __Serialized__ s = new __Serialized__(
+            Objects.nonNull(uuid) ? uuid : null,
             messageType,
             Objects.nonNull(statusType) ? statusType : null,
             Objects.nonNull(metadata) ? metadata.serialize() : null,
@@ -181,6 +193,7 @@ public class UnifiedMessage implements KVMessage {
         String json = new String(Base64.getDecoder().decode(b64str));
         __Serialized__ s = UNIFIED_GSON.fromJson(json, __Serialized__.class);
 
+        this.uuid = s.uuid;
         this.messageType = s.messageType;
         this.statusType = s.statusType;
         this.key = s.key;
@@ -214,6 +227,14 @@ public class UnifiedMessage implements KVMessage {
 
     public static void setUnifiedGson(Gson unifiedGson) {
         UNIFIED_GSON = unifiedGson;
+    }
+
+    public UUID getUUID(){
+        return uuid;
+    }
+
+    public void setUUID(UUID uuid){
+        this.uuid = uuid;
     }
 
     public KVMessage.StatusType getStatusType() {
