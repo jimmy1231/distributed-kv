@@ -31,6 +31,7 @@ public class KVStore implements KVCommInterface {
 	private ObjectMapper objectMapper;
 	private connectionStatus status;
 	private HashRing recentHashring;
+	private int TIMEOUT = 10 * 10000;
 
 	/**
 	 * Initialize KVStore with address and port of KVServer
@@ -52,6 +53,7 @@ public class KVStore implements KVCommInterface {
 	public void connect() throws Exception {
 		try{
 			clientSocket = new Socket(this.serverAddress, this.serverPort);
+			clientSocket.setSoTimeout(TIMEOUT);
 			output = clientSocket.getOutputStream();
 			input = clientSocket.getInputStream();
 			objectMapper = new ObjectMapper();

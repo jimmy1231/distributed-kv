@@ -281,15 +281,14 @@ public class KVServer implements IKVServer {
 	 * @return Response message from the replica
 	 */
 	private UnifiedMessage forwardRequestToReplica(String replicaName, String key, String value){
+		int TIMEOUT = 10 * 1000;
 		HashRing ring = this.metadata.getHashRing();
 		ECSNode myNode = ring.getServerByName(this.metadata.getName());
 		ECSNode replica = ring.getServerByName(replicaName);
 		TCPSockModule module = null;
 		UnifiedMessage req, resp;
 		try {
-			module = new TCPSockModule(
-					replica.getNodeHost(), replica.getNodePort()
-			);
+			module = new TCPSockModule(replica.getNodeHost(), replica.getNodePort(), TIMEOUT);
 
 			req = new UnifiedMessage.Builder()
 					.withMessageType(MessageType.SERVER_TO_SERVER)
