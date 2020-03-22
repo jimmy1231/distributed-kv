@@ -216,6 +216,7 @@ public class KVStore implements KVCommInterface {
 		// Convert KVMessage to JSON String
 		String msgAsString = msg.serialize();
 		TCPSockModule.send(output, msgAsString);
+		logger.info("addr {} port {}", this.clientSocket.getInetAddress(), this.clientSocket.getPort());
 	}
 
 	/**
