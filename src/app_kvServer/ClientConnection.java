@@ -305,26 +305,42 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleServerMessage(UnifiedMessage msg) {
-        if (msg.getStatusType().equals(KVMessage.StatusType.SERVER_MOVEDATA)) {
-            server.recvData(msg.getDataSet());
-        }
-        else if (msg.getStatusType().equals(KVMessage.StatusType.PUT)){
-            try {
-                assert(Objects.nonNull(msg.getUUID()));
-                KVMessage.StatusType respType = server.replicate(msg.getPrimary().getNodeName(), msg.getUUID(),
+        logger.info("HANDLE_SERVER_MESSAGE: StatusType={}", msg.getStatus());
+        UnifiedMessage.Builder respBuilder = new UnifiedMessage.Builder();
+
+        try {
+            switch (msg.getStatusType()) {
+                case SERVER_MOVEDATA:
+                    server.recvData(msg.getDataSet());
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case PUT:
+                    assert(Objects.nonNull(msg.getUUID()));
+                    KVMessage.StatusType respType = server.replicate(msg.getPrimary().getNodeName(), msg.getUUID(),
                         msg.getKey(), msg.getValue());
-                msg.setStatusType(respType);
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(respType);
+                    break;
+                case SHOW_REPLICATION:
+                    server.printReplicatedDisk(msg.getPrimary());
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                default:
+                    throw new Exception("Unrecognized message");
             }
-            catch (NullPointerException e){
-                // need to set up msg response to the primary server
-                logger.error(e.getMessage());
-            }
+        } catch (Exception e) {
+            logger.error("Failed to handle ECS request", e);
+            respBuilder
+                .withMessageType(MessageType.SERVER_TO_ECS)
+                .withStatusType(KVMessage.StatusType.ERROR);
         }
-        else if (msg.getStatusType().equals(KVMessage.StatusType.SHOW_REPLICATION)) {
-            server.printReplicatedDisk(msg.getPrimary());
-            // nobody really reads the response msg for this call
-        }
-        return msg;
+
+        return respBuilder.build();
     }
 
     private UnifiedMessage handleClientPut(UnifiedMessage msg) {
