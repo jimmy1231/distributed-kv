@@ -282,8 +282,10 @@ public class KVServer implements IKVServer {
 	/**
 	 * Update Node names of the current Server's replicas using the current metadata available
 	 */
-	public void updateReplicas(){
+	public void updateReplicas() {
 		HashRing ring = metadata.getHashRing();
+		logger.info("UPDATE_REPLICAS {}:{} - Exisitng replicas: {}",
+			getHostname(), getPort(), replicas);
 
 		// Case 1: First time doing replica setup
 		if (this.replicas.isEmpty() && ring.getNumOfServers() >= 3) {
