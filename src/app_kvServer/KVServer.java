@@ -659,11 +659,16 @@ public class KVServer implements IKVServer {
 	@Override
 	public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy) {
 		this.update(metadata);
-		if (metadata.getHashRing().getNumOfServers() >= 3) {
-			this.updateReplicas();
-			this.initReplicatedDisks();
-		}
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
+		logger.info("Updated metadata");
+		//if (metadata.getHashRing().getNumOfServers() >= 3) {
+	       	//	logger.info("More than 3 servers exist. start replication");
+		//	this.updateReplicas();
+		//	this.initReplicatedDisks();
+		//}
+		//else{
+		//	logger.info("Less than 3 servers!");
+		//}
 	}
 
 	/**
