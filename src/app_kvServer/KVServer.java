@@ -35,6 +35,8 @@ public class KVServer implements IKVServer {
 	private KVServerDaemon daemon;
 	private KVServerMetadata metadata;
 	private Disk disk;
+	private Map<String, Disk> replicatedDisks;
+	private String[] replicas; // Name of ECS nodes that are replicas of this server
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -61,6 +63,8 @@ public class KVServer implements IKVServer {
 	 */
 	public KVServer(int port, int cacheSize, String strategy) {
 		disk = new Disk(String.format("kv_store_%d.txt", port));
+		replicas = new String[2];
+		replicatedDisks = new HashMap<String, Disk>();
 		cache = new DSCache(cacheSize, strategy, disk);
 		this.port = port;
 		running = false;
@@ -179,16 +183,54 @@ public class KVServer implements IKVServer {
 			status = KVMessage.StatusType.PUT_SUCCESS;
 		}
 
-		// TODO
-		// Find two successors and replicate the data
-		// Wait until get acks from both
-		// when all acks are received, respond to the client
+		// Forward client's request to the replicas through socket message
+		UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas[0], key, value);
+		UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas[1], key, value);
 
-		return status;
+		// when all acks are received, respond to the client
+		if (status.equals(rsp1.getStatusType()) && status.equals(rsp2.getStatusType())) {
+			logger.info("Returning " + status.toString() + "to the client");
+			return status;
+		}
+		else{
+			logger.error("Primary and replicas responses are not consistent, Return PUT_ERROR to the client");
+			return KVMessage.StatusType.PUT_ERROR;
+		}
 	}
 
-	public ECSNode[] getReplicas(){
-		ECSNode[] replicas = new ECSNode[2];
+	public KVMessage.StatusType replicate(String coordinatorName, String key, String value){
+		Disk disk = replicatedDisks.get(coordinatorName);
+		KVMessage.StatusType status;
+
+		if (disk != null){
+			if (disk.inStorage(key)){
+				// key exists in the cache. Either PUT_UPDATE/ERROR or DELETE_SUCCESS/ERROR
+				disk.putKV(key, value);
+
+				// Delete scenario
+				if (value == null || value.equals("null") || value.equals("")) {
+					status =  KVMessage.StatusType.DELETE_SUCCESS;
+				}
+				else {
+					status = KVMessage.StatusType.PUT_UPDATE;
+				}
+			}
+			else{ // fresh PUT case
+				disk.putKV(key, value);
+				status = KVMessage.StatusType.PUT_SUCCESS;
+			}
+			disk.putKV(key, value);
+			return status;
+		}
+		else{
+			throw new NullPointerException("No disk exists for " + coordinatorName);
+		}
+	}
+
+	/**
+	 * Update Node names of the current Server's replicas using the current metadata available
+	 */
+	private void updateReplicas(){
 		HashRing ring = metadata.getHashRing();
 		String myNodeName = metadata.getName();
 		ECSNode myNode = ring.getServerByName(myNodeName);
@@ -196,20 +238,90 @@ public class KVServer implements IKVServer {
 		ECSNode succNode2 = ring.getSuccessorServer(succNode1);
 
 		// sanity check
-		//assert (Objects.nonNull(succNode1) && Objects.nonNull(succNode2));
+		assert (Objects.nonNull(succNode1) && Objects.nonNull(succNode2));
 
-		replicas[0] = succNode1;
-		replicas[1] = succNode2;
+		String rep1 = succNode1.getNodeName();
+		String rep2 = succNode2.getNodeName();
 
-		return replicas;
+		this.replicas[0] = rep1;
+		this.replicas[1] = rep2;
 	}
 
-	private void getAcks(){
-		//TODO
+	/**
+	 * Each server needs to keep 2 sets of replicated data
+	 * For example, if there are three servers, Server1, Server2 and Sever3, in the hash ring,
+	 * then Server 3 needs to have a copy of Server1's (coordinator 2) and Server2's (coordinator 1) data
+	 */
+	private void initReplicatedDisks(){
+		ECSNode[] replicas = new ECSNode[2];
+		HashRing ring = metadata.getHashRing();
+		String myNodeName = metadata.getName();
+		ECSNode myNode = ring.getServerByName(myNodeName);
+		ECSNode coordinator1 = ring.getPredecessorServer(myNode); // this throws an error
+		ECSNode coordinator2 = ring.getPredecessorServer(coordinator1);
+
+		// sanity check
+		assert (Objects.nonNull(coordinator1) && Objects.nonNull(coordinator2));
+
+		String coordName1 = coordinator1.getNodeName();
+		String coordName2 = coordinator2.getNodeName();
+
+		this.replicatedDisks.put(coordName1,
+				new Disk(String.format("kv_store_%d.txt", coordinator1.getNodePort())));
+		this.replicatedDisks.put(coordName2,
+				new Disk(String.format("kv_store_%d.txt", coordinator2.getNodePort())));
 	}
 
-	private void replicateData(){
-		//TODO
+	/**
+	 * As a primary (coordinator) send a PUT request to the replicas
+	 * It is a blocking call due to how TCPSockModule is implemented
+	 * @param replicaName Node name of replica who is receiving the forwarded request
+	 * @param key key to store
+	 * @param value value to store
+	 * @return Response message from the replica
+	 */
+	private UnifiedMessage forwardRequestToReplica(String replicaName, String key, String value){
+		HashRing ring = this.metadata.getHashRing();
+		ECSNode myNode = ring.getServerByName(this.metadata.getName());
+		ECSNode replica = ring.getServerByName(replicaName);
+		TCPSockModule module = null;
+		UnifiedMessage req, resp;
+		try {
+			module = new TCPSockModule(
+					replica.getNodeHost(), replica.getNodePort()
+			);
+
+			req = new UnifiedMessage.Builder()
+					.withMessageType(MessageType.SERVER_TO_SERVER)
+					.withStatusType(KVMessage.StatusType.PUT)
+					.withKey(key)
+					.withValue(value)
+					.build();
+
+			resp = module.doRequest(req);
+			logger.info("Successfully forwarded request to replica " + replicaName);
+			return resp;
+
+		} catch (Exception e) {
+			logger.error(String.format(
+					"Unable to forward request: %s",
+					e.getMessage()), e);
+
+			resp = new UnifiedMessage.Builder()
+					.withMessageType(MessageType.SERVER_TO_SERVER)
+					.withStatusType(KVMessage.StatusType.PUT_ERROR)
+					.withServer(myNode) // This is the sender node (indicate who primary server is)
+					.withKey(key)
+					.withValue(value)
+					.build();
+
+			return resp;
+
+		} finally {
+			if (Objects.nonNull(module)) {
+				module.close();
+			}
+		}
 	}
 
 	private KVMessage.StatusType checkMessageFormat(String key, String value){
@@ -491,6 +603,8 @@ public class KVServer implements IKVServer {
 	@Override
 	public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy) {
 		this.update(metadata);
+		this.updateReplicas();
+		this.initReplicatedDisks();
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 	}
 
