@@ -34,6 +34,8 @@ public class UnifiedMessage implements KVMessage {
         @Expose
         ECSNode server;
         @Expose
+        ECSNode primary;
+        @Expose
         String cacheStrategy;
         @Expose
         Integer cacheSize;
@@ -48,6 +50,7 @@ public class UnifiedMessage implements KVMessage {
                        String value,
                        String[] keyRange,
                        ECSNode server,
+                       ECSNode primary,
                        String cacheStrategy,
                        Integer cacheSize,
                        String message) {
@@ -59,6 +62,7 @@ public class UnifiedMessage implements KVMessage {
             this.value = value;
             this.keyRange = keyRange;
             this.server = server;
+            this.primary = primary;
             this.cacheStrategy = cacheStrategy;
             this.cacheSize = cacheSize;
             this.message = message;
@@ -74,6 +78,7 @@ public class UnifiedMessage implements KVMessage {
 
     private String[] keyRange;
     private ECSNode server;
+    private ECSNode primary;
     private String cacheStrategy;
     private Integer cacheSize;
 
@@ -127,6 +132,11 @@ public class UnifiedMessage implements KVMessage {
             return this;
         }
 
+        public Builder withPrimary(ECSNode primary) {
+            object.primary = primary;
+            return this;
+        }
+
         public Builder withCacheStrategy(String cacheStrategy) {
             object.cacheStrategy = cacheStrategy;
             return this;
@@ -157,6 +167,7 @@ public class UnifiedMessage implements KVMessage {
             Objects.nonNull(value) ? value : null,
             Objects.nonNull(keyRange) ? keyRange : null,
             Objects.nonNull(server) ? server : null,
+            Objects.nonNull(primary) ? primary : null,
             Objects.nonNull(cacheStrategy) ? cacheStrategy : null,
             Objects.nonNull(cacheSize) ? cacheSize : null,
             Objects.nonNull(message) ? message: null
@@ -176,6 +187,7 @@ public class UnifiedMessage implements KVMessage {
         this.value = s.value;
         this.keyRange = s.keyRange;
         this.server = s.server;
+        this.primary = s.primary;
         this.cacheStrategy = s.cacheStrategy;
         this.cacheSize = s.cacheSize;
         this.message = s.message;
@@ -267,6 +279,15 @@ public class UnifiedMessage implements KVMessage {
 
     public UnifiedMessage setServer(ECSNode server) {
         this.server = server;
+        return this;
+    }
+
+    public ECSNode getPrimary() {
+        return primary;
+    }
+
+    public UnifiedMessage setPrimary(ECSNode primary) {
+        this.primary = primary;
         return this;
     }
 

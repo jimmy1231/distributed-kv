@@ -247,9 +247,23 @@ public class ClientConnection extends Thread {
                     .withMessageType(MessageType.SERVER_TO_ECS)
                     .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
-            case REPLICATE_DATA:
+            case RECOVER_DATA:
+                /*
+                 * Functionality:
+                 * Transfer data from THIS replica to msg.getServer()'s primary
+                 * disk. (e.g. find a new home for this data)
+                 * -> opposite of replication (recovery): replica sending data
+                 *    to primary, rather than server sending data to replica.
+                 * -> do not remove the data transferred from this replica.
+                 *
+                 * getServer(): server to send replicated data to (new primary)
+                 * getKeyRange(): all objects within this keyrange should be
+                 *                sent to getServer()
+                 * getPrimary(): the old primary which the data in keyrange belonged to
+                 */
                 // TODO: M3 - integrate with KVServer
-                logger.info("REPLICATE_DATA: {}:{} -> {} | range={}",
+                logger.info("RECOVER_DATA for old primary: {}. {}:{} -> {} | range={}",
+                    msg.getPrimary().getUuid(),
                     server.getHostname(), server.getPort(),
                     msg.getServer().getUuid(),
                     new HashRing.HashRange(msg.getKeyRange()));

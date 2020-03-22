@@ -506,7 +506,7 @@ public class ECSClient implements IECSClient {
                     S_i.getUuid(), S_i_succ.getUuid());
                 try {
                     ECSRequestsLib.availMoveReplicatedData(
-                        replicas, S_i_succ, S_i.getNodeHashRange(), ring
+                        replicas, S_i_succ, S_i, S_i.getNodeHashRange(), ring
                     );
                 } catch (Exception e) {
                     logger.error("ERROR: recovery failed!" +
@@ -542,16 +542,16 @@ public class ECSClient implements IECSClient {
                 // Case 1:
                 if (S_i_range.inRange(HS_n)) {
                     ECSRequestsLib.availMoveReplicatedData(
-                        replicas, S_n, S_n.getNodeHashRange(), ring
+                        replicas, S_n, S_i, S_n.getNodeHashRange(), ring
                     );
                     ECSRequestsLib.availMoveReplicatedData(
-                        replicas, S_i_succ, S_i.getNodeHashRange(), ring
+                        replicas, S_i_succ, S_i, S_i.getNodeHashRange(), ring
                     );
                 }
                 // Case 2:
                 else if (S_i_succ_range.inRange(HS_n)) {
                     ECSRequestsLib.availMoveReplicatedData(
-                        replicas, S_n, S_i.getNodeHashRange(), ring
+                        replicas, S_n, S_i, S_i.getNodeHashRange(), ring
                     );
                     ECSRequestsLib.availMoveData(
                         ring.getSuccessorServer(S_n), S_n,
@@ -561,7 +561,7 @@ public class ECSClient implements IECSClient {
                 // Case 3:
                 else {
                     ECSRequestsLib.availMoveReplicatedData(
-                        replicas, S_i_succ, S_i.getNodeHashRange(), ring
+                        replicas, S_i_succ, S_i, S_i.getNodeHashRange(), ring
                     );
                     ECSRequestsLib.availMoveData(
                         ring.getSuccessorServer(S_n), S_n,

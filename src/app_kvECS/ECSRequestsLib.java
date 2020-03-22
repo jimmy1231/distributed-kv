@@ -1,12 +1,10 @@
 package app_kvECS;
 
 import ecs.ECSNode;
-import ecs.IECSNode;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
-import java.time.chrono.HijrahEra;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -54,11 +52,13 @@ public class ECSRequestsLib {
 
     public static void moveReplicatedData(ECSNode src,
                                           ECSNode dest,
+                                          ECSNode oldPrimary,
                                           String[] range) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
-            .withStatusType(KVMessage.StatusType.REPLICATE_DATA)
+            .withStatusType(KVMessage.StatusType.RECOVER_DATA)
             .withKeyRange(range)
+            .withPrimary(oldPrimary)
             .withServer(dest)
             .build();
 
@@ -69,6 +69,7 @@ public class ECSRequestsLib {
 
     public static void availMoveReplicatedData(List<ECSNode> replicas,
                                                ECSNode dest,
+                                               ECSNode oldPrimary,
                                                String[] range,
                                                HashRing hashRing) throws Exception {
         // Choose replica
@@ -108,7 +109,7 @@ public class ECSRequestsLib {
         }
 
         // Then, do it
-        moveReplicatedData(replica, chosenDest, range);
+        moveReplicatedData(replica, chosenDest, oldPrimary, range);
     }
 
     public static void moveData(ECSNode src,
@@ -146,7 +147,7 @@ public class ECSRequestsLib {
             moveData(src, dest, range);
         } catch (Exception e) {
             availMoveReplicatedData(hashRing.getReplicas(src),
-                dest, range, hashRing);
+                dest, src, range, hashRing);
         }
     }
 
