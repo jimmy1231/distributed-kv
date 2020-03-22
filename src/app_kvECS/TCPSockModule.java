@@ -156,10 +156,12 @@ public class TCPSockModule {
                 if (isDeadbeef(buf, lastNBytes, len)) {
                     logger.debug("\"{}\": Transmission finished",
                         DEADBEEF);
-                    len = Math.max(0, len-DEADBEEF.length());
+                    len = len-DEADBEEF.length();
                     finished = true;
                 }
-                bas.write(buf, 0, len);
+                if (len > 0) {
+                    bas.write(buf, 0, len);
+                }
 
                 /*
                  * InputStream.read() will block until next recv'd
@@ -196,7 +198,15 @@ public class TCPSockModule {
              * returned, and no data was read, it must mean
              * the underlying connection has been closed.
              */
-            response = decompress(bas.toByteArray());
+            byte[] msgBytes = bas.toByteArray();
+
+            /* Removing stray DEADBEEF */
+            if (len < 0) {
+                msgBytes = ArrayUtils.subarray(
+                    msgBytes,0,msgBytes.length+len
+                );
+            }
+            response = decompress(msgBytes);
             if (len < 0 && response.isEmpty()) {
                 return null;
             }
