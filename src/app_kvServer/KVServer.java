@@ -654,8 +654,8 @@ public class KVServer implements IKVServer {
 	@Override
 	public void initKVServer(KVServerMetadata metadata, int cacheSize, String cacheStrategy) {
 		this.update(metadata);
-		this.updateReplicas();
-		this.initReplicatedDisks();
+//		this.updateReplicas();
+//		this.initReplicatedDisks();
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 	}
 

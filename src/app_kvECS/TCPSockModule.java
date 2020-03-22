@@ -137,6 +137,7 @@ public class TCPSockModule {
              */
             int totalBytes = 0;
             int len;
+            byte[] lastNBytes = new byte[0];
             while ((len = bis.read(buf, 0, MAX_READ_BYTES)) > 0) {
                 int bytesLeft = bis.available();
                 logger.debug(
@@ -152,13 +153,15 @@ public class TCPSockModule {
                  * true).
                  */
                 boolean finished = false;
-                if (isDeadbeef(buf, len)) {
+                if (isDeadbeef(buf, lastNBytes, len)) {
                     logger.debug("\"{}\": Transmission finished",
                         DEADBEEF);
-                    len -= DEADBEEF.length();
+                    len = len-DEADBEEF.length();
                     finished = true;
                 }
-                bas.write(buf, 0, len);
+                if (len > 0) {
+                    bas.write(buf, 0, len);
+                }
 
                 /*
                  * InputStream.read() will block until next recv'd
@@ -173,6 +176,9 @@ public class TCPSockModule {
                     logger.info("RECV: Total # bytes={}", totalBytes);
                     break;
                 }
+
+                lastNBytes = ArrayUtils.subarray(buf,
+                    buf.length-DEADBEEF.length(), buf.length);
             }
 
             /*
@@ -192,7 +198,15 @@ public class TCPSockModule {
              * returned, and no data was read, it must mean
              * the underlying connection has been closed.
              */
-            response = decompress(bas.toByteArray());
+            byte[] msgBytes = bas.toByteArray();
+
+            /* Removing stray DEADBEEF */
+            if (len < 0) {
+                msgBytes = ArrayUtils.subarray(
+                    msgBytes,0,msgBytes.length+len
+                );
+            }
+            response = decompress(msgBytes);
             if (len < 0 && response.isEmpty()) {
                 return null;
             }
@@ -276,9 +290,10 @@ public class TCPSockModule {
         return _socket;
     }
 
-    private static boolean isDeadbeef(byte[] bytes, int len) {
+    private static boolean isDeadbeef(byte[] bytes, byte[] patchBytes, int len) {
         if (len < DEADBEEF.length()) {
-            return false;
+            bytes = ArrayUtils.addAll(patchBytes, bytes);
+            len += patchBytes.length;
         }
 
         String lastChars = new String(Arrays.copyOfRange(
