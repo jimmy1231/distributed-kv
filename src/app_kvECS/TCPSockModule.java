@@ -228,7 +228,7 @@ public class TCPSockModule {
             response = null;
         }
 
-        logger.debug("RECV_MESSAGE: {}", response);
+        //logger.debug("RECV_MESSAGE: {}", response);
         return response;
     }
 

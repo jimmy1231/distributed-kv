@@ -165,7 +165,7 @@ public class KVServer implements IKVServer {
 	public KVMessage.StatusType putKVWithStatusCheck(UUID uuid, String key, String value) throws Exception{
 		// Check if the request with 'uuid' was processed last time
         // Even if it has been processed before, the last result was ERROR then try again
-		if (primaryPutRequestList.get(0).getKey() == uuid
+		if (!primaryPutRequestList.isEmpty() && primaryPutRequestList.get(0).getKey() == uuid
 				&& primaryPutRequestList.get(0).getValue() != KVMessage.StatusType.PUT_ERROR){
 			return primaryPutRequestList.get(0).getValue();
 		}
@@ -233,12 +233,16 @@ public class KVServer implements IKVServer {
 	public KVMessage.StatusType replicate(String coordinatorName, UUID uuid, String key, String value){
 	    // Check if this replicate request has been processed the last time
 	    ArrayList<Pair<UUID, KVMessage.StatusType>> putRequestList = this.replicatedPutRequestList.get(coordinatorName);
-        Pair<UUID, KVMessage.StatusType> mostRecentRequest = putRequestList.get(0);
+        Pair<UUID, KVMessage.StatusType> mostRecentRequest = null;
 
-        if (mostRecentRequest.getKey() == uuid
-                && mostRecentRequest.getValue() != KVMessage.StatusType.PUT_ERROR){
-            return mostRecentRequest.getValue();
-        }
+	if (!putRequestList.isEmpty()){
+		mostRecentRequest = putRequestList.get(0);
+	
+        	if (mostRecentRequest.getKey() == uuid
+                	&& mostRecentRequest.getValue() != KVMessage.StatusType.PUT_ERROR){
+            		return mostRecentRequest.getValue();
+        	}
+	}
 
 		Disk disk = replicatedDisks.get(coordinatorName);
 		KVMessage.StatusType status;
@@ -261,7 +265,7 @@ public class KVServer implements IKVServer {
 				status = KVMessage.StatusType.PUT_SUCCESS;
 			}
 			disk.putKV(key, value);
-			putRequestList.add(0, new Pair<>(uuid, status));
+			putRequestList.add(-1, new Pair<>(uuid, status));
 
 			return status;
 		}
@@ -335,10 +339,17 @@ public class KVServer implements IKVServer {
 		ECSNode replica = ring.getServerByName(replicaName);
 		TCPSockModule module = null;
 		UnifiedMessage req, resp;
+
+		assert(type == KVMessage.StatusType.PUT);
+		assert(replicaName != null);
+		assert(replica != null);
+		logger.fatal(replica);
+		logger.fatal(replica.getNodeHost());
+
 		try {
 			// Sending message to the replica servers
 			module = new TCPSockModule(replica.getNodeHost(), replica.getNodePort(), TIMEOUT);
-
+			logger.debug("CONNECTING TO THE REPLICA");
 			req = new UnifiedMessage.Builder()
 					.withMessageType(MessageType.SERVER_TO_SERVER)
 					.withStatusType(type)
@@ -363,6 +374,7 @@ public class KVServer implements IKVServer {
 				respType = KVMessage.StatusType.ERROR;
 			}
 
+			logger.debug(respType.toString());
 			resp = new UnifiedMessage.Builder()
 					.withMessageType(MessageType.SERVER_TO_SERVER)
 					.withStatusType(respType)
@@ -661,14 +673,14 @@ public class KVServer implements IKVServer {
 		this.update(metadata);
 		this.cache = new DSCache(cacheSize, cacheStrategy, disk);
 		logger.info("Updated metadata");
-		//if (metadata.getHashRing().getNumOfServers() >= 3) {
-	       	//	logger.info("More than 3 servers exist. start replication");
-		//	this.updateReplicas();
-		//	this.initReplicatedDisks();
-		//}
-		//else{
-		//	logger.info("Less than 3 servers!");
-		//}
+		if (metadata.getHashRing().getNumOfServers() >= 3) {
+	       		logger.info("More than 3 servers exist. start replication");
+			this.updateReplicas();
+			this.initReplicatedDisks();
+		}
+		else{
+			logger.info("Less than 3 servers!");
+		}
 	}
 
 	/**

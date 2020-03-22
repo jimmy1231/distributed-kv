@@ -421,7 +421,7 @@ public class ClientConnection extends Thread {
         msgString = TCPSockModule.recv(input);
         if (Objects.nonNull(msgString) && !msgString.equals("")) {
             try {
-                logger.info("Received message: {}", msgString);
+                //logger.info("Received message: {}", msgString);
                 msg = new UnifiedMessage().deserialize(msgString);
                 logger.info("Deserialized message: messageType={}, statusType={}",
                     msg.getMessageType(), msg.getStatusType());
