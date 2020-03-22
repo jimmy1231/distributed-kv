@@ -1,5 +1,6 @@
 package app_kvECS;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,6 +10,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.InflaterOutputStream;
 
 public class TCPSockModule {
     private static Logger logger = LoggerFactory.getLogger(TCPSockModule.class);
@@ -34,7 +37,7 @@ public class TCPSockModule {
     public TCPSockModule(String host, int port, int timeout) throws Exception {
         /* Establish socket connection with timeout */
         socket = connect(host, port, timeout);
-        logger.info(String.format(
+        logger.debug(String.format(
             "ECSSocket connection established: %s:%d",
             host, port));
 
@@ -49,7 +52,15 @@ public class TCPSockModule {
      * @param request
      */
     public UnifiedMessage doRequest(UnifiedMessage request) throws Exception {
+        UnifiedMessage resp;
+
         /* Do request */
+        String rheader = StringUtils.repeat("-",35);
+        logger.info(rheader);
+        logger.info("REQUEST -> {}:{} MessageType={}, StatusType={}",
+            socket.getLocalAddress(), socket.getPort(),
+            request.getMessageType(),
+            request.getStatusType());
         if (!send(output, request.serialize())) {
             logger.info("Failed to send request");
             throw new Exception("SEND failed");
@@ -60,7 +71,14 @@ public class TCPSockModule {
         if (Objects.isNull(responseStr)) {
             throw new Exception("CONNECTION WAS CLOSED");
         }
-        return new UnifiedMessage().deserialize(responseStr);
+
+        resp = new UnifiedMessage().deserialize(responseStr);
+        logger.info("RESPONSE <- {}:{} MessageType={}, StatusType={}",
+            socket.getLocalAddress(), socket.getPort(),
+            resp.getMessageType(),
+            resp.getStatusType());
+        logger.info(rheader);
+        return resp;
     }
 
     public void close() {
@@ -82,16 +100,22 @@ public class TCPSockModule {
     }
 
     public static boolean send(OutputStream output, String message) {
-        message = message + DEADBEEF;
-
-        byte[] messageBytes = message.getBytes();
-        logger.info("REQUEST, # Bytes = {}", messageBytes.length);
+        byte[] messageBytes;
         try {
-            logger.debug("SEND_MESSAGE: {}", format(message));
+            messageBytes = ArrayUtils.addAll(
+                compress(message), DEADBEEF.getBytes()
+            );
+        } catch (Exception e) {
+            return false;
+        }
+
+        logger.info("SEND: # Bytes = {}", messageBytes.length);
+        try {
+            logger.debug("SEND_MESSAGE: {}", message);
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
         } catch (Exception e) {
-            logger.error("Failed to send response", e);
+            logger.error("Failed to send message", e);
             return false;
         }
 
@@ -146,7 +170,7 @@ public class TCPSockModule {
                  * loop to prevent blocking indefinitely.
                  */
                 if (bytesLeft == 0 && finished) {
-                    logger.debug("TOTAL BYTES: {}", totalBytes);
+                    logger.info("RECV: Total # bytes={}", totalBytes);
                     break;
                 }
             }
@@ -168,17 +192,50 @@ public class TCPSockModule {
              * returned, and no data was read, it must mean
              * the underlying connection has been closed.
              */
-            response = bas.toString("UTF-8");
+            response = decompress(bas.toByteArray());
             if (len < 0 && response.isEmpty()) {
                 return null;
             }
         } catch (IOException e) {
             logger.info("Stream closed unexpectedly", e);
             response = null;
+        } catch (Exception e) {
+            logger.error("RECV was incomplete", e);
+            response = null;
         }
 
-        logger.debug("RECV_MESSAGE: {}", format(response));
+        logger.debug("RECV_MESSAGE: {}", response);
         return response;
+    }
+
+    public static byte[] compress(String in) throws Exception {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            DeflaterOutputStream defl = new DeflaterOutputStream(out);
+            defl.write(in.getBytes());
+            defl.flush();
+            defl.close();
+
+            return out.toByteArray();
+        } catch (Exception e) {
+            logger.debug("Compression failed");
+            throw e;
+        }
+    }
+
+    public static String decompress(byte[] in) throws Exception {
+        try {
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            InflaterOutputStream infl = new InflaterOutputStream(out);
+            infl.write(in);
+            infl.flush();
+            infl.close();
+
+            return new String(out.toByteArray());
+        } catch (Exception e) {
+            logger.debug("Decompression failed");
+            throw e;
+        }
     }
 
     private Socket connect(String host, int port) throws Exception {
@@ -207,7 +264,7 @@ public class TCPSockModule {
                 String msg = recv(_input);
 
                 if (Objects.nonNull(msg) && !msg.isEmpty()) {
-                    logger.info("CONNECTION ACK: {}", msg);
+                    logger.debug("CONNECTION ACK: {}", msg);
                     break;
                 }
             }

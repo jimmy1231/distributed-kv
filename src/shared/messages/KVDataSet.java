@@ -8,6 +8,7 @@ import shared.Pair;
 
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 
 public class KVDataSet {
@@ -44,11 +45,12 @@ public class KVDataSet {
     }
 
     public String serialize() {
-        System.out.println(entries);
-        return KVDATA_GSON.toJson(entries);
+        String str = KVDATA_GSON.toJson(entries);
+        return Base64.getEncoder().encodeToString(str.getBytes());
     }
 
-    public KVDataSet deserialize(String json) {
+    public KVDataSet deserialize(String b64str) {
+        String json = new String(Base64.getDecoder().decode(b64str));
         Type type = new TypeToken<List<Pair<String, String>>>() {}.getType();
         this.entries = KVDATA_GSON.fromJson(json, type);
 

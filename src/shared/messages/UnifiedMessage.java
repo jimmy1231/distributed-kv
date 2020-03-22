@@ -7,6 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import ecs.ECSNode;
 
+import java.util.Base64;
 import java.util.Objects;
 
 public class UnifiedMessage implements KVMessage {
@@ -36,6 +37,8 @@ public class UnifiedMessage implements KVMessage {
         String cacheStrategy;
         @Expose
         Integer cacheSize;
+        @Expose
+        String message;
 
         __Serialized__(MessageType messageType,
                        KVMessage.StatusType statusType,
@@ -46,7 +49,8 @@ public class UnifiedMessage implements KVMessage {
                        String[] keyRange,
                        ECSNode server,
                        String cacheStrategy,
-                       Integer cacheSize) {
+                       Integer cacheSize,
+                       String message) {
             this.messageType = messageType;
             this.statusType = statusType;
             this.metadata = metadata;
@@ -57,6 +61,7 @@ public class UnifiedMessage implements KVMessage {
             this.server = server;
             this.cacheStrategy = cacheStrategy;
             this.cacheSize = cacheSize;
+            this.message = message;
         }
     }
 
@@ -71,6 +76,8 @@ public class UnifiedMessage implements KVMessage {
     private ECSNode server;
     private String cacheStrategy;
     private Integer cacheSize;
+
+    private String message;
 
 
     public static class Builder {
@@ -130,6 +137,11 @@ public class UnifiedMessage implements KVMessage {
             return this;
         }
 
+        public Builder withMessage(String message) {
+            object.message = message;
+            return this;
+        }
+
         public UnifiedMessage build() {
             return object;
         }
@@ -146,13 +158,16 @@ public class UnifiedMessage implements KVMessage {
             Objects.nonNull(keyRange) ? keyRange : null,
             Objects.nonNull(server) ? server : null,
             Objects.nonNull(cacheStrategy) ? cacheStrategy : null,
-            Objects.nonNull(cacheSize) ? cacheSize : null
+            Objects.nonNull(cacheSize) ? cacheSize : null,
+            Objects.nonNull(message) ? message: null
         );
 
-        return UNIFIED_GSON.toJson(s);
+        String str = UNIFIED_GSON.toJson(s);
+        return Base64.getEncoder().encodeToString(str.getBytes());
     }
 
-    public UnifiedMessage deserialize(String json) {
+    public UnifiedMessage deserialize(String b64str) {
+        String json = new String(Base64.getDecoder().decode(b64str));
         __Serialized__ s = UNIFIED_GSON.fromJson(json, __Serialized__.class);
 
         this.messageType = s.messageType;
@@ -163,6 +178,7 @@ public class UnifiedMessage implements KVMessage {
         this.server = s.server;
         this.cacheStrategy = s.cacheStrategy;
         this.cacheSize = s.cacheSize;
+        this.message = s.message;
 
         if (Objects.nonNull(s.metadata)) {
             this.metadata = new KVServerMetadataImpl().deserialize(s.metadata);
@@ -269,6 +285,15 @@ public class UnifiedMessage implements KVMessage {
 
     public UnifiedMessage setCacheSize(Integer cacheSize) {
         this.cacheSize = cacheSize;
+        return this;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public UnifiedMessage setMessage(String message) {
+        this.message = message;
         return this;
     }
 

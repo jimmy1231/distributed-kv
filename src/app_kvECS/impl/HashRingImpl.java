@@ -11,7 +11,10 @@ import ecs.IECSNode;
 import java.lang.reflect.Type;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
+
+import static ecs.IECSNode.ECSNodeFlag.*;
 
 public class HashRingImpl extends HashRing {
     /**
@@ -177,7 +180,13 @@ public class HashRingImpl extends HashRing {
 
     @Override
     public void removeServer(ECSNode server) {
-        server.setEcsNodeFlag(IECSNode.ECSNodeFlag.START_STOP);
+        server.setEcsNodeFlag(START_STOP);
+        numOfServersInRing--;
+    }
+
+    @Override
+    public void shutdownServer(ECSNode server) {
+        server.setEcsNodeFlag(START_SHUT_DOWN);
         numOfServersInRing--;
     }
 
@@ -246,10 +255,16 @@ public class HashRingImpl extends HashRing {
             while (it.hasNext()) {
                 server = it.next().getValue();
                 flag = server.getEcsNodeFlag();
-                if (flag.equals(IECSNode.ECSNodeFlag.START_STOP)) {
+                if (flag.equals(START_STOP) ||
+                    flag.equals(START_SHUT_DOWN)) {
                     /* IMPORTANT: remove from ring */
                     ECSNode removed = ring.remove(new Hash(server.getUuid()));
-                    server.setEcsNodeFlag(IECSNode.ECSNodeFlag.STOP);
+
+                    if (flag.equals(START_STOP)) {
+                        server.setEcsNodeFlag(STOP);
+                    } else {
+                        server.setEcsNodeFlag(SHUT_DOWN);
+                    }
                     server.setNodeHashRange(null);
 
                     assert(removed.getUuid().equals(server.getUuid()));
@@ -343,6 +358,33 @@ public class HashRingImpl extends HashRing {
         return predecessor;
     }
 
+    @Override
+    public List<ECSNode> getReplicas(ECSNode server) {
+        List<ECSNode> replicas = new ArrayList<>();
+        ECSNode replica;
+
+        /*
+         * Only supports 2 replicas by convention.
+         */
+        Function<ECSNode, ECSNode> getReplica = s -> {
+            ECSNode _s = s;
+            do {
+                _s = getSuccessorServer(_s);
+            } while (_s.isRecovering() && !_s.isSameServer(s));
+
+            return !_s.isSameServer(s) ? _s : null;
+        };
+
+        if (Objects.nonNull(replica = getReplica.apply(server))) {
+            replicas.add(replica);
+            if (Objects.nonNull(replica = getReplica.apply(replica))) {
+                replicas.add(replica);
+            }
+        }
+
+        return replicas;
+    }
+
     /**
      * {@link #getServerHashRange(ECSNode)}
      * Gets the HashRange for the specified server given
@@ -391,11 +433,13 @@ public class HashRingImpl extends HashRing {
         serialized.serializedRing = HASH_RING_GSON.toJson(this.getRing());
         serialized.serializedServers = HASH_RING_GSON.toJson(this.getServers());
 
-        return HASH_RING_GSON.toJson(serialized);
+        String str = HASH_RING_GSON.toJson(serialized);
+        return Base64.getEncoder().encodeToString(str.getBytes());
     }
 
     @Override
-    public HashRing deserialize(String json) {
+    public HashRing deserialize(String b64str) {
+        String json = new String(Base64.getDecoder().decode(b64str));
         SerializedHashRing serialized = HASH_RING_GSON.fromJson(
             json, SerializedHashRing.class
         );
@@ -437,9 +481,9 @@ public class HashRingImpl extends HashRing {
                 ecsNode = entry.getValue();
                 hashRange = ecsNode.getNodeHashRange();
 
-                sb.append(String.format("%3d: %s => %s | RANGE=(%s,%s] | %s\n",
+                sb.append(String.format("%3d: %s => %s | RANGE=%s | %s\n",
                     i, ecsNode.getNodeName(), hash.toHexString(),
-                    hashRange[0], hashRange[1],
+                    new HashRange(hashRange).toString(),
                     ecsNode.getEcsNodeFlag())
                 );
 
@@ -456,9 +500,10 @@ public class HashRingImpl extends HashRing {
                 entry = it.next();
                 ecsNode = entry.getValue();
 
-                sb.append(String.format("%s: %s:%d | %s\n",
-                    ecsNode.getNodeName(), ecsNode.getNodeHost(),
-                    ecsNode.getNodePort(), ecsNode.getEcsNodeFlag())
+                sb.append(String.format("%20s: %s => %s | %s\n",
+                    ecsNode.getNodeName(), ecsNode.getUuid(),
+                    new Hash(ecsNode.getUuid()).toHexString(),
+                    ecsNode.getEcsNodeFlag())
                 );
             }
         }

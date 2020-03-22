@@ -13,7 +13,7 @@ public class HeartbeatMonitor extends Thread {
 		IECSNode.ECSNodeFlag.START,
 		IECSNode.ECSNodeFlag.STOP
 	);
-	private static final int TIMEOUT_MS = 5000;
+	public static final int TIMEOUT_MS = 5000;
 	private static final String LOG_PREFIX = "[HEARTBEAT_MONITOR]";
 
 	private ECSClient thisClient;
@@ -49,6 +49,7 @@ public class HeartbeatMonitor extends Thread {
 			while (it.hasNext()) {
 				entry = it.next();
 				server = (ECSNode) entry.getValue();
+				logger.info("{}: Server={}", LOG_PREFIX, server.getUuid());
 
 				if (WHITELIST_FLAGS.contains(server.getEcsNodeFlag())) {
 					logger.info("{}: Pinging server {}", LOG_PREFIX,
@@ -80,9 +81,7 @@ public class HeartbeatMonitor extends Thread {
 
 	private boolean pingServerSync(ECSNode server) {
 		try {
-			ECSRequestsLib.heartbeat(server.getNodeHost(),
-				server.getNodePort(), TIMEOUT_MS
-			);
+			ECSRequestsLib.heartbeat(server, TIMEOUT_MS);
 		} catch (Exception e) {
 			return false;
 		}

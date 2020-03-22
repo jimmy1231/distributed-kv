@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 import app_kvECS.impl.KVServerMetadataImpl;
 
 import app_kvECS.impl.HashRingImpl;
+import app_kvECS.HashRing.*;
 
 import ecs.ECSNode;
 import ecs.IECSNode;
@@ -21,17 +22,19 @@ import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
+import static shared.messages.KVMessage.StatusType.SERVER_REPLICATE;
+
 
 public class ECSClient implements IECSClient {
     private static Logger logger = LoggerFactory.getLogger(ECSClient.class);
     private static final String CONFIG_DIR_PATH = "./src/app_kvECS/config/";
     private static final String KVSERVER_START_FILE = "./run_kvserver.sh";
     private static final String ECS_CONFIG_FILE = CONFIG_DIR_PATH + "ecs.config";
-    private static final long HEARTBEAT_TIMEOUT = 1000*30; // 30 seconds
+    private static final long HEARTBEAT_TIMEOUT = 1000*45; // 30 seconds
     private int poolSize; // max number of servers that can participate in the service
     private List<ECSNode> allNodes = new ArrayList<>();
-    int serverCacheSize = 50000;
-    String serverCacheStrategy = "FIFO";
+    private int serverCacheSize = 50000;
+    private String serverCacheStrategy = "FIFO";
 
     private HashRing ring;
     private HeartbeatMonitor heartbeatMonitor;
@@ -110,7 +113,7 @@ public class ECSClient implements IECSClient {
         }
     }
 
-    private boolean sendFilteredRequest(Predicate<ECSNode> filter, KVMessage.StatusType requestType) {
+    public boolean sendFilteredRequest(Predicate<ECSNode> filter, KVMessage.StatusType requestType) {
         boolean success = true;
         List<ECSNode> servers = ring.filterServer(filter);
 
@@ -199,6 +202,8 @@ public class ECSClient implements IECSClient {
 
         ring.addServer(nodeToAdd);
         nodeToAdd.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+        nodeToAdd.setCacheStrategy(cacheStrategy);
+        nodeToAdd.setCacheSize(cacheSize);
         ring.updateRing();
 
         TCPSockModule newNodeConn;
@@ -291,12 +296,11 @@ public class ECSClient implements IECSClient {
     public void broadcastMetaDataUpdates(){
         TCPSockModule socketModule;
 
-
         IECSNode.ECSNodeFlag status;
         for (ECSNode server : allNodes) {
             status = server.getEcsNodeFlag();
-            if (status.equals(IECSNode.ECSNodeFlag.STOP)
-                || status.equals(IECSNode.ECSNodeFlag.SHUT_DOWN)) {
+            if (status.equals(IECSNode.ECSNodeFlag.SHUT_DOWN)
+                || status.equals(IECSNode.ECSNodeFlag.IDLE)) {
                 continue;
             }
 
@@ -388,7 +392,6 @@ public class ECSClient implements IECSClient {
 
     @Override
     public boolean removeNodes(Collection<String> nodeNames) {
-
         for (String nodeName : nodeNames){
             ECSNode nodeToRemove = ring.getServerByName(nodeName);
             ECSNode successorNode = ring.getSuccessorServer(nodeToRemove); // get it before update the ring
@@ -464,7 +467,157 @@ public class ECSClient implements IECSClient {
     }
 
     public void recoverServers(List<ECSNode> failedServers) {
-        // TODO: implement
+        if (failedServers.isEmpty()) {
+            return;
+        }
+
+        // TODO: we should probably lock this..
+        HashRange S_i_range, S_i_succ_range;
+        ECSNode S_i_succ, S_i_pred;
+        for (ECSNode S_i : failedServers) {
+            logger.info("Recovering Server: {}", S_i.getUuid());
+            List<ECSNode> replicas = ring.getReplicas(S_i);
+            if (replicas.size() == 0) {
+                logger.info("No replicas for Server: {}", S_i.getUuid());
+
+                // Always do this..
+                S_i.setEcsNodeFlag(IECSNode.ECSNodeFlag.SHUT_DOWN);
+                ring.shutdownServer(S_i);
+                ring.updateRing();
+                continue;
+            }
+
+            S_i_succ = ring.getSuccessorServer(S_i);
+            S_i_pred = ring.getPredecessorServer(S_i);
+            assert(Objects.nonNull(S_i_succ));
+            assert(Objects.nonNull(S_i_pred));
+
+            S_i_range = new HashRange(S_i.getNodeHashRange());
+            S_i_succ_range = new HashRange(S_i_succ.getNodeHashRange());
+
+            ECSNode S_n = ring.findServer(node ->
+                node.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.IDLE)
+            );
+            if (Objects.isNull(S_n)) {
+                /* No new nodes to add.. */
+                logger.info("Could not find new node to add, " +
+                    "try our best to recover data to successor " +
+                    "node: {}->{}",
+                    S_i.getUuid(), S_i_succ.getUuid());
+                try {
+                    ECSRequestsLib.availMoveReplicatedData(
+                        replicas, S_i_succ, S_i.getNodeHashRange(), ring
+                    );
+                } catch (Exception e) {
+                    logger.error("ERROR: recovery failed!" +
+                        " Tried to recover replicated data to" +
+                        " new node..", e);
+                    continue;
+                }
+
+                // Always do this..
+                S_i.setEcsNodeFlag(IECSNode.ECSNodeFlag.SHUT_DOWN);
+                ring.shutdownServer(S_i);
+                ring.updateRing();
+                continue;
+            }
+
+            S_n.setEcsNodeFlag(IECSNode.ECSNodeFlag.IDLE_START);
+            ring.updateRing();
+
+            /* IMPORTANT: set to transition state (if applicable) */
+            S_n.setEcsNodeFlag(ECSNode.getRecoveryTransitionFlag(
+                S_i.getEcsNodeFlag()));
+            Hash HS_n = new Hash(S_n.getUuid());
+            try {
+                ECSRequestsLib.initServer(S_n,
+                    S_i.getCacheStrategy(), S_i.getCacheSize(),
+                    new KVServerMetadataImpl(
+                        S_n.getNodeName(),
+                        S_n.getNodeHost(),
+                        IECSNode.ECSNodeFlag.STOP,
+                        ring
+                    ));
+
+                // Case 1:
+                if (S_i_range.inRange(HS_n)) {
+                    ECSRequestsLib.availMoveReplicatedData(
+                        replicas, S_n, S_n.getNodeHashRange(), ring
+                    );
+                    ECSRequestsLib.availMoveReplicatedData(
+                        replicas, S_i_succ, S_i.getNodeHashRange(), ring
+                    );
+                }
+                // Case 2:
+                else if (S_i_succ_range.inRange(HS_n)) {
+                    ECSRequestsLib.availMoveReplicatedData(
+                        replicas, S_n, S_i.getNodeHashRange(), ring
+                    );
+                    ECSRequestsLib.availMoveData(
+                        ring.getSuccessorServer(S_n), S_n,
+                        S_n.getNodeHashRange(), ring
+                    );
+                }
+                // Case 3:
+                else {
+                    ECSRequestsLib.availMoveReplicatedData(
+                        replicas, S_i_succ, S_i.getNodeHashRange(), ring
+                    );
+                    ECSRequestsLib.availMoveData(
+                        ring.getSuccessorServer(S_n), S_n,
+                        S_n.getNodeHashRange(), ring
+                    );
+                }
+            } catch (Exception e) {
+                logger.error("ERROR: recovery failed!" +
+                    " Tried to recover replicated data to" +
+                    " new node..", e);
+            } finally {
+                // Always do this..
+                S_i.setEcsNodeFlag(IECSNode.ECSNodeFlag.SHUT_DOWN);
+                ring.shutdownServer(S_i);
+                ring.updateRing();
+            }
+        }
+
+        /*
+         * (1) Transition each new server to its destination state,
+         *     then update the server
+         * (2) Broadcast all servers for them to replicate based on
+         *     the sent hash ring.
+         */
+
+        // (1)
+        ring.forEachServer(_server -> {
+            IECSNode.ECSNodeFlag prevFlg = _server.getEcsNodeFlag();
+            _server.setEcsNodeFlag(ECSNode.transitionRecoveryFlag(
+                _server.getEcsNodeFlag()));
+
+            // Only update if flag changed, else waste of bandwidth
+            if (!prevFlg.equals(_server.getEcsNodeFlag())) {
+                try {
+                    ECSRequestsLib.updateServer(_server,
+                        new KVServerMetadataImpl(
+                            _server.getNodeName(),
+                            _server.getNodeHost(),
+                            _server.getEcsNodeFlag(),
+                            ring
+                        )
+                    );
+                } catch (Exception e) {
+                    /* Swallow */
+                }
+            }
+        });
+        // (2)
+        sendFilteredRequest(n -> {
+                IECSNode.ECSNodeFlag flg = n.getEcsNodeFlag();
+                return flg.equals(IECSNode.ECSNodeFlag.START)
+                    || flg.equals(IECSNode.ECSNodeFlag.STOP)
+                    || flg.equals(IECSNode.ECSNodeFlag.IDLE_START);
+            },
+            SERVER_REPLICATE
+        );
     }
 
     public void printRing() {
@@ -473,7 +626,7 @@ public class ECSClient implements IECSClient {
 
     public static void main(String[] args) {
         try {
-            new LogSetup("logs/ecs.log", Level.ALL);
+            new LogSetup("logs/ecs.log", Level.INFO);
             CLI app = new CLI();
             app.run();
         } catch (IOException e) {

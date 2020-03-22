@@ -8,6 +8,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 
+import static ecs.IECSNode.ECSNodeFlag.*;
+
 public class ECSNode implements IECSNode {
     @Expose
     private String uuid = ""; // ${host}:${name}
@@ -21,6 +23,10 @@ public class ECSNode implements IECSNode {
     private String[] range = null;
     @Expose
     private ECSNodeFlag ecsNodeFlag;
+    @Expose
+    private String cacheStrategy;
+    @Expose
+    private int cacheSize;
 
     public ECSNode(String name, String host, int port) {
         this.uuid = String.format("%s:%d", host, port);
@@ -62,6 +68,23 @@ public class ECSNode implements IECSNode {
         return range;
     }
 
+    public String getCacheStrategy() {
+        return cacheStrategy;
+    }
+
+    public ECSNode setCacheStrategy(String cacheStrategy) {
+        this.cacheStrategy = cacheStrategy;
+        return this;
+    }
+
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public ECSNode setCacheSize(int cacheSize) {
+        this.cacheSize = cacheSize;
+        return this;
+    }
 
     public ECSNodeFlag getEcsNodeFlag() {
         return ecsNodeFlag;
@@ -69,6 +92,69 @@ public class ECSNode implements IECSNode {
 
     public void setEcsNodeFlag(ECSNodeFlag ecsNodeFlag) {
         this.ecsNodeFlag = ecsNodeFlag;
+    }
+
+    public static ECSNodeFlag getRecoveryTransitionFlag(ECSNodeFlag destinationState) {
+        ECSNodeFlag transitionState;
+        switch (destinationState) {
+            case STOP:
+                transitionState = RECOVER_STOP;
+                break;
+            case START:
+                transitionState = RECOVER_START;
+                break;
+            case IDLE_START:
+                transitionState = RECOVER_IDLE_START;
+                break;
+            default:
+                transitionState = destinationState;
+        }
+
+        return transitionState;
+    }
+
+    public static ECSNodeFlag transitionRecoveryFlag(ECSNodeFlag transitionState) {
+        ECSNodeFlag destinationState;
+        switch (transitionState) {
+            case RECOVER_STOP:
+                destinationState = STOP;
+                break;
+            case RECOVER_START:
+                destinationState = START;
+                break;
+            case RECOVER_IDLE_START:
+                destinationState = IDLE_START;
+                break;
+            default:
+                destinationState = transitionState;
+        }
+
+        return destinationState;
+    }
+
+    /**
+     * Determine whether this node was newly created as part
+     * of the recovery process. If it is, then return true,
+     * else returns false.
+     *
+     * This method should be used to limit certain operations
+     * from being performed with a node who is just recovering
+     * (e.g. getReplicas should exclude this node).
+     */
+    public boolean isRecovering() {
+        switch (ecsNodeFlag) {
+            case RECOVER_STOP:
+            case RECOVER_START:
+            case RECOVER_IDLE_START:
+                return true;
+            default:
+        }
+
+        return false;
+    }
+
+    public boolean isSameServer(ECSNode node) {
+        return uuid.equals(node.uuid);
     }
 
     public void setNodeHashRange(String[] range) {
