@@ -195,8 +195,8 @@ public class KVServer implements IKVServer {
 		}
 
 		// Forward client's request to the replicas through socket message
-		UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas[0], key, value);
-		UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas[1], key, value);
+		UnifiedMessage rsp1 = forwardRequestToReplica(this.replicas[0], key, value, KVMessage.StatusType.PUT);
+		UnifiedMessage rsp2 = forwardRequestToReplica(this.replicas[1], key, value, KVMessage.StatusType.PUT);
 
 		// Add to the head of the list (Index = 0 -> most recent request)
 		primaryPutRequestList.add(0, new Pair<>(uuid, status));
@@ -210,6 +210,19 @@ public class KVServer implements IKVServer {
 			logger.error("Primary and replicas responses are not consistent, Return PUT_ERROR to the client");
 			return KVMessage.StatusType.PUT_ERROR;
 		}
+	}
+
+
+	public UnifiedMessage requestReplicatedDisk() {
+		this.forwardRequestToReplica(replicas[0], null, null, KVMessage.StatusType.SHOW_REPLICATION);
+		this.forwardRequestToReplica(replicas[1], null, null, KVMessage.StatusType.SHOW_REPLICATION);
+
+		return null; // Just dummy return val since socket call blocks until it receives response
+	}
+
+	public void printReplicatedDisk(ECSNode primary){
+		Disk disk = this.replicatedDisks.get(primary.getNodeName());
+		logger.info(disk.getAll().toString());
 	}
 
 	public KVMessage.StatusType replicate(String coordinatorName, UUID uuid, String key, String value){
@@ -309,7 +322,8 @@ public class KVServer implements IKVServer {
 	 * @param value value to store
 	 * @return Response message from the replica
 	 */
-	private UnifiedMessage forwardRequestToReplica(String replicaName, String key, String value){
+	private UnifiedMessage forwardRequestToReplica(String replicaName, String key, String value,
+												   KVMessage.StatusType type){
 		int TIMEOUT = 10 * 1000;
 		HashRing ring = this.metadata.getHashRing();
 		ECSNode myNode = ring.getServerByName(this.metadata.getName());
@@ -317,11 +331,12 @@ public class KVServer implements IKVServer {
 		TCPSockModule module = null;
 		UnifiedMessage req, resp;
 		try {
+			// Sending message to the replica servers
 			module = new TCPSockModule(replica.getNodeHost(), replica.getNodePort(), TIMEOUT);
 
 			req = new UnifiedMessage.Builder()
 					.withMessageType(MessageType.SERVER_TO_SERVER)
-					.withStatusType(KVMessage.StatusType.PUT)
+					.withStatusType(type)
 					.withKey(key)
 					.withValue(value)
 					.build();
@@ -335,9 +350,17 @@ public class KVServer implements IKVServer {
 					"Unable to forward request: %s",
 					e.getMessage()), e);
 
+			KVMessage.StatusType respType = null;
+			if (type == KVMessage.StatusType.PUT){
+				respType = KVMessage.StatusType.PUT_ERROR;
+			}
+			else if (type == KVMessage.StatusType.SHOW_REPLICATION){
+				respType = KVMessage.StatusType.ERROR;
+			}
+
 			resp = new UnifiedMessage.Builder()
 					.withMessageType(MessageType.SERVER_TO_SERVER)
-					.withStatusType(KVMessage.StatusType.PUT_ERROR)
+					.withStatusType(respType)
 					.withPrimary(myNode) // This is the sender node (indicate who primary server is)
 					.withKey(key)
 					.withValue(value)

@@ -347,6 +347,38 @@ public class ECSClient implements IECSClient {
         return addedNodes;
     }
 
+    /**
+     * Send message to a primary server to print out its replicas' disks
+     * @param serverName Name of primary server
+     */
+    public void getReplicatedData(String serverName){
+        ECSNode primary = ring.getServerByName(serverName);
+        if (Objects.isNull(primary)) {
+            logger.info("SERVER: '{}' does not exist..", serverName);
+        }
+
+        TCPSockModule conn = null;
+        try {
+            conn = new TCPSockModule(
+                    primary.getNodeHost(), primary.getNodePort()
+            );
+        } catch (Exception e) {
+            logger.error("Failed to connect", e);
+        }
+
+        UnifiedMessage message;
+        try {
+            message = new UnifiedMessage.Builder()
+                    .withMessageType(MessageType.ECS_TO_SERVER)
+                    .withPrimary(primary)
+                    .withStatusType(KVMessage.StatusType.SHOW_REPLICATION)
+                    .build();
+            conn.doRequest(message);
+        } catch (Exception e) {
+            logger.error("Failed to get data", e);
+        }
+    }
+
     public KVDataSet getServerData(String serverName) {
         ECSNode node = ring.getServerByName(serverName);
         if (Objects.isNull(node)) {

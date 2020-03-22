@@ -5,10 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 
 public class CLI {
 	private static Logger logger = LoggerFactory.getLogger(CLI.class);
@@ -25,6 +22,7 @@ public class CLI {
 	private static final String HELP = "help";
 	private static final String PRINT_RING = "print_ring";
 	private static final String SERVER_DATA = "data";
+	private static final String REPLICATION = "show_replication";
 
 	private ECSClient client = null;
 
@@ -95,6 +93,10 @@ public class CLI {
 		if (Objects.nonNull(dataSet)) {
 			dataSet.print(serverName);
 		}
+	}
+
+	private void handleShowReplication(String serverName){
+		client.getReplicatedData(serverName);
 	}
 
 	/**
@@ -189,6 +191,10 @@ public class CLI {
 		else if (cmd.equals(SERVER_DATA)) {
 			if (assertNumParameters(2, tokens.length))
 				handleServerData(tokens[1]);
+		}
+		else if (cmd.equals(REPLICATION)) {
+			if (assertNumParameters(2, tokens.length))
+				handleShowReplication(tokens[1]);
 		}
 		else {
 			System.out.println("ERROR: Invalid command!");

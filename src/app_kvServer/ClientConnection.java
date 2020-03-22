@@ -283,6 +283,10 @@ public class ClientConnection extends Thread {
                     .withMessageType(MessageType.SERVER_TO_ECS)
                     .withStatusType(KVMessage.StatusType.SUCCESS);
                 break;
+
+            case SHOW_REPLICATION:
+                server.requestReplicatedDisk();
+
             default:
                 throw new Exception("Unrecognized message");
         }
@@ -306,7 +310,10 @@ public class ClientConnection extends Thread {
                 logger.error(e.getMessage());
             }
         }
-
+        else if (msg.getStatusType().equals(KVMessage.StatusType.SHOW_REPLICATION)) {
+            server.printReplicatedDisk(msg.getPrimary());
+            // nobody really reads the response msg for this call
+        }
         return msg;
     }
 
