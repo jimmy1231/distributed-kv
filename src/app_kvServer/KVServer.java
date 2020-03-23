@@ -332,22 +332,23 @@ public class KVServer implements IKVServer {
 
 			// Already exists. just need to move to newReplicas list
 			if (this.replicas.contains(newSuccNode1.getNodeName())){
-				newReplicas.add(newSuccNode1.getNodeName());
 				this.replicas.remove(newSuccNode1.getNodeName());
 			}
 			else{
 				// Tell the new replica to replicate this node's data
 				// dataset is coming from this node (aka primary)
 				forwardRequestToReplica(newSuccNode1.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
+
 			}
+			newReplicas.add(newSuccNode1.getNodeName());
 
 			if (this.replicas.contains(newSuccNode2.getNodeName())){
-				newReplicas.add(newSuccNode2.getNodeName());
 				this.replicas.remove(newSuccNode2.getNodeName());
 			}
 			else{
 				forwardRequestToReplica(newSuccNode2.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
 			}
+			newReplicas.add(newSuccNode2.getNodeName());
 
 			// Handle replicas that no longer serve the node
 			for (String replica : this.replicas) {
