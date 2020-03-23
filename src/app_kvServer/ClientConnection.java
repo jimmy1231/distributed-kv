@@ -348,8 +348,16 @@ public class ClientConnection extends Thread {
                     break;
                 case REPLICATE:
                     server.recvReplicatedData(msg.getDataSet(), msg.getPrimary());
+                    respBuilder
+                            .withMessageType(MessageType.SERVER_TO_ECS)
+                            .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
                 case UNDO_REPLICATE:
                     server.clearReplicatedData(msg.getPrimary());
+                    respBuilder
+                            .withMessageType(MessageType.SERVER_TO_ECS)
+                            .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
                 default:
                     throw new Exception("Unrecognized message");
             }
