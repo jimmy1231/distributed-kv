@@ -318,7 +318,7 @@ public class ClientConnection extends Thread {
                 case SERVER_MOVEDATA:
                     server.recvData(msg.getDataSet());
                     respBuilder
-                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
                 case PUT:
@@ -327,7 +327,7 @@ public class ClientConnection extends Thread {
                         msg.getPrimary().getNodeName(), msg.getUUID(),
                         msg.getKey(), msg.getValue());
                     respBuilder
-                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(respType);
                     break;
                 case RECOVER_DATA:
@@ -337,13 +337,13 @@ public class ClientConnection extends Thread {
 
                     server.recvData(msg.getDataSet());
                     respBuilder
-                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
                 case SHOW_REPLICATION:
                     server.printReplicatedDisk(msg.getPrimary());
                     respBuilder
-                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
                 case REPLICATE:
@@ -356,7 +356,7 @@ public class ClientConnection extends Thread {
         } catch (Exception e) {
             logger.error("Failed to handle ECS request", e);
             respBuilder
-                .withMessageType(MessageType.SERVER_TO_ECS)
+                .withMessageType(MessageType.SERVER_TO_SERVER)
                 .withStatusType(KVMessage.StatusType.ERROR);
         }
 

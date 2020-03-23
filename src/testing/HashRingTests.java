@@ -315,4 +315,10 @@ public class HashRingTests extends TestCase {
             assert(pair1.getValue().equals(pair2.getValue()));
         }
     }
+
+    @Test
+    public void testAddArray() {
+        List<String> list = new ArrayList<>();
+        list.add(-1, "hi there");
+    }
 }
