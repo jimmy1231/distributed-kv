@@ -317,6 +317,51 @@ public class KVServer implements IKVServer {
 			logger.info("I am " + myNodeName + " my replicas are " + rep1 + " and " + rep2);
 			initReplicatedDisks();
 		}
+
+		// Case 2: replicas already exist but you new ones
+		// Need to update replica name list
+		// The replica needs to clear its old disks and put request list and
+		else if(!this.replicas.isEmpty() && ring.getNumServersOnRing() >= 3){
+			logger.info("{}:{} - re-replication setup", getHostname(), getPort());
+			String myNodeName = metadata.getName();
+			ECSNode myNode = ring.getServerByName(myNodeName);
+			ECSNode newSuccNode1 = ring.getSuccessorServer(myNode); // this throws an error
+			ECSNode newSuccNode2 = ring.getSuccessorServer(newSuccNode1);
+			List<String> newReplicas = new ArrayList<>();
+
+			// Already exists. just need to move to newReplicas list
+			if (this.replicas.contains(newSuccNode1.getNodeName())){
+				newReplicas.add(newSuccNode1.getNodeName());
+				this.replicas.remove(newSuccNode1.getNodeName());
+			}
+			else{
+				// Tell the new replica to replicate this node's data
+				// dataset is coming from this node (aka primary)
+				forwardRequestToReplica(newSuccNode1.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
+			}
+
+			if (this.replicas.contains(newSuccNode2.getNodeName())){
+				newReplicas.add(newSuccNode2.getNodeName());
+				this.replicas.remove(newSuccNode2.getNodeName());
+			}
+			else{
+				forwardRequestToReplica(newSuccNode2.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
+			}
+
+			// Handle replicas that no longer serve the node
+			for (String replica : this.replicas) {
+				forwardRequestToReplica(replica, null, null, KVMessage.StatusType.UNDO_REPLICATE);
+			}
+
+			this.replicas = newReplicas;
+
+
+
+		}
+		//from old replica - remove the disk new replica - get the disk from the primary
+		// look at the meta data -> get new successors
+
+		// Case 3: lose replicas?
 	}
 
 	/**
@@ -365,29 +410,50 @@ public class KVServer implements IKVServer {
 	 */
 	private UnifiedMessage forwardRequestToReplica(String replicaName, String key, String value,
 												   KVMessage.StatusType type){
-		int TIMEOUT = 10 * 1000;
+		int TIMEOUT = 5 * 1000;
 		HashRing ring = this.metadata.getHashRing();
 		ECSNode myNode = ring.getServerByName(this.metadata.getName());
 		ECSNode replica = ring.getServerByName(replicaName);
 		TCPSockModule module = null;
 		UnifiedMessage req, resp;
 
-		assert(type == KVMessage.StatusType.PUT);
-		assert(replicaName != null);
-		assert(replica != null);
-		logger.trace(replicaName);
-
 		try {
 			// Sending message to the replica servers
 			module = new TCPSockModule(replica.getNodeHost(), replica.getNodePort(), TIMEOUT);
 			logger.debug("CONNECTING TO THE REPLICA");
-			req = new UnifiedMessage.Builder()
-					.withMessageType(MessageType.SERVER_TO_SERVER)
-					.withStatusType(type)
-					.withPrimary(myNode)
-					.withKey(key)
-					.withValue(value)
-					.build();
+
+			switch (type) {
+				case PUT:
+				case SHOW_REPLICATION:
+					req = new UnifiedMessage.Builder()
+							.withMessageType(MessageType.SERVER_TO_SERVER)
+							.withStatusType(type)
+							.withPrimary(myNode)
+							.withKey(key)
+							.withValue(value)
+							.build();
+					break;
+
+				case REPLICATE:
+					req = new UnifiedMessage.Builder()
+							.withMessageType(MessageType.SERVER_TO_SERVER)
+							.withStatusType(type)
+							.withPrimary(myNode)
+							.withDataSet(new KVDataSet(disk.getAll()))
+							.build();
+					break;
+
+				case UNDO_REPLICATE:
+					req = new UnifiedMessage.Builder()
+							.withMessageType(MessageType.SERVER_TO_SERVER)
+							.withStatusType(type)
+							.withPrimary(myNode)
+							.build();
+					break;
+
+				default:
+					throw new Exception("Unrecognized message");
+			}
 
 			resp = module.doRequest(req);
 			logger.info("Successfully forwarded request to replica " + replicaName);
@@ -399,14 +465,19 @@ public class KVServer implements IKVServer {
 					e.getMessage()), e);
 
 			KVMessage.StatusType respType = null;
-			if (type == KVMessage.StatusType.PUT){
-				respType = KVMessage.StatusType.PUT_ERROR;
-			}
-			else if (type == KVMessage.StatusType.SHOW_REPLICATION){
-				respType = KVMessage.StatusType.ERROR;
+
+			switch (type){
+				case PUT:
+					respType = KVMessage.StatusType.PUT_ERROR;
+					break;
+				case SHOW_REPLICATION:
+				case REPLICATE:
+				case UNDO_REPLICATE:
+					respType = KVMessage.StatusType.ERROR;
 			}
 
 			logger.debug(respType.toString());
+
 			resp = new UnifiedMessage.Builder()
 					.withMessageType(MessageType.SERVER_TO_SERVER)
 					.withStatusType(respType)
@@ -697,6 +768,33 @@ public class KVServer implements IKVServer {
 				e.getMessage(), dataSet.serialize()
 			), e);
 		}
+	}
+
+	public void recvReplicatedData(KVDataSet dataSet, ECSNode primary) {
+		List<Pair<String, String>> entries = dataSet.getEntries();
+		Disk disk = new Disk((String.format("%s_%d_%d.txt",
+				REPLICA_DISK_PREFIX, getPort(),
+				primary.getNodePort())));
+
+		try {
+			for (Pair<String, String> entry : entries) {
+				disk.putKV(entry.getKey(), entry.getValue());
+			}
+		} catch (Exception e) {
+			logger.error(String.format(
+					"Unable to transfer data: %s. Data: %s",
+					e.getMessage(), dataSet.serialize()
+			), e);
+		}
+		this.replicatedDisks.put(primary.getNodeName(), disk);
+	}
+
+	public void clearReplicatedData(ECSNode primary) {
+		String primaryName = primary.getNodeName();
+		Disk primaryDisk = this.replicatedDisks.get(primaryName);
+		primaryDisk.clearStorage();
+		this.replicatedDisks.remove(primaryName);
+		this.replicatedPutRequestList.remove(primaryName);
 	}
 
 	public IECSNode.ECSNodeFlag getStatus() {

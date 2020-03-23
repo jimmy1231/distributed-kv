@@ -343,6 +343,10 @@ public class ClientConnection extends Thread {
                         .withMessageType(MessageType.SERVER_TO_ECS)
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
+                case REPLICATE:
+                    server.recvReplicatedData(msg.getDataSet(), msg.getPrimary());
+                case UNDO_REPLICATE:
+                    server.clearReplicatedData(msg.getPrimary());
                 default:
                     throw new Exception("Unrecognized message");
             }
