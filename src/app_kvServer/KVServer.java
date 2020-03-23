@@ -24,6 +24,7 @@ import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class KVServer implements IKVServer {
 	private static Logger logger = LoggerFactory.getLogger(IKVServer.class);
@@ -166,8 +167,10 @@ public class KVServer implements IKVServer {
 	public KVMessage.StatusType putKVWithStatusCheck(UUID uuid, String key, String value) throws Exception{
 		// Check if the request with 'uuid' was processed last time
         // Even if it has been processed before, the last result was ERROR then try again
-		if (!primaryPutRequestList.isEmpty() && primaryPutRequestList.get(0).getKey() == uuid
-				&& primaryPutRequestList.get(0).getValue() != KVMessage.StatusType.PUT_ERROR){
+		if (!primaryPutRequestList.isEmpty()
+			&& primaryPutRequestList.get(0).getKey() == uuid
+			&& primaryPutRequestList.get(0).getValue() != KVMessage.StatusType.PUT_ERROR
+		) {
 			return primaryPutRequestList.get(0).getValue();
 		}
 
@@ -662,6 +665,26 @@ public class KVServer implements IKVServer {
 		}
 	}
 
+	public KVDataSet getReplicaDataSet(ECSNode coordinator,
+									   HashRing.HashRange range) throws Exception {
+		Disk _disk = replicatedDisks.get(coordinator.getNodeName());
+		if (Objects.isNull(_disk)) {
+			logger.info("{}:{} - Replica for coordinator={} not found",
+				getHostname(), getPort(),
+				coordinator.getNodeName());
+			throw new Exception(String.format(
+				"Replica for coordinator={%s} not found",
+				coordinator.getNodeName()));
+		}
+
+		List<Pair<String, String>> entries = _disk.getAll();
+		entries = entries.stream().filter(entry -> {
+			return range.inRange(new HashRing.Hash(entry.getKey()));
+		}).collect(Collectors.toList());
+
+		return new KVDataSet(entries);
+	}
+
 	public void recvData(KVDataSet dataSet) {
 		List<Pair<String, String>> entries = dataSet.getEntries();
 		try {
@@ -695,6 +718,22 @@ public class KVServer implements IKVServer {
 		KVDataSet dataSet = new KVDataSet(entries);
 		logger.info("GET ALL DATA: " + dataSet.serialize());
 		return dataSet;
+	}
+
+	public void replicaRecoverData(ECSNode destination,
+								   ECSNode oldPrimary,
+								   String[] range) throws Exception {
+		KVDataSet dataSet = getReplicaDataSet(oldPrimary,
+			new HashRing.HashRange(range));
+
+		try {
+			ECSNode thisServer = metadata.getHashRing().getServerByName(metadata.getName());
+			KVServerRequestLib.replicaRecoverData(
+				thisServer, destination, dataSet);
+		} catch (Exception e) {
+			logger.error("Replica could not recover data", e);
+			throw e;
+		}
 	}
 
 	@Override

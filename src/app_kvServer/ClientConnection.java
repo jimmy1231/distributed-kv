@@ -268,6 +268,9 @@ public class ClientConnection extends Thread {
                         server.getHostname(), server.getPort(),
                         msg.getServer().getUuid(),
                         new HashRing.HashRange(msg.getKeyRange()));
+
+                    server.replicaRecoverData(msg.getServer(),
+                        msg.getPrimary(), msg.getKeyRange());
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_ECS)
                         .withStatusType(KVMessage.StatusType.SUCCESS);
@@ -320,11 +323,19 @@ public class ClientConnection extends Thread {
                     break;
                 case PUT:
                     assert(Objects.nonNull(msg.getUUID()));
-                    KVMessage.StatusType respType = server.replicate(msg.getPrimary().getNodeName(), msg.getUUID(),
+                    KVMessage.StatusType respType = server.replicate(
+                        msg.getPrimary().getNodeName(), msg.getUUID(),
                         msg.getKey(), msg.getValue());
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_ECS)
                         .withStatusType(respType);
+                    break;
+                case RECOVER_DATA:
+                    logger.info("SERVER_RECOVER_DATA: {}:{} - REPLICA={}:{}",
+                        server.getHostname(), server.getPort(),
+                        msg.getServer());
+
+                    server.recvData(msg.getDataSet());
                     break;
                 case SHOW_REPLICATION:
                     server.printReplicatedDisk(msg.getPrimary());
