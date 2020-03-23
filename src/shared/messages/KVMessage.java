@@ -17,6 +17,8 @@ public interface KVMessage {
 		DELETE_ERROR, 	/* Delete - request successful */
 		CLIENT_ERROR, 	/* General client error */
 		SHOW_REPLICATION, /* Show the content of replicated disk */
+		REPLICATE,
+		UNDO_REPLICATE,
 
 		SERVER_STOPPED, 		/* Server is stopped, no requests are processed */
 		SERVER_STARTED, 		/* Server is started, processing all client & ECS requests */
