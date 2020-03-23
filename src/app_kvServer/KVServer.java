@@ -198,7 +198,7 @@ public class KVServer implements IKVServer {
 			status = KVMessage.StatusType.PUT_SUCCESS;
 		}
 
-		logger.info("HOSTNAME {} PORT {} REPLICAS {}", this.getHostname(), this.getPort(), this.replicas);
+		logger.info("REPLICA_HOSTNAME {} PORT {} REPLICAS {}", this.getHostname(), this.getPort(), this.replicas);
 		// Only forward if replicas are known
 		if (replicas.get(0) != null && replicas.get(1) !=null) {
 			// Forward client's request to the replicas through socket message
