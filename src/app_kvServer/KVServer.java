@@ -251,14 +251,14 @@ public class KVServer implements IKVServer {
 	    ArrayList<Pair<UUID, KVMessage.StatusType>> putRequestList = this.replicatedPutRequestList.get(coordinatorName);
         Pair<UUID, KVMessage.StatusType> mostRecentRequest = null;
 
-	if (!putRequestList.isEmpty()){
-		mostRecentRequest = putRequestList.get(0);
-	
-        	if (mostRecentRequest.getKey() == uuid
-                	&& mostRecentRequest.getValue() != KVMessage.StatusType.PUT_ERROR){
-            		return mostRecentRequest.getValue();
-        	}
-	}
+//	if (!putRequestList.isEmpty()){
+//		mostRecentRequest = putRequestList.get(0);
+//
+//        	if (mostRecentRequest.getKey() == uuid
+//                	&& mostRecentRequest.getValue() != KVMessage.StatusType.PUT_ERROR){
+//            		return mostRecentRequest.getValue();
+//        	}
+//	}
 
 		Disk disk = replicatedDisks.get(coordinatorName);
 		KVMessage.StatusType status;
