@@ -212,7 +212,9 @@ public class KVServer implements IKVServer {
 				logger.info("Returning " + status.toString() + "to the client");
 				return status;
 			} else {
-				logger.error("Primary and replicas responses are not consistent, Return PUT_ERROR to the client");
+				logger.error("Primary and replicas responses are not consistent, " +
+					" Expecting={}, Got=[{},{}], Return PUT_ERROR to the client",
+					status, rsp1.getStatusType(), rsp2.getStatusType());
 				return KVMessage.StatusType.PUT_ERROR;
 			}
 		}
