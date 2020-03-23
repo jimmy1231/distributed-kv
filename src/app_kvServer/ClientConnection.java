@@ -336,6 +336,9 @@ public class ClientConnection extends Thread {
                         msg.getServer());
 
                     server.recvData(msg.getDataSet());
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
                 case SHOW_REPLICATION:
                     server.printReplicatedDisk(msg.getPrimary());
