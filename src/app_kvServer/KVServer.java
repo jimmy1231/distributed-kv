@@ -785,6 +785,7 @@ public class KVServer implements IKVServer {
 	}
 
 	public void recvReplicatedData(KVDataSet dataSet, ECSNode primary) {
+		logger.info("INSIDE recvReplicatedData {}\n", dataSet);
 		List<Pair<String, String>> entries = dataSet.getEntries();
 		Disk disk = new Disk((String.format("%s_%d_%d.txt",
 				REPLICA_DISK_PREFIX, getPort(),
@@ -793,6 +794,7 @@ public class KVServer implements IKVServer {
 		try {
 			for (Pair<String, String> entry : entries) {
 				disk.putKV(entry.getKey(), entry.getValue());
+				logger.info("INSIDE recvReplicatedData {} {}", entry.getKey(), entry.getValue());
 			}
 		} catch (Exception e) {
 			logger.error(String.format(
