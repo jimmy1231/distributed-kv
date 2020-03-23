@@ -319,6 +319,11 @@ public class HashRingTests extends TestCase {
     @Test
     public void testAddArray() {
         List<String> list = new ArrayList<>();
-        list.add(-1, "hi there");
+        list.add(0, "hi there");
+        list.add(0, "hi there");
+        list.add(0, "hi there");
+        list.add(0, "hi there");
+        list.add(0, "hi there");
+        System.out.println(list);
     }
 }
