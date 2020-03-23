@@ -297,11 +297,12 @@ public class KVServer implements IKVServer {
 			getHostname(), getPort(), replicas,
 			ring.getNumServersOnRing());
 
+		String myNodeName = metadata.getName();
+		ECSNode myNode = ring.getServerByName(myNodeName);
+
 		// Case 1: First time doing replica setup
 		if (this.replicas.isEmpty() && ring.getNumServersOnRing() >= 3) {
 			logger.info("{}:{} - First time doing replica setup", getHostname(), getPort());
-			String myNodeName = metadata.getName();
-			ECSNode myNode = ring.getServerByName(myNodeName);
 			ECSNode succNode1 = ring.getSuccessorServer(myNode); // this throws an error
 			ECSNode succNode2 = ring.getSuccessorServer(succNode1);
 
@@ -323,8 +324,6 @@ public class KVServer implements IKVServer {
 		// The replica needs to clear its old disks and put request list and
 		else if(!this.replicas.isEmpty() && ring.getNumServersOnRing() >= 3){
 			logger.info("{}:{} - re-replication setup", getHostname(), getPort());
-			String myNodeName = metadata.getName();
-			ECSNode myNode = ring.getServerByName(myNodeName);
 			ECSNode newSuccNode1 = ring.getSuccessorServer(myNode); // this throws an error
 			ECSNode newSuccNode2 = ring.getSuccessorServer(newSuccNode1);
 			List<String> newReplicas = new ArrayList<>();
@@ -354,14 +353,27 @@ public class KVServer implements IKVServer {
 			}
 
 			this.replicas = newReplicas;
-
-
-
 		}
-		//from old replica - remove the disk new replica - get the disk from the primary
-		// look at the meta data -> get new successors
 
-		// Case 3: lose replicas?
+		// Either 1 or 2 nodes in a ring
+		else if (!this.replicas.isEmpty() && ring.getNumServersOnRing() < 3){
+			if (ring.getNumServersOnRing() == 1){ // the only node in the ring -> no replicas
+				// Handle replicas that no longer serve the node
+				for (String replica : this.replicas) {
+					forwardRequestToReplica(replica, null, null, KVMessage.StatusType.UNDO_REPLICATE);
+					replicas.remove(replica);
+				}
+			}
+			else{ // One successor -> one replica
+				ECSNode newSuccNode = ring.getSuccessorServer(myNode); // this throws an error
+				for (String replica : this.replicas) {
+					if (!replica.equals(newSuccNode)){
+						forwardRequestToReplica(replica, null, null, KVMessage.StatusType.UNDO_REPLICATE);
+						replicas.remove(replica);
+					}
+				}
+			}
+		}
 	}
 
 	/**
