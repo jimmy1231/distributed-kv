@@ -312,6 +312,9 @@ public class KVServer implements IKVServer {
 			// sanity check
 			assert (Objects.nonNull(succNode1) && Objects.nonNull(succNode2));
 
+			forwardRequestToReplica(succNode1.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
+			forwardRequestToReplica(succNode2.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
+
 			String rep1 = succNode1.getNodeName();
 			String rep2 = succNode2.getNodeName();
 
