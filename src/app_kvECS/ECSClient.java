@@ -448,7 +448,7 @@ public class ECSClient implements IECSClient {
                 ECSRequestsLib.moveData(nodeToRemove, successorNode,
                     ring.getServerHashRange(nodeToRemove).toArray());
 
-                ring.removeServer(nodeToRemove);
+                ring.shutdownServer(nodeToRemove);
                 ring.updateRing();
 
                 ECSRequestsLib.shutdownServer(nodeToRemove);
