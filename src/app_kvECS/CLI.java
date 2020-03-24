@@ -34,32 +34,32 @@ public class CLI {
 	 */
 	private void handleStart() {
 		if (client.start())
-			System.out.println("SUCCESS: Started all servers.");
+			logger.info("SUCCESS: Started all servers.");
 		else
-			System.out.println("ERROR: Could not start the servers.");
+			logger.info("ERROR: Could not start the servers.");
 	}
 
 	private void handleStop() {
 		if (client.stop())
-			System.out.println("SUCCESS: Stopped all servers.");
+			logger.info("SUCCESS: Stopped all servers.");
 		else
-			System.out.println("ERROR: Could not stop servers.");
+			logger.info("ERROR: Could not stop servers.");
 	}
 
 	private void handleShutdown() {
 		if (client.shutdown())
-			System.out.println("SUCCESS: Shutdown all servers.");
+			logger.info("SUCCESS: Shutdown all servers.");
 		else
-			System.out.println("ERROR: Could not shutdown servers.");
+			logger.info("ERROR: Could not shutdown servers.");
 	}
 
 	private void handleAddNode(int cacheSize, String cacheStrategy) {
 		IECSNode node = client.addNode(cacheStrategy, cacheSize);
 		if (node == null)
-			System.out.println("ERROR: Could not add node.");
+			logger.info("ERROR: Could not add node.");
 		else {
 			// TODO print out new node info
-			System.out.println("Adding node...");
+			logger.info("Adding node...");
 		}
 	}
 
@@ -67,7 +67,7 @@ public class CLI {
 		Collection<IECSNode> nodes = client.addNodes(numNodes, cacheStrategy, cacheSize);
 		int count = nodes == null ? 0 : nodes.size();
 		if (count == 0)
-			System.out.println("ERROR: Could not add any nodes.");
+			logger.info("ERROR: Could not add any nodes.");
 		else
 			System.out.format("SUCCESS: Added %d nodes\n", count);
 	}
@@ -85,7 +85,7 @@ public class CLI {
 		Collection<IECSNode> nodes = client.setupNodes(numNodes, cacheStrategy, cacheSize);
 		int count = nodes == null ? 0 : nodes.size();
 		if (count == 0)
-			System.out.println("ERROR: Setup failed.");
+			logger.info("ERROR: Setup failed.");
 		else
 			System.out.format("SUCCESS: Configured %d nodes with Zookeeper\n", count);
 	}
@@ -116,7 +116,7 @@ public class CLI {
 	 * Prints out help text
 	 */
 	private void printHelp() {
-		System.out.println("HELP!");
+		logger.info("HELP!");
 	}
 
 	/**
@@ -215,7 +215,7 @@ public class CLI {
 				handleShowReplication(tokens[1]);
 		}
 		else {
-			System.out.println("ERROR: Invalid command!");
+			logger.info("ERROR: Invalid command!");
 			printHelp();
 
 		}
@@ -238,7 +238,7 @@ public class CLI {
 			}
 		}
 
-		System.out.println(PROMPT + "Exiting ECSClient! Goodbye.");
+		logger.info(PROMPT + "Exiting ECSClient! Goodbye.");
 		command.close();
 	}
 }
