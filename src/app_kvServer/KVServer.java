@@ -259,9 +259,9 @@ public class KVServer implements IKVServer {
 			r.getKey() == uuid && !r.getValue().equals(KVMessage.StatusType.PUT_ERROR)
 		).findAny().orElse(null);
 
-		if (Objects.nonNull(pastRequest)) {
-			return pastRequest.getValue();
-		}
+//		if (Objects.nonNull(pastRequest)) {
+//			return pastRequest.getValue();
+//		}
 
 		Disk disk = replicatedDisks.get(coordinatorName);
 		KVMessage.StatusType status;
