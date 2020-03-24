@@ -1,6 +1,8 @@
 package app_kvECS;
 
 import ecs.ECSNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
@@ -12,6 +14,8 @@ import java.util.stream.Collectors;
 
 
 public class ECSRequestsLib {
+    private static final Logger logger = LoggerFactory.getLogger(ECSRequestsLib.class);
+
     /**
      * Throws Exception if request fails / times out
      */
@@ -66,6 +70,8 @@ public class ECSRequestsLib {
         lockServer(dest);
         send(src, msg);
         unlockServer(dest);
+        logger.info("Success Moved Replicated Data. Replica: '{}' -> Node: '{}'",
+            src.getUuid(), dest.getUuid());
     }
 
     public static void availMoveReplicatedData(List<ECSNode> replicas,
@@ -126,6 +132,8 @@ public class ECSRequestsLib {
         lockServer(dest);
         send(src, msg);
         unlockServer(dest);
+        logger.info("Success Moved Data. Src: '{}' -> Dest: '{}'",
+            src.getUuid(), dest.getUuid());
     }
 
     public static void availMoveData(ECSNode src,
@@ -165,6 +173,7 @@ public class ECSRequestsLib {
             .build();
 
         send(server, msg);
+        logger.info("Initialized Server: '{}'", server.getUuid());
     }
 
     public static void updateServer(ECSNode server,
@@ -176,6 +185,7 @@ public class ECSRequestsLib {
             .build();
 
         send(server, msg);
+        logger.info("Updated Server: '{}'", server.getUuid());
     }
 
     public static KVDataSet getServerData(ECSNode server) throws Exception {

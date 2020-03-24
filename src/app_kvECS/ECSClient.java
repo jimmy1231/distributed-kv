@@ -611,6 +611,8 @@ public class ECSClient implements IECSClient {
                 ring.shutdownServer(S_i);
                 ring.updateRing();
             }
+
+            logger.info("Server recovery finished: {}", S_i.getUuid());
         }
 
         /*

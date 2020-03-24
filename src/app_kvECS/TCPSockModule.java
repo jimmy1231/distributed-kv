@@ -26,7 +26,7 @@ public class TCPSockModule {
     public TCPSockModule(String host, int port) throws Exception {
         /* Establish socket connection */
         socket = connect(host, port);
-        logger.info(String.format(
+        logger.debug(String.format(
             "ECSSocket connection established: %s:%d",
             host, port));
 
@@ -37,7 +37,7 @@ public class TCPSockModule {
     public TCPSockModule(String host, int port, int timeout) throws Exception {
         /* Establish socket connection with timeout */
         socket = connect(host, port, timeout);
-        logger.debug(String.format(
+        logger.trace(String.format(
             "ECSSocket connection established: %s:%d",
             host, port));
 
@@ -56,13 +56,13 @@ public class TCPSockModule {
 
         /* Do request */
         String rheader = StringUtils.repeat("-",35);
-        logger.info(rheader);
-        logger.info("REQUEST -> {}:{} MessageType={}, StatusType={}",
+        logger.debug(rheader);
+        logger.debug("REQUEST -> {}:{} MessageType={}, StatusType={}",
             socket.getLocalAddress(), socket.getPort(),
             request.getMessageType(),
             request.getStatusType());
         if (!send(output, request.serialize())) {
-            logger.info("Failed to send request");
+            logger.debug("Failed to send request");
             throw new Exception("SEND failed");
         }
 
@@ -73,11 +73,11 @@ public class TCPSockModule {
         }
 
         resp = new UnifiedMessage().deserialize(responseStr);
-        logger.info("RESPONSE <- {}:{} MessageType={}, StatusType={}",
+        logger.debug("RESPONSE <- {}:{} MessageType={}, StatusType={}",
             socket.getLocalAddress(), socket.getPort(),
             resp.getMessageType(),
             resp.getStatusType());
-        logger.info(rheader);
+        logger.debug(rheader);
 
         switch (resp.getStatusType()) {
             case GET_ERROR:
@@ -119,9 +119,9 @@ public class TCPSockModule {
             return false;
         }
 
-        logger.info("SEND: # Bytes = {}", messageBytes.length);
+        logger.debug("SEND: # Bytes = {}", messageBytes.length);
         try {
-            logger.debug("SEND_MESSAGE: {}", message);
+            logger.trace("SEND_MESSAGE: {}", message);
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
         } catch (Exception e) {
@@ -150,7 +150,7 @@ public class TCPSockModule {
             byte[] lastNBytes = new byte[0];
             while ((len = bis.read(buf, 0, MAX_READ_BYTES)) > 0) {
                 int bytesLeft = bis.available();
-                logger.debug(
+                logger.trace(
                     "RECV_READ # BYTES = {} | {} BYTES REMAINING",
                     len, bytesLeft);
 
@@ -164,7 +164,7 @@ public class TCPSockModule {
                  */
                 boolean finished = false;
                 if (isDeadbeef(buf, lastNBytes, len)) {
-                    logger.debug("\"{}\": Transmission finished",
+                    logger.trace("\"{}\": Transmission finished",
                         DEADBEEF);
                     len = len-DEADBEEF.length();
                     finished = true;
@@ -183,7 +183,7 @@ public class TCPSockModule {
                  * loop to prevent blocking indefinitely.
                  */
                 if (bytesLeft == 0 && finished) {
-                    logger.info("RECV: Total # bytes={}", totalBytes);
+                    logger.debug("RECV: Total # bytes={}", totalBytes);
                     break;
                 }
 
@@ -221,14 +221,14 @@ public class TCPSockModule {
                 return null;
             }
         } catch (IOException e) {
-            logger.info("Stream closed unexpectedly", e);
+            logger.debug("Stream closed unexpectedly", e);
             response = null;
         } catch (Exception e) {
             logger.error("RECV was incomplete", e);
             response = null;
         }
 
-        //logger.debug("RECV_MESSAGE: {}", response);
+        //logger.trace("RECV_MESSAGE: {}", response);
         return response;
     }
 
@@ -242,7 +242,7 @@ public class TCPSockModule {
 
             return out.toByteArray();
         } catch (Exception e) {
-            logger.debug("Compression failed");
+            logger.trace("Compression failed");
             throw e;
         }
     }
@@ -257,7 +257,7 @@ public class TCPSockModule {
 
             return new String(out.toByteArray());
         } catch (Exception e) {
-            logger.debug("Decompression failed");
+            logger.trace("Decompression failed");
             throw e;
         }
     }
@@ -288,7 +288,7 @@ public class TCPSockModule {
                 String msg = recv(_input);
 
                 if (Objects.nonNull(msg) && !msg.isEmpty()) {
-                    logger.debug("CONNECTION ACK: {}", msg);
+                    logger.trace("CONNECTION ACK: {}", msg);
                     break;
                 }
             }
