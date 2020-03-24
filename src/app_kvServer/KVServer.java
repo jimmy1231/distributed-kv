@@ -38,7 +38,7 @@ public class KVServer implements IKVServer {
 	private Disk disk;
 	private ArrayList<Pair<UUID, KVMessage.StatusType>> primaryPutRequestList;
 	private Map<String, Disk> replicatedDisks;
-	private Map<String, ArrayList<Pair<UUID, KVMessage.StatusType>>> replicatedPutRequestList;
+	private Map<String, List<Pair<UUID, KVMessage.StatusType>>> replicatedPutRequestList;
 	private List<String> replicas; // Name of ECS nodes that are replicas of this server
 	private static final String REPLICA_DISK_PREFIX = "replica_kv_store";
 
@@ -70,7 +70,7 @@ public class KVServer implements IKVServer {
 		replicas = new ArrayList<>();
 		primaryPutRequestList = new ArrayList<Pair<UUID, KVMessage.StatusType>>();
 		replicatedDisks = new HashMap<String, Disk>();
-		replicatedPutRequestList = new HashMap<String, ArrayList<Pair<UUID, KVMessage.StatusType>>>();
+		replicatedPutRequestList = new HashMap<>();
 		cache = new DSCache(cacheSize, strategy, disk);
 		this.port = port;
 		running = false;
@@ -248,17 +248,20 @@ public class KVServer implements IKVServer {
 
 	public KVMessage.StatusType replicate(String coordinatorName, UUID uuid, String key, String value){
 	    // Check if this replicate request has been processed the last time
-	    ArrayList<Pair<UUID, KVMessage.StatusType>> putRequestList = this.replicatedPutRequestList.get(coordinatorName);
-        Pair<UUID, KVMessage.StatusType> mostRecentRequest = null;
+		List<Pair<UUID, KVMessage.StatusType>> putRequestList;
+	    putRequestList = replicatedPutRequestList.get(coordinatorName);
+	    if (Objects.isNull(putRequestList)) {
+			putRequestList = new ArrayList<>();
+			replicatedPutRequestList.put(coordinatorName, putRequestList);
+		}
+        Pair<UUID, KVMessage.StatusType> pastRequest;
+		pastRequest = putRequestList.stream().filter(r ->
+			r.getKey() == uuid && !r.getValue().equals(KVMessage.StatusType.PUT_ERROR)
+		).findAny().orElse(null);
 
-//	if (!putRequestList.isEmpty()){
-//		mostRecentRequest = putRequestList.get(0);
-//
-//        	if (mostRecentRequest.getKey() == uuid
-//                	&& mostRecentRequest.getValue() != KVMessage.StatusType.PUT_ERROR){
-//            		return mostRecentRequest.getValue();
-//        	}
-//	}
+		if (Objects.nonNull(pastRequest)) {
+			return pastRequest.getValue();
+		}
 
 		Disk disk = replicatedDisks.get(coordinatorName);
 		KVMessage.StatusType status;
@@ -280,7 +283,7 @@ public class KVServer implements IKVServer {
 				disk.putKV(key, value);
 				status = KVMessage.StatusType.PUT_SUCCESS;
 			}
-//			putRequestList.add(0, new Pair<>(uuid, status));
+			putRequestList.add(new Pair<>(uuid, status));
 
 			return status;
 		}
@@ -365,7 +368,7 @@ public class KVServer implements IKVServer {
 			else{ // One successor -> one replica
 				ECSNode newSuccNode = ring.getSuccessorServer(myNode); // this throws an error
 				for (String replica : this.replicas) {
-					if (!replica.equals(newSuccNode)){
+					if (!replica.equals(newSuccNode.getNodeName())){
 						forwardRequestToReplica(replica, null, null, KVMessage.StatusType.UNDO_REPLICATE);
 						replicas.remove(replica);
 					}

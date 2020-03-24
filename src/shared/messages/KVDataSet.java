@@ -59,7 +59,7 @@ public class KVDataSet {
 
     public String print(String header) {
         StringBuilder sb = new StringBuilder();
-        sb.append(String.format("============%s: DATA===========\n", header));
+        sb.append(String.format("\n============%s: DATA===========\n", header));
         int keyFormatLen = 0;
         for (Pair<String, String> pair : entries) {
             if (keyFormatLen < pair.getKey().length()) {
