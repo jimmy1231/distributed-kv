@@ -236,9 +236,9 @@ public class ECSClient implements IECSClient {
                 ))
                 .build();
             newNodeConn.doRequest(initKVMessage);
-            logger.info("INITKV Success");
+            logger.info("INITKV Success: {}", nodeToAdd.getUuid());
         } catch (Exception e) {
-            logger.error("INITKV Failed", e);
+            logger.error("INITKV Failed: {}", nodeToAdd.getUuid(), e);
             return null;
         } finally {
             newNodeConn.close();
