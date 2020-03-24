@@ -191,17 +191,20 @@ public class ClientConnection extends Thread {
                     break;
                 case STOP:
                     server.update(metadata);
-                    server.shutdown();
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_ECS)
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
                 case SHUTDOWN:
                     server.update(metadata);
-                    server.shutdown();
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_ECS)
                         .withStatusType(KVMessage.StatusType.SUCCESS);
+                    sendMessage(respBuilder.build());
+                    server.shutdown();
+
+                    /* Shouldn't return after server shuts down */
+                    assert(false);                                     
                     break;
                 case SERVER_INIT:
                     server.initKVServer(msg.getMetadata(),
