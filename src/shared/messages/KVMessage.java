@@ -30,6 +30,7 @@ public interface KVMessage {
 		SERVER_UPDATE, /* update metadata */
 		SERVER_TRANSFER,
 		SERVER_DUMP_DATA, /* Server should dump data and return it to ECS */
+		SERVER_DUMP_REPLICA_DATA, /* dumps all its replica data */
 
 		ECS_HEARTBEAT, 		/* ECS sends this to server to check if server is alive */
 		SERVER_HEARTBEAT,	/* Server response to ECS heartbeat */

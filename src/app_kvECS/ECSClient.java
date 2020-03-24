@@ -113,6 +113,10 @@ public class ECSClient implements IECSClient {
         }
     }
 
+    private HashRing getHashRing() {
+        return ring;
+    }
+
     public boolean sendFilteredRequest(Predicate<ECSNode> filter, KVMessage.StatusType requestType) {
         boolean success = true;
         List<ECSNode> servers = ring.filterServer(filter);
@@ -381,7 +385,7 @@ public class ECSClient implements IECSClient {
         }
     }
 
-    public KVDataSet getServerData(String serverName) {
+    public KVDataSet getServerData(String serverName, KVMessage.StatusType type) {
         ECSNode node = ring.getServerByName(serverName);
         if (Objects.isNull(node)) {
             logger.info("SERVER: '{}' does not exist..", serverName);
@@ -401,7 +405,7 @@ public class ECSClient implements IECSClient {
         try {
             message = new UnifiedMessage.Builder()
                 .withMessageType(MessageType.ECS_TO_SERVER)
-                .withStatusType(KVMessage.StatusType.SERVER_DUMP_DATA)
+                .withStatusType(type)
                 .build();
             response = conn.doRequest(message);
         } catch (Exception e) {

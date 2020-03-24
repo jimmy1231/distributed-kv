@@ -839,7 +839,19 @@ public class KVServer implements IKVServer {
 	public KVDataSet getAllData() {
 		List<Pair<String, String>> entries = disk.getAll();
 		KVDataSet dataSet = new KVDataSet(entries);
-		logger.info("GET ALL DATA: " + dataSet.serialize());
+		logger.info("GET ALL DATA: {}", dataSet.print(""));
+		return dataSet;
+	}
+
+	public KVDataSet getReplicaData(ECSNode coordinator) throws Exception {
+		Disk replicaDisk = replicatedDisks.get(coordinator.getNodeName());
+		if (Objects.isNull(replicaDisk)) {
+			throw new Exception("Coordinator doesn't exist");
+		}
+
+		List<Pair<String, String>> entries = replicaDisk.getAll();
+		KVDataSet dataSet = new KVDataSet(entries);
+		logger.info("GET ALL REPLICA DATA: {}", dataSet.print(""));
 		return dataSet;
 	}
 

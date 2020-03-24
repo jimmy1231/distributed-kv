@@ -4,6 +4,7 @@ import ecs.IECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
+import shared.messages.KVMessage;
 
 import java.util.*;
 
@@ -89,7 +90,15 @@ public class CLI {
 	}
 
 	private void handleServerData(String serverName) {
-		KVDataSet dataSet = client.getServerData(serverName);
+		KVDataSet dataSet = client.getServerData(serverName, KVMessage.StatusType.SERVER_DUMP_DATA);
+		logger.info("Received data from {}", serverName);
+		if (Objects.nonNull(dataSet)) {
+			logger.info(dataSet.print(serverName));
+		}
+	}
+
+	private void handleServerReplicaData(String serverName) {
+		KVDataSet dataSet = client.getServerData(serverName, KVMessage.StatusType.SERVER_DUMP_REPLICA_DATA);
 		logger.info("Received data from {}", serverName);
 		if (Objects.nonNull(dataSet)) {
 			logger.info(dataSet.print(serverName));

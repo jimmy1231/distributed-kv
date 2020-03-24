@@ -237,10 +237,15 @@ public class ClientConnection extends Thread {
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
                 case SERVER_DUMP_DATA:
-                    KVDataSet data = server.getAllData();
-                    msg.setDataSet(data);
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withDataSet(server.getAllData())
+                        .withStatusType(KVMessage.StatusType.SUCCESS);
+                    break;
+                case SERVER_DUMP_REPLICA_DATA:
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_ECS)
+                        .withDataSet(server.getReplicaData(msg.getServer()))
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
                 case ECS_HEARTBEAT:
@@ -303,6 +308,7 @@ public class ClientConnection extends Thread {
             logger.error("Failed to handle ECS request", e);
             respBuilder
                 .withMessageType(MessageType.SERVER_TO_ECS)
+                .withMessage(e.getMessage())
                 .withStatusType(KVMessage.StatusType.ERROR);
         }
 
