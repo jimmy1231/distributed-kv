@@ -266,7 +266,6 @@ public class KVServer implements IKVServer {
 		if (disk != null){
 			if (disk.inStorage(key)){
 				// key exists in the cache. Either PUT_UPDATE/ERROR or DELETE_SUCCESS/ERROR
-
 				// Delete scenario
 				if (value == null || value.equals("null") || value.equals("")) {
 					disk.putKV(key, null);
@@ -281,7 +280,6 @@ public class KVServer implements IKVServer {
 				disk.putKV(key, value);
 				status = KVMessage.StatusType.PUT_SUCCESS;
 			}
-			disk.putKV(key, value);
 			putRequestList.add(0, new Pair<>(uuid, status));
 
 			return status;
