@@ -280,7 +280,7 @@ public class KVServer implements IKVServer {
 				disk.putKV(key, value);
 				status = KVMessage.StatusType.PUT_SUCCESS;
 			}
-			putRequestList.add(0, new Pair<>(uuid, status));
+//			putRequestList.add(0, new Pair<>(uuid, status));
 
 			return status;
 		}
