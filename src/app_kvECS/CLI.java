@@ -23,6 +23,7 @@ public class CLI {
 	private static final String HELP = "help";
 	private static final String PRINT_RING = "print_ring";
 	private static final String SERVER_DATA = "data";
+	private static final String SERVER_REPLICA_DATA = "rdata";
 	private static final String REPLICATION = "show_replication";
 
 	private ECSClient client = null;
@@ -201,6 +202,11 @@ public class CLI {
 		else if (cmd.equals(SERVER_DATA)) {
 			if (assertNumParameters(2, tokens.length))
 				handleServerData(tokens[1]);
+		}
+		else if (cmd.equals(SERVER_REPLICA_DATA)) {
+			if (assertNumParameters(2, tokens.length)) {
+				handleServerReplicaData(tokens[1]);
+			}
 		}
 		else if (cmd.equals(REPLICATION)) {
 			if (assertNumParameters(2, tokens.length))
