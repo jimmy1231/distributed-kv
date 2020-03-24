@@ -128,7 +128,7 @@ public class ECSClient implements IECSClient {
 
         String host;
         int port;
-        TCPSockModule socketModule;
+        TCPSockModule socketModule = null;
         for (ECSNode server : servers) {
             host = server.getNodeHost();
             port = server.getNodePort();
@@ -155,6 +155,10 @@ public class ECSClient implements IECSClient {
                 logger.error("ERROR: Could not complete request for server - {}:{}",
                     host, port, ex);
                 success = false;
+            } finally {
+                if (Objects.nonNull(socketModule)) {
+                    socketModule.close();
+                }
             }
         }
 

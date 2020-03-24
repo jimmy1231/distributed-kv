@@ -26,7 +26,7 @@ public class ECSRequestsLib {
             .build();
 
         boolean isAlive = false;
-        TCPSockModule module;
+        TCPSockModule module = null;
         UnifiedMessage resp;
         try {
             module = new TCPSockModule(server.getNodeHost(),
@@ -39,6 +39,9 @@ public class ECSRequestsLib {
         } finally {
             logger.info("[HEARTBEAT]: Server '{}' is {}",
                 server.getUuid(), isAlive ? "ALIVE" : "DEAD");
+            if (Objects.nonNull(module)) {
+                module.close();
+            }
         }
     }
 
