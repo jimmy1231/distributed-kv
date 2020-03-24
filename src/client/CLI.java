@@ -35,6 +35,34 @@ public class CLI {
         }
     }
 
+    private void putKV(String key, String value) {
+        if (value.equals("null")) {
+            value = null;
+        }
+
+        if (client != null && client.isRunning()) {
+            logger.info(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
+            System.out.println(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
+
+            try {
+                KVMessage result = client.getStore().put(key, value);
+                logger.info(MessageFormat.format("{0} Inserted <{1}, {2}>", result.getStatus(),
+                    result.getKey(), result.getValue()));
+                System.out.println(MessageFormat.format("{0} Inserted <{1}, {2}>",
+                    result.getStatus(), result.getKey(), result.getValue()));
+            } catch (Exception e) {
+                String error_msg = MessageFormat.format("Request failed: PUT <{1}, {2}>",
+                    key,
+                    value);
+                System.out.print(error_msg);
+                logger.error(error_msg, e);
+            }
+
+        } else {
+            printError("Not connected!");
+        }
+    }
+
     private void handleCommand(String cmdLine) {
         String[] tokens = cmdLine.split("\\s+");
 
@@ -80,37 +108,25 @@ public class CLI {
                 value = String.join(" ", tokens);
 
                 // string of null should be considered an empty string
-                if (value.equals("null")) {
-                    value = null;
-                }
-
-                if (client != null && client.isRunning()) {
-                    logger.info(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
-                    System.out.println(MessageFormat.format("Sending PUT <{0}, {1}>", key, value));
-
-                    try {
-                        KVMessage result = client.getStore().put(key, value);
-                        logger.info(MessageFormat.format("{0} Inserted <{1}, {2}>", result.getStatus(),
-                            result.getKey(), result.getValue()));
-                        System.out.println(MessageFormat.format("{0} Inserted <{1}, {2}>",
-                            result.getStatus(), result.getKey(), result.getValue()));
-                    } catch (Exception e) {
-                        String error_msg = MessageFormat.format("Request failed: PUT <{1}, {2}>",
-                            key,
-                            value);
-                        System.out.print(error_msg);
-                        logger.error(error_msg, e);
-                    }
-
-                } else {
-                    printError("Not connected!");
-                }
+               putKV(key, value);
             } else if (tokens.length > 3) {
                 printError("Too many arguments");
             } else {
                 printError("Too few arguments");
             }
 
+        } else if (tokens[0].equals("test1")) {
+            putKV("hello", "world");
+            putKV("disney", "land");
+            putKV("walt", "disney");
+            putKV("water", "bottle");
+            putKV("b", "ts");
+            putKV("loki", "watson");
+            putKV("watson", "loki");
+            putKV("baby", "bear");
+            putKV("pls", "help");
+            putKV("hashy", "oats");
+            putKV("nogucci", "gang");
         } else if (tokens[0].equals("get")) {
             if (tokens.length == 2) {
                 if (client != null && client.isRunning()) {
