@@ -267,7 +267,6 @@ public class ClientConnection extends Thread {
                      *                sent to getServer()
                      * getPrimary(): the old primary which the data in keyrange belonged to
                      */
-                    // TODO: M3 - integrate with KVServer
                     logger.info("RECOVER_DATA for old primary: {}. {}:{} -> {} | range={}",
                         msg.getPrimary().getUuid(),
                         server.getHostname(), server.getPort(),
@@ -281,7 +280,6 @@ public class ClientConnection extends Thread {
                         .withStatusType(KVMessage.StatusType.SUCCESS);
                     break;
                 case SERVER_REPLICATE:
-                    // TODO: M3 - integrate with KVServer
                     server.update(msg.getMetadata());
                     server.updateReplicas();
 

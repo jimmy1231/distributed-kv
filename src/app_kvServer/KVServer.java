@@ -334,25 +334,17 @@ public class KVServer implements IKVServer {
 			ECSNode newSuccNode2 = ring.getSuccessorServer(newSuccNode1);
 			List<String> newReplicas = new ArrayList<>();
 
-			// Already exists. just need to move to newReplicas list
-			if (this.replicas.contains(newSuccNode1.getNodeName())){
-				this.replicas.remove(newSuccNode1.getNodeName());
-			}
-			else{
-				// Tell the new replica to replicate this node's data
-				// dataset is coming from this node (aka primary)
-				forwardRequestToReplica(newSuccNode1.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
-
-			}
 			newReplicas.add(newSuccNode1.getNodeName());
-
-			if (this.replicas.contains(newSuccNode2.getNodeName())){
-				this.replicas.remove(newSuccNode2.getNodeName());
-			}
-			else{
-				forwardRequestToReplica(newSuccNode2.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
-			}
 			newReplicas.add(newSuccNode2.getNodeName());
+
+			// Tell the new replica to replicate this node's data
+			// dataset is coming from this node (aka primary)
+			forwardRequestToReplica(newSuccNode1.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
+			forwardRequestToReplica(newSuccNode2.getNodeName(), null, null, KVMessage.StatusType.REPLICATE);
+
+			// Already exists. just need to move to newReplicas list
+			this.replicas.remove(newSuccNode1.getNodeName());
+			this.replicas.remove(newSuccNode2.getNodeName());
 
 			// Handle replicas that no longer serve the node
 			for (String replica : this.replicas) {
