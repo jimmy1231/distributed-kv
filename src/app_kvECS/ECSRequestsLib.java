@@ -38,7 +38,7 @@ public class ECSRequestsLib {
             throw e;
         } finally {
             logger.info("[HEARTBEAT]: Server '{}' is {}",
-                isAlive ? "ALIVE" : "DEAD");
+                server.getUuid(), isAlive ? "ALIVE" : "DEAD");
         }
     }
 
