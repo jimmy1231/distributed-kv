@@ -181,7 +181,7 @@ public class ECSRequestsLib {
             .build();
 
         send(server, msg);
-        logger.info("Initialized Server: '{}'", server.getUuid());
+        logger.info("Success Initialized Server: '{}'", server.getUuid());
     }
 
     public static void updateServer(ECSNode server,
@@ -193,7 +193,17 @@ public class ECSRequestsLib {
             .build();
 
         send(server, msg);
-        logger.info("Updated Server: '{}'", server.getUuid());
+        logger.info("Success Updated Server: '{}'", server.getUuid());
+    }
+
+    public static void shutdownServer(ECSNode server) throws Exception {
+        UnifiedMessage msg = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.ECS_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.SHUTDOWN)
+            .build();
+
+        send(server, msg);
+        logger.info("Success Shutdown Server: '{}'", server.getUuid());
     }
 
     public static KVDataSet getServerData(ECSNode server) throws Exception {

@@ -434,7 +434,7 @@ public class ECSClient implements IECSClient {
 
     @Override
     public boolean removeNodes(Collection<String> nodeNames) {
-        for (String nodeName : nodeNames){
+        for (String nodeName : nodeNames) {
             ECSNode nodeToRemove = ring.getServerByName(nodeName);
             ECSNode successorNode = ring.getSuccessorServer(nodeToRemove); // get it before update the ring
 
@@ -443,51 +443,16 @@ public class ECSClient implements IECSClient {
                 return false;
             }
 
-            ring.removeServer(nodeToRemove);
-            ring.updateRing();
-
             try{
                 // Lock the node to delete
-                TCPSockModule conn1 = new TCPSockModule(nodeToRemove.getNodeHost(), nodeToRemove.getNodePort());
-                UnifiedMessage removeNodeCalls = new UnifiedMessage.Builder()
-                        .withMessageType(MessageType.ECS_TO_SERVER)
-                        .withStatusType(KVMessage.StatusType.SERVER_WRITE_LOCK)
-                        .build();
-                UnifiedMessage resp = conn1.doRequest(removeNodeCalls);
+                ECSRequestsLib.moveData(nodeToRemove, successorNode,
+                    ring.getServerHashRange(nodeToRemove).toArray());
 
-                if (resp.getStatusType() != KVMessage.StatusType.SUCCESS){
-                    conn1.close();
-                    logger.error("Could not get writer lock for {}",
-                        nodeToRemove.getNodeName());
-                    continue; // skip the rest of the process
-                }
+                ring.removeServer(nodeToRemove);
+                ring.updateRing();
 
-                // Make & Update successor with new metadata
-
-                KVServerMetadata newMetadata = new KVServerMetadataImpl(successorNode.getNodeName(),
-                        successorNode.getNodeHost(), successorNode.getEcsNodeFlag(), ring);
-
-
-                UnifiedMessage metadataUpdateCall= new UnifiedMessage.Builder()
-                        .withMessageType(MessageType.ECS_TO_SERVER)
-                        .withStatusType(KVMessage.StatusType.SERVER_UPDATE)
-                        .withMetadata(newMetadata)
-                        .build();
-
-                TCPSockModule conn2 = new TCPSockModule(successorNode.getNodeHost(), successorNode.getNodePort());
-                conn2.doRequest(metadataUpdateCall);
-                conn2.close();
-
-                // Prepare the MoveData message
-                removeNodeCalls.setStatusType(KVMessage.StatusType.SERVER_MOVEDATA);
-                removeNodeCalls.setKeyRange(ring.getServerHashRange(nodeToRemove).toArray());
-                removeNodeCalls.setServer(successorNode);
-
-                // broadcast updates to all node
+                ECSRequestsLib.shutdownServer(nodeToRemove);
                 broadcastMetaDataUpdates(SERVER_REPLICATE);
-                removeNodeCalls.setStatusType(KVMessage.StatusType.SHUTDOWN); // don't need to worry about other fields already populated
-                conn1.doRequest(removeNodeCalls);
-                conn1.close();
             }
             catch (Exception e) {
                 logger.error("Error occurred while removing nodes", e);
