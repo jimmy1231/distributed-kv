@@ -25,6 +25,7 @@ public class ECSRequestsLib {
             .withStatusType(KVMessage.StatusType.ECS_HEARTBEAT)
             .build();
 
+        boolean isAlive = false;
         TCPSockModule module;
         UnifiedMessage resp;
         try {
@@ -32,8 +33,12 @@ public class ECSRequestsLib {
                 server.getNodePort(), timeout);
             resp = module.doRequest(msg);
             assert(resp.getStatusType().equals(KVMessage.StatusType.SERVER_HEARTBEAT));
+            isAlive = true;
         } catch (Exception e) {
             throw e;
+        } finally {
+            logger.info("[HEARTBEAT]: Server '{}' is {}",
+                isAlive ? "ALIVE" : "DEAD");
         }
     }
 
