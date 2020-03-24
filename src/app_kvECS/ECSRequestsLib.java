@@ -1,6 +1,7 @@
 package app_kvECS;
 
 import ecs.ECSNode;
+import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
@@ -175,6 +176,26 @@ public class ECSRequestsLib {
             .build();
 
         send(server, msg);
+    }
+
+    public static KVDataSet getServerData(ECSNode server) throws Exception {
+        UnifiedMessage msg = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.ECS_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.SERVER_DUMP_DATA)
+            .build();
+
+        return send(server, msg).getDataSet();
+    }
+
+    public static KVDataSet getServerReplicaData(ECSNode replica,
+                                                 ECSNode coordinator) throws Exception {
+        UnifiedMessage msg = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.ECS_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.SERVER_DUMP_REPLICA_DATA)
+            .withServer(coordinator)
+            .build();
+
+        return send(replica, msg).getDataSet();
     }
 
     private static UnifiedMessage send(ECSNode server, UnifiedMessage msg) throws Exception {

@@ -22,6 +22,7 @@ import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
+import static shared.messages.KVMessage.StatusType.SERVER_DUMP_DATA;
 import static shared.messages.KVMessage.StatusType.SERVER_REPLICATE;
 
 
@@ -385,35 +386,32 @@ public class ECSClient implements IECSClient {
         }
     }
 
-    public KVDataSet getServerData(String serverName, KVMessage.StatusType type) {
+    public KVDataSet getServerData(String serverName) {
         ECSNode node = ring.getServerByName(serverName);
         if (Objects.isNull(node)) {
             logger.info("SERVER: '{}' does not exist..", serverName);
         }
 
-        TCPSockModule conn;
         try {
-            conn = new TCPSockModule(
-                node.getNodeHost(), node.getNodePort()
-            );
+            return ECSRequestsLib.getServerData(node);
         } catch (Exception e) {
-            logger.error("Failed to connect", e);
             return null;
         }
+    }
 
-        UnifiedMessage message, response;
-        try {
-            message = new UnifiedMessage.Builder()
-                .withMessageType(MessageType.ECS_TO_SERVER)
-                .withStatusType(type)
-                .build();
-            response = conn.doRequest(message);
-        } catch (Exception e) {
-            logger.error("Failed to get data", e);
-            return null;
+    public KVDataSet getServerReplicaData(String replicaName, String coordinatorName) {
+        ECSNode replica = ring.getServerByName(replicaName);
+        ECSNode coord = ring.getServerByName(coordinatorName);
+        if (Objects.isNull(replica) || Objects.isNull(coord)) {
+            logger.info("Replica: '{}' or Coordinator: '{}' does not exist..",
+                replicaName, coordinatorName);
         }
 
-        return response.getDataSet();
+        try {
+            return ECSRequestsLib.getServerReplicaData(replica, coord);
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override

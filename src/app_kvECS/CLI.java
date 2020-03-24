@@ -91,18 +91,20 @@ public class CLI {
 	}
 
 	private void handleServerData(String serverName) {
-		KVDataSet dataSet = client.getServerData(serverName, KVMessage.StatusType.SERVER_DUMP_DATA);
+		KVDataSet dataSet = client.getServerData(serverName);
 		logger.info("Received data from {}", serverName);
 		if (Objects.nonNull(dataSet)) {
 			logger.info(dataSet.print(serverName));
 		}
 	}
 
-	private void handleServerReplicaData(String serverName) {
-		KVDataSet dataSet = client.getServerData(serverName, KVMessage.StatusType.SERVER_DUMP_REPLICA_DATA);
-		logger.info("Received data from {}", serverName);
+	private void handleServerReplicaData(String replicaName, String coordinatorName) {
+		KVDataSet dataSet = client.getServerReplicaData(replicaName, coordinatorName);
+		logger.info("Received data from {}", replicaName);
 		if (Objects.nonNull(dataSet)) {
-			logger.info(dataSet.print(serverName));
+			logger.info(dataSet.print(String.format(
+				"Data from coordinator %s, replicated on: %s",
+				coordinatorName, replicaName)));
 		}
 	}
 
@@ -204,8 +206,8 @@ public class CLI {
 				handleServerData(tokens[1]);
 		}
 		else if (cmd.equals(SERVER_REPLICA_DATA)) {
-			if (assertNumParameters(2, tokens.length)) {
-				handleServerReplicaData(tokens[1]);
+			if (assertNumParameters(3, tokens.length)) {
+				handleServerReplicaData(tokens[1], tokens[2]);
 			}
 		}
 		else if (cmd.equals(REPLICATION)) {
