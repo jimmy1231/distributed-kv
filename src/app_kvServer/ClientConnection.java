@@ -470,18 +470,22 @@ public class ClientConnection extends Thread {
         UnifiedMessage msg = null;
         String msgString = null;
         msgString = TCPSockModule.recv(input);
-        if (Objects.nonNull(msgString) && !msgString.equals("")) {
+        if (Objects.isNull(msgString)) {
+            throw new IOException("Connection lost");
+        }
+
+        if (!msgString.equals("")) {
             try {
                 //logger.info("Received message: {}", msgString);
                 msg = new UnifiedMessage().deserialize(msgString);
                 logger.info("Deserialized message: messageType={}, statusType={}",
                     msg.getMessageType(), msg.getStatusType());
             }
-            catch (Exception e){
-                logger.error("readValue caused IO exception", e);
+            catch (Exception e) {
+                logger.error("Could not read value from receive", e);
             }
-
         }
+
         return msg;
     }
 }

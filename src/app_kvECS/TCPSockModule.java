@@ -9,6 +9,8 @@ import shared.messages.UnifiedMessage;
 import java.io.*;
 import java.net.Socket;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterOutputStream;
@@ -17,15 +19,20 @@ public class TCPSockModule {
     private static Logger logger = LoggerFactory.getLogger(TCPSockModule.class);
     private static int MAX_READ_BYTES = 4096;
     private static String DEADBEEF = "_______DEADBEEF_______";
+    private static Map<String, Socket> CONNECTION_POOL = new HashMap<>();
 
     private InputStream input;
     private OutputStream output;
     private Socket socket;
+    private String host;
+    private int port;
 
     /****************************************************/
     public TCPSockModule(String host, int port) throws Exception {
         /* Establish socket connection */
-        socket = connect(host, port);
+        this.host = host;
+        this.port = port;
+        socket = connect(host, port, -1);
         logger.debug(String.format(
             "ECSSocket connection established: %s:%d",
             host, port));
@@ -36,6 +43,8 @@ public class TCPSockModule {
 
     public TCPSockModule(String host, int port, int timeout) throws Exception {
         /* Establish socket connection with timeout */
+        this.host = host;
+        this.port = port;
         socket = connect(host, port, timeout);
         logger.trace(String.format(
             "ECSSocket connection established: %s:%d",
@@ -102,8 +111,11 @@ public class TCPSockModule {
          * Point is, close() is all we need to call on client-
          * side.
          */
+        Socket _socket;
         try {
             socket.close();
+            _socket = CONNECTION_POOL.remove(getSocketName());
+            assert(_socket.getPort() == port);
         } catch (Exception e) {
             logger.error("Error closing socket", e);
         }
@@ -262,18 +274,19 @@ public class TCPSockModule {
         }
     }
 
-    private Socket connect(String host, int port) throws Exception {
-        Socket _socket = new Socket(host, port);
-        return connect(_socket);
-    }
-
     private Socket connect(String host, int port, int timeout) throws Exception {
-        Socket _socket = new Socket(host, port);
-        _socket.setSoTimeout(timeout);
-        return connect(_socket);
-    }
+        Socket _socket;
+        if (Objects.nonNull(_socket = CONNECTION_POOL.get(getSocketName()))) {
+            if (_socket.isConnected()) {
+                return _socket;
+            }
+        }
 
-    private Socket connect(Socket _socket) throws Exception {
+        _socket = new Socket(host, port);
+        if (timeout > 0) {
+            _socket.setSoTimeout(timeout);
+        }
+
         try {
             InputStream _input = _socket.getInputStream();
 
@@ -297,7 +310,12 @@ public class TCPSockModule {
             throw e;
         }
 
+        CONNECTION_POOL.put(getSocketName(), _socket);
         return _socket;
+    }
+
+    private String getSocketName() {
+        return String.format("%s:%d", host, port);
     }
 
     private static boolean isDeadbeef(byte[] bytes, byte[] patchBytes, int len) {
