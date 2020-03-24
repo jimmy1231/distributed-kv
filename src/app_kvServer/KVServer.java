@@ -880,7 +880,7 @@ public class KVServer implements IKVServer {
 	 */
 	public static void main(String[] args) {
 		try {
-			new LogSetup("logs/server.log", Level.ALL);
+			new LogSetup(String.format("logs/server-%s.log", args[0]), Level.ALL);
 
 			if(args.length != 3) {
 				System.out.println("Error! Invalid number of arguments!");
