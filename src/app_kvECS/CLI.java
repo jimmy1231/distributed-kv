@@ -90,8 +90,9 @@ public class CLI {
 
 	private void handleServerData(String serverName) {
 		KVDataSet dataSet = client.getServerData(serverName);
+		logger.info("Received data from {}", serverName);
 		if (Objects.nonNull(dataSet)) {
-			dataSet.print(serverName);
+			logger.info(dataSet.print(serverName));
 		}
 	}
 

@@ -57,7 +57,7 @@ public class KVDataSet {
         return this;
     }
 
-    public void print(String header) {
+    public String print(String header) {
         StringBuilder sb = new StringBuilder();
         sb.append(String.format("============%s: DATA===========\n", header));
         int keyFormatLen = 0;
@@ -80,6 +80,6 @@ public class KVDataSet {
                 key, hash.toHexString(), value));
         }
 
-        System.out.print(sb.toString());
+        return sb.toString();
     }
 }

@@ -488,8 +488,9 @@ public class HashRingImpl extends HashRing {
                 ecsNode = entry.getValue();
                 hashRange = ecsNode.getNodeHashRange();
 
-                sb.append(String.format("%3d: %s => %s | RANGE=%s | %s\n",
-                    i, ecsNode.getNodeName(), hash.toHexString(),
+                sb.append(String.format("%3d: %s: %s => %s | RANGE=%s | %s\n",
+                    i, ecsNode.getNodeName(), ecsNode.getUuid(),
+                    hash.toHexString(),
                     new HashRange(hashRange).toString(),
                     ecsNode.getEcsNodeFlag())
                 );
@@ -507,7 +508,7 @@ public class HashRingImpl extends HashRing {
                 entry = it.next();
                 ecsNode = entry.getValue();
 
-                sb.append(String.format("%20s: %s => %s | %s\n",
+                sb.append(String.format("%s: %s => %s | %s\n",
                     ecsNode.getNodeName(), ecsNode.getUuid(),
                     new Hash(ecsNode.getUuid()).toHexString(),
                     ecsNode.getEcsNodeFlag())
