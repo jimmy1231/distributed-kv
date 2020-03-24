@@ -149,6 +149,8 @@ public class ECSClient implements IECSClient {
                 socketModule = new TCPSockModule(host, port);
                 res = socketModule.doRequest(req);
                 socketModule.close();
+                logger.info("Send {} request to Server: '{}'",
+                    requestType, server.getUuid());
             } catch (Exception ex) {
                 logger.error("ERROR: Could not complete request for server - {}:{}",
                     host, port, ex);
