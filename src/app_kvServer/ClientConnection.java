@@ -84,20 +84,20 @@ public class ClientConnection extends Thread {
                     switch(request.getMessageType()) {
                         case CLIENT_TO_SERVER:
                         case SERVER_TO_CLIENT:
-                            logger.info("CLIENT request: {}", request.serialize());
+                            logger.info("CLIENT request: {}", request.toString());
                             response = handleClientMessage(request);
                             break;
                         case ECS_TO_SERVER:
                         case SERVER_TO_ECS:
-                            logger.info("ECS request: {}", request.serialize());
+                            logger.info("ECS request: {}", request.toString());
                             response = handleAdminMessage(request);
                             break;
                         case SERVER_TO_SERVER:
-                            logger.info("SERVER request: {}", request.serialize());
+                            logger.info("SERVER request: {}", request.toString());
                             response = handleServerMessage(request);
                             break;
                         default:
-                            logger.info("UNKNOWN request: {}", request.serialize());
+                            logger.info("UNKNOWN request: {}", request.toString());
                             throw new Exception("Invalid message type");
                     }
 
@@ -450,94 +450,30 @@ public class ClientConnection extends Thread {
     }
 
     private UnifiedMessage handleMapReduceMaster(String[] keys) {
-        /*
-         * (1) Get KV pairs for each key
-         * (2) Combine value, split into M arbitrary parts, where M
-         *     is the number of available worker nodes - can be in
-         *     any STATE, as long as they are not SHUTDOWN (e.g.
-         *     not running)
-         * (3) Puts each part back into DFS
-         */
         UnifiedMessage.Builder responseBuilder = new UnifiedMessage.Builder()
             .withMessageType(MessageType.SERVER_TO_CLIENT);
 
-        HashRing ring = server.getMetdata().getHashRing();
-        KVDataSet dataSet = new KVDataSet();
-
-        // (1)
-        {
-            String key;
-            int i;
-            for (i = 0; i < keys.length; i++) {
-                key = keys[i];
-                try {
-                    dataSet.addEntry(KVServerRequestLib.serverGetKV(ring, key));
-                } catch (Exception e) {
-                    logger.error("Could not get data with key: {}", key, e);
-                    /* Swallow */
-                }
-            }
-        }
-
-        // (2)
-        List<String> parts = new ArrayList<>();
-        {
-            String combined = dataSet.combineValues();
-            logger.debug("Combined: {}", combined);
-            String[] split = combined.split(" ");
-
-            int M = ring.getNumActiveServers();
-            int numPerPart = split.length / M; // truncates down
-
-            int startInd, endInd;
-            int i;
-            for (i=0; i<M ;i++) {
-                startInd = i*numPerPart;
-                if (i+1 == M) {
-                    endInd = split.length;
-                } else {
-                    endInd = startInd + numPerPart;
-                }
-
-                String[] _arr = ArrayUtils.subarray(split,startInd,endInd);
-                parts.add(String.join(" ", _arr));
-            }
-        }
-
-        // (3)
-        List<String> mapIds = new ArrayList<>();
-        {
-            String partKey;
-            Pair<String, String> entry;
-            for (String part : parts) {
-                partKey = new HashRing.Hash(part).toHexString();
-                entry = new Pair<>(partKey, part);
-                try {
-                    KVServerRequestLib.serverPutKV(ring, entry);
-                } catch (Exception e) {
-                    logger.error("Could not put data", entry, e);
-                    // TODO: provide fault tolerance
-                    /* Swallow */
-                }
-
-                mapIds.add(partKey);
-            }
-        }
-
-        // (4)
+        String[] results = null;
+        boolean hasError = false;
         try {
-            MapReduceCtrl.doMap(mapIds);
+            results = MapReduceCtrl.masterMapReduce(
+                server.getMetdata().getHashRing(), keys
+            );
         } catch (Exception e) {
             logger.error("Map failed, cannot continue..", e);
+            hasError = true;
+        }
+
+        if (hasError || Objects.isNull(results)) {
             return responseBuilder
                 .withStatusType(ERROR)
                 .withMessage("Map failed, cannot continue..")
                 .build();
         }
 
-        // FIXME: returning success for testing
+        // Successful
         return responseBuilder
-            .withStatusType(SUCCESS)
+            .withKeys(results)
             .build();
     }
 

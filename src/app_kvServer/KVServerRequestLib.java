@@ -3,6 +3,8 @@ package app_kvServer;
 import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import ecs.ECSNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import shared.Pair;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
@@ -12,6 +14,8 @@ import shared.messages.UnifiedMessage;
 import java.util.Objects;
 
 public class KVServerRequestLib {
+    private static final Logger logger = LoggerFactory.getLogger(KVServerRequestLib.class);
+
     public static void replicaRecoverData(ECSNode replicaServer,
                                           ECSNode dest,
                                           KVDataSet dataSet) throws Exception {
@@ -33,7 +37,12 @@ public class KVServerRequestLib {
             .withKey(key)
             .build();
 
-        UnifiedMessage resp = send(ring.getServerByObjectKey(key), msg);
+        ECSNode server = ring.getServerByObjectKey(key);
+        UnifiedMessage resp = send(server, msg);
+        logger.info("Success Server getKV " +
+                "-> {}, Key=<{}>, Data='{}'",
+            server.getUuid(), key, resp.getValue());
+
         return new Pair<>(key, resp.getValue());
     }
 
@@ -46,7 +55,12 @@ public class KVServerRequestLib {
             .withValue(entry.getValue())
             .build();
 
-        send(ring.getServerByObjectKey(entry.getKey()), msg);
+        ECSNode server = ring.getServerByObjectKey(entry.getKey());
+        send(server, msg);
+        logger.info("Success Server putKV " +
+                "-> {}, Key=<{}>, Data='{}'",
+            server.getUuid(),
+            entry.getKey(), entry.getValue());
     }
 
     private static UnifiedMessage send(ECSNode server, UnifiedMessage msg) throws Exception {

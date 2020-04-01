@@ -66,10 +66,11 @@ public class TCPSockModule {
         /* Do request */
         String rheader = StringUtils.repeat("-",35);
         logger.debug(rheader);
-        logger.debug("REQUEST -> {}:{} MessageType={}, StatusType={}",
+        logger.debug("REQUEST -> {}:{} MessageType={}, StatusType={}. Message={}",
             socket.getLocalAddress(), socket.getPort(),
             request.getMessageType(),
-            request.getStatusType());
+            request.getStatusType(),
+            request.toString());
         if (!send(output, request.serialize())) {
             logger.debug("Failed to send request");
             throw new Exception("SEND failed");
@@ -82,10 +83,11 @@ public class TCPSockModule {
         }
 
         resp = new UnifiedMessage().deserialize(responseStr);
-        logger.debug("RESPONSE <- {}:{} MessageType={}, StatusType={}",
+        logger.debug("RESPONSE <- {}:{} MessageType={}, StatusType={}, Response={}",
             socket.getLocalAddress(), socket.getPort(),
             resp.getMessageType(),
-            resp.getStatusType());
+            resp.getStatusType(),
+            resp.toString());
         logger.debug(rheader);
 
         switch (resp.getStatusType()) {

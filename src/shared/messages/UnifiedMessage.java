@@ -16,6 +16,11 @@ public class UnifiedMessage implements KVMessage {
         .enableComplexMapKeySerialization()
         .excludeFieldsWithoutExposeAnnotation()
         .create();
+    private static Gson PRINT_UNIFIED_GSON = new GsonBuilder()
+        .enableComplexMapKeySerialization()
+        .setPrettyPrinting()
+        .excludeFieldsWithoutExposeAnnotation()
+        .create();
 
     private class __Serialized__ {
         @Expose
@@ -78,6 +83,8 @@ public class UnifiedMessage implements KVMessage {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////
+    // Fields of UnifiedMessage
     private UUID uuid;
     private MessageType messageType;
     private KVMessage.StatusType statusType;
@@ -95,7 +102,7 @@ public class UnifiedMessage implements KVMessage {
     private String message;
 
     private String[] keys;
-
+    ////////////////////////////////////////////////////////////////////
 
     public static class Builder {
         UnifiedMessage object;
@@ -368,6 +375,11 @@ public class UnifiedMessage implements KVMessage {
     public UnifiedMessage setKeys(String[] keys) {
         this.keys = keys;
         return this;
+    }
+
+    @Override
+    public String toString() {
+        return PRINT_UNIFIED_GSON.toJson(this);
     }
 
     /**
