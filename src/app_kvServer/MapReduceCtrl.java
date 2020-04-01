@@ -11,6 +11,7 @@ import shared.messages.UnifiedMessage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static shared.messages.KVMessage.StatusType.ERROR;
 import static shared.messages.KVMessage.StatusType.SUCCESS;
@@ -76,7 +77,7 @@ public class MapReduceCtrl {
             String partKey;
             Pair<String, String> entry;
             for (String part : parts) {
-                partKey = new HashRing.Hash(part).toHexString();
+                partKey = UUID.randomUUID().toString();
                 entry = new Pair<>(partKey, part);
                 try {
                     KVServerRequestLib.serverPutKV(ring, entry);

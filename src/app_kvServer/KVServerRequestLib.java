@@ -12,6 +12,7 @@ import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class KVServerRequestLib {
     private static final Logger logger = LoggerFactory.getLogger(KVServerRequestLib.class);
@@ -53,6 +54,7 @@ public class KVServerRequestLib {
             .withStatusType(KVMessage.StatusType.PUT_DATA)
             .withKey(entry.getKey())
             .withValue(entry.getValue())
+            .withUUID(UUID.randomUUID())
             .build();
 
         ECSNode server = ring.getServerByObjectKey(entry.getKey());
