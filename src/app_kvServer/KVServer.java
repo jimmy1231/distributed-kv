@@ -178,6 +178,7 @@ public class KVServer implements IKVServer {
 
 		// If format is invalid, just return ERROR status right away
 		if (status != null){
+		    logger.info("Format is invalid: {}", status);
 			return status;
 		}
 
@@ -511,8 +512,8 @@ public class KVServer implements IKVServer {
 
 	private KVMessage.StatusType checkMessageFormat(String key, String value){
 		KVMessage.StatusType status = null;
-		int keyLength = key.getBytes().length;
-		int valueLength = value.getBytes().length;
+		int keyLength = key.length();
+		int valueLength = value.length();
 		int KEY_MAXSIZE = 100*1024; // 100 Kbyte
 		int VALUE_MAXSIZE = 100*1024*1024; // 100 Mbytes
 
