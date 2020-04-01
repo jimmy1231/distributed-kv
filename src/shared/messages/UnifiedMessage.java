@@ -19,7 +19,6 @@ public class UnifiedMessage implements KVMessage {
     private static Gson PRINT_UNIFIED_GSON = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .setPrettyPrinting()
-        .excludeFieldsWithoutExposeAnnotation()
         .create();
 
     private class __Serialized__ {
