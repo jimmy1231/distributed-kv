@@ -15,7 +15,7 @@ import static java.lang.Math.*;
 
 public class MapReduceCtrl {
     private static final Logger logger = LoggerFactory.getLogger(MapReduceCtrl.class);
-    private static final int SZ_PARTITION = 128; // bytes
+    private static final int SZ_PARTITION = 128; // words
 
     public static String[] masterMapReduce(HashRing ring, String[] keys) throws Exception {
         /*
@@ -27,8 +27,8 @@ public class MapReduceCtrl {
          *     to the following formula:
          *
          *     Let M be the number of available Mappers
-         *     Let L be the number of total bytes
-         *     Let S be recommended size of the partition: SZ_PARTITION
+         *     Let L be the number of total words
+         *     Let S be recommended size (words) of the partition: SZ_PARTITION
          *
          *     Then, the partition size P is defined as:
          *              P = min(L, max(S, L/M))
