@@ -513,8 +513,8 @@ public class KVServer implements IKVServer {
 		KVMessage.StatusType status = null;
 		int keyLength = key.getBytes().length;
 		int valueLength = value.getBytes().length;
-		int KEY_MAXSIZE = 20; // in bytes
-		int VALUE_MAXSIZE = 120000; // in bytes
+		int KEY_MAXSIZE = Integer.MAX_VALUE; // in bytes
+		int VALUE_MAXSIZE = Integer.MAX_VALUE; // in bytes
 
 
 		// Value exceeded 120KB - can't be delete request

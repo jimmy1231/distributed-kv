@@ -507,11 +507,11 @@ public class ClientConnection extends Thread {
         // (3)
         List<String> mapIds = new ArrayList<>();
         {
-            String uuid;
+            String partKey;
             Pair<String, String> entry;
             for (String part : parts) {
-                uuid = UUID.randomUUID().toString();
-                entry = new Pair<>(uuid, part);
+                partKey = new HashRing.Hash(part).toHexString();
+                entry = new Pair<>(partKey, part);
                 try {
                     KVServerRequestLib.serverPutKV(ring, entry);
                 } catch (Exception e) {
@@ -520,7 +520,7 @@ public class ClientConnection extends Thread {
                     /* Swallow */
                 }
 
-                mapIds.add(uuid);
+                mapIds.add(partKey);
             }
         }
 
