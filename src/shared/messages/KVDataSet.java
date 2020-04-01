@@ -7,6 +7,7 @@ import com.google.gson.reflect.TypeToken;
 import shared.Pair;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -21,6 +22,7 @@ public class KVDataSet {
 
     public KVDataSet() {
         /* Default constructor */
+        entries = new ArrayList<>();
     }
 
     public KVDataSet(List<Pair<String, String>> entries) {
