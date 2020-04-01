@@ -2,6 +2,7 @@ package client;
 
 import app_kvClient.KVClient;
 import logger.LogSetup;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
@@ -14,7 +15,7 @@ import java.text.MessageFormat;
 import java.util.Arrays;
 
 public class CLI {
-    private static Logger logger = Logger.getRootLogger();
+    private static final Logger logger = Logger.getRootLogger();
     private static final String PROMPT = "KVClient> ";
     private BufferedReader stdin;
     private boolean stop = false;
@@ -175,11 +176,22 @@ public class CLI {
             } else {
                 printError("Invalid number of parameters!");
             }
-
         } else if (tokens[0].equals("help")) {
             printHelp();
         } else if (tokens[0].equals("print_ring")) {
             client.getStore().printRing();
+        } else if (tokens[0].equals("mapreduce")) {
+            if (tokens.length < 2) {
+                printError("Too few arguments");
+            }
+            String[] keys = ArrayUtils.subarray(tokens, 1, tokens.length);
+            try {
+                client.getStore().mapReduce(keys);
+            } catch (Exception e) {
+                String error_msg = MessageFormat.format("Request failed: MapReduce <{1}>", keys.toString());
+                System.out.print(error_msg);
+                logger.error(error_msg, e);
+            }
         } else {
             printError("Unknown command");
             printHelp();

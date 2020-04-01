@@ -7,6 +7,7 @@ public interface KVMessage {
 	
 	public enum StatusType {
 		GET, 			/* Get - request */
+		PUT_DATA, 		/* Put data - SERVER_TO_SERVER */
 		GET_ERROR, 		/* requested tuple (i.e. value) not found */
 		GET_SUCCESS, 	/* requested tuple (i.e. value) found */
 		PUT, 			/* Put - request */
@@ -36,6 +37,8 @@ public interface KVMessage {
 		SERVER_HEARTBEAT,	/* Server response to ECS heartbeat */
 		SERVER_REPLICATE, 	/* ECS sends this to server, upon receiving, server replicates based on Hash Ring in request */
 		RECOVER_DATA, 	/* ECS sends this to a replica server telling it to send some of its replicated data to another server */
+
+        MAP_REDUCE, /* MapReduce request from client */
 
 		START,				/* ECSClient sending a START request to Server */
 		STOP,				/* ECS sends STOP request to server */

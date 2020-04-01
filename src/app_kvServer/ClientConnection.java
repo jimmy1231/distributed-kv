@@ -6,15 +6,21 @@ import app_kvECS.KVServerMetadata;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import ecs.IECSNode;
+import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import shared.Pair;
 import shared.messages.*;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static shared.messages.KVMessage.StatusType.*;
 
 /**
  * Represents a connection end point for a particular client that is
@@ -132,6 +138,12 @@ public class ClientConnection extends Thread {
         }
 
         UnifiedMessage replyMsg = msg;
+
+        /* Special case: MapReduce request - Master */
+        if (msg.getStatusType().equals(MAP_REDUCE)) {
+            return handleMapReduceMaster(msg.getKeys());
+        }
+
         /*
          * Check if the key requested is in the server's hash range.
          * If it is in range, process as normal, if it isn't, reply
@@ -322,6 +334,19 @@ public class ClientConnection extends Thread {
 
         try {
             switch (msg.getStatusType()) {
+                case GET:
+                    handleClientGet(msg);
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
+                        .withStatusType(msg.getStatusType())
+                        .withValue(msg.getValue());
+                    break;
+                case PUT_DATA:
+                    handleClientPut(msg);
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
+                        .withStatusType(msg.getStatusType());
+                    break;
                 case SERVER_MOVEDATA:
                     server.recvData(msg.getDataSet());
                     respBuilder
@@ -391,8 +416,6 @@ public class ClientConnection extends Thread {
         } catch (Exception e){
             logger.error("PUT failed. <{}, {}>", key, value, e);
 
-
-
             // Delete scenario
             if (Objects.isNull(value) || value.equals("null") || value.equals("")) {
                 status = KVMessage.StatusType.DELETE_ERROR;
@@ -424,6 +447,98 @@ public class ClientConnection extends Thread {
 
         msg.setStatusType(status);
         return msg;
+    }
+
+    private UnifiedMessage handleMapReduceMaster(String[] keys) {
+        /*
+         * (1) Get KV pairs for each key
+         * (2) Combine value, split into M arbitrary parts, where M
+         *     is the number of available worker nodes - can be in
+         *     any STATE, as long as they are not SHUTDOWN (e.g.
+         *     not running)
+         * (3) Puts each part back into DFS
+         */
+        UnifiedMessage.Builder responseBuilder = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.SERVER_TO_CLIENT);
+
+        HashRing ring = server.getMetdata().getHashRing();
+        KVDataSet dataSet = new KVDataSet();
+
+        // (1)
+        {
+            String key;
+            int i;
+            for (i = 0; i < keys.length; i++) {
+                key = keys[i];
+                try {
+                    dataSet.addEntry(KVServerRequestLib.serverGetKV(ring, key));
+                } catch (Exception e) {
+                    logger.error("Could not get data with key: {}", key, e);
+                    /* Swallow */
+                }
+            }
+        }
+
+        // (2)
+        List<String> parts = new ArrayList<>();
+        {
+            String combined = dataSet.combineValues();
+            logger.debug("Combined: {}", combined);
+            String[] split = combined.split(" ");
+
+            int M = ring.getNumActiveServers();
+            int numPerPart = split.length / M; // truncates down
+
+            int startInd, endInd;
+            int i;
+            for (i=0; i<M ;i++) {
+                startInd = i*numPerPart;
+                if (i+1 == M) {
+                    endInd = split.length;
+                } else {
+                    endInd = startInd + numPerPart;
+                }
+
+                String[] _arr = ArrayUtils.subarray(split,startInd,endInd);
+                parts.add(String.join(" ", _arr));
+            }
+        }
+
+        // (3)
+        List<String> mapIds = new ArrayList<>();
+        {
+            String uuid;
+            Pair<String, String> entry;
+            for (String part : parts) {
+                uuid = UUID.randomUUID().toString();
+                entry = new Pair<>(uuid, part);
+                try {
+                    KVServerRequestLib.serverPutKV(ring, entry);
+                } catch (Exception e) {
+                    logger.error("Could not put data", entry, e);
+                    // TODO: provide fault tolerance
+                    /* Swallow */
+                }
+
+                mapIds.add(uuid);
+            }
+        }
+
+        // (4)
+        try {
+            MapReduceCtrl.doMap(mapIds);
+        } catch (Exception e) {
+            logger.error("Map failed, cannot continue..", e);
+            return responseBuilder
+                .withStatusType(ERROR)
+                .withMessage("Map failed, cannot continue..")
+                .build();
+        }
+
+        // FIXME: returning success for testing
+        return responseBuilder
+            .withStatusType(SUCCESS)
+            .build();
     }
 
     /**

@@ -22,7 +22,7 @@ import java.util.UUID;
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
 public class KVStore implements KVCommInterface {
-	private static Logger logger = LoggerFactory.getLogger(KVStore.class);
+	private static final Logger logger = LoggerFactory.getLogger(KVStore.class);
 
 	private String serverAddress; // The user is expected to know at least one server
 	private int serverPort;
@@ -200,6 +200,38 @@ public class KVStore implements KVCommInterface {
 			}
 		}
 		return replyMsg;
+	}
+
+	/**
+	 * Performs MapReduce operation, choose an available server as master
+	 * Returns result as the keys of Reduced objects.
+	 *
+	 * @param keys
+	 * @return
+	 * @throws Exception
+	 */
+	@Override
+	public String[] mapReduce(String[] keys) throws Exception {
+		UnifiedMessage msg = new UnifiedMessage.Builder()
+			.withMessageType(MessageType.CLIENT_TO_SERVER)
+			.withStatusType(KVMessage.StatusType.MAP_REDUCE)
+			.withKeys(keys)
+			.build();
+
+		KVMessage reply = null;
+		try {
+			sendMessage(msg);
+			reply = receiveMessage();
+		} catch (Exception e) {
+			logger.error("Error performing MapReduce: {}", keys, e);
+			return new String[0];
+		}
+
+		if (Objects.nonNull(reply) && reply instanceof UnifiedMessage) {
+			return ((UnifiedMessage)reply).getKeys();
+		}
+
+		return new String[0];
 	}
 
 	@Override

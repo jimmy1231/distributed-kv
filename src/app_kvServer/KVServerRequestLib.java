@@ -1,7 +1,9 @@
 package app_kvServer;
 
+import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import ecs.ECSNode;
+import shared.Pair;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
@@ -21,6 +23,30 @@ public class KVServerRequestLib {
             .build();
 
         send(dest, msg);
+    }
+
+    public static Pair<String, String> serverGetKV(HashRing ring,
+                                                   String key) throws Exception {
+        UnifiedMessage msg = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.SERVER_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.GET)
+            .withKey(key)
+            .build();
+
+        UnifiedMessage resp = send(ring.getServerByObjectKey(key), msg);
+        return new Pair<>(key, resp.getValue());
+    }
+
+    public static void serverPutKV(HashRing ring,
+                                   Pair<String, String> entry) throws Exception {
+        UnifiedMessage msg = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.SERVER_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.PUT_DATA)
+            .withKey(entry.getKey())
+            .withValue(entry.getValue())
+            .build();
+
+        send(ring.getServerByObjectKey(entry.getKey()), msg);
     }
 
     private static UnifiedMessage send(ECSNode server, UnifiedMessage msg) throws Exception {

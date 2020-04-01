@@ -43,5 +43,15 @@ public interface KVCommInterface {
 	 */
 	public KVMessage get(String key) throws Exception;
 
+	/**
+	 * Performs MapReduce operation, choose an available server as master
+	 * Returns result as the keys of Reduced objects.
+	 *
+	 * @param keys
+	 * @return
+	 * @throws Exception
+	 */
+	public String[] mapReduce(String[] keys) throws Exception;
+
 	public void printRing();
 }

@@ -105,6 +105,13 @@ public class HashRingImpl extends HashRing {
         return servers.size();
     }
 
+    @Override
+    public int getNumActiveServers() {
+        return filterServer(
+            node -> !node.getEcsNodeFlag().equals(SHUT_DOWN)
+        ).size();
+    }
+
     /**
      * {@link #getServerByHash(Hash)}
      * Gets nearest server -> traverse HashRing in CW order.

@@ -44,6 +44,26 @@ public class KVDataSet {
         return this;
     }
 
+    public void addEntry(Pair<String, String> entry) {
+        this.entries.add(entry);
+    }
+
+    public String combineValues() {
+        StringBuilder sb = new StringBuilder();
+        Pair<String, String> entry;
+        int i;
+        for (i=0; i<this.entries.size(); i++) {
+            entry = this.entries.get(i);
+            sb.append(entry.getValue());
+
+            if (i < this.entries.size()-1) {
+                sb.append(" ");
+            }
+        }
+
+        return sb.toString();
+    }
+
     public String serialize() {
         String str = KVDATA_GSON.toJson(entries);
         return Base64.getEncoder().encodeToString(str.getBytes());

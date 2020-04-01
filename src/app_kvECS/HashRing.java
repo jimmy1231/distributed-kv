@@ -287,12 +287,15 @@ public abstract class HashRing {
      *      Returns the first server that evaluates to TRUE for the
      *      predicate. If no servers evaluate to TRUE, then returns
      *      NULL.
+     * {@link #getNumActiveServers()}
+     *      Returns the number of servers that are not SHUTDOWN
      */
     public abstract List<ECSNode> filterServer(Predicate<ECSNode> pred);
     public abstract void forEachServer(Consumer<ECSNode> consumer);
     public abstract ECSNode findServer(Predicate<ECSNode> pred);
     public abstract int getNumServersOnRing();
     public abstract int getNumServers();
+    public abstract int getNumActiveServers();
 
     /**
      * {@link #getServerByHash(Hash)}

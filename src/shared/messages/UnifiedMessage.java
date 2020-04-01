@@ -44,6 +44,8 @@ public class UnifiedMessage implements KVMessage {
         Integer cacheSize;
         @Expose
         String message;
+        @Expose
+        String[] keys;
 
         __Serialized__(UUID uuid,
                        MessageType messageType,
@@ -57,7 +59,8 @@ public class UnifiedMessage implements KVMessage {
                        ECSNode primary,
                        String cacheStrategy,
                        Integer cacheSize,
-                       String message) {
+                       String message,
+                       String[] keys) {
             this.uuid = uuid;
             this.messageType = messageType;
             this.statusType = statusType;
@@ -71,6 +74,7 @@ public class UnifiedMessage implements KVMessage {
             this.cacheStrategy = cacheStrategy;
             this.cacheSize = cacheSize;
             this.message = message;
+            this.keys = keys;
         }
     }
 
@@ -89,6 +93,8 @@ public class UnifiedMessage implements KVMessage {
     private Integer cacheSize;
 
     private String message;
+
+    private String[] keys;
 
 
     public static class Builder {
@@ -163,6 +169,11 @@ public class UnifiedMessage implements KVMessage {
             return this;
         }
 
+        public Builder withKeys(String[] keys) {
+            object.keys = keys;
+            return this;
+        }
+
         public UnifiedMessage build() {
             return object;
         }
@@ -182,7 +193,8 @@ public class UnifiedMessage implements KVMessage {
             Objects.nonNull(primary) ? primary : null,
             Objects.nonNull(cacheStrategy) ? cacheStrategy : null,
             Objects.nonNull(cacheSize) ? cacheSize : null,
-            Objects.nonNull(message) ? message: null
+            Objects.nonNull(message) ? message: null,
+            keys
         );
 
         String str = UNIFIED_GSON.toJson(s);
@@ -204,6 +216,7 @@ public class UnifiedMessage implements KVMessage {
         this.cacheStrategy = s.cacheStrategy;
         this.cacheSize = s.cacheSize;
         this.message = s.message;
+        this.keys = s.keys;
 
         if (Objects.nonNull(s.metadata)) {
             this.metadata = new KVServerMetadataImpl().deserialize(s.metadata);
@@ -336,6 +349,24 @@ public class UnifiedMessage implements KVMessage {
 
     public UnifiedMessage setMessage(String message) {
         this.message = message;
+        return this;
+    }
+
+    public UUID getUuid() {
+        return uuid;
+    }
+
+    public UnifiedMessage setUuid(UUID uuid) {
+        this.uuid = uuid;
+        return this;
+    }
+
+    public String[] getKeys() {
+        return keys;
+    }
+
+    public UnifiedMessage setKeys(String[] keys) {
+        this.keys = keys;
         return this;
     }
 
