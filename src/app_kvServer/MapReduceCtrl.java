@@ -52,7 +52,7 @@ public class MapReduceCtrl {
             logger.debug("[MAP_REDUCE]: Combined: {}", combined);
             String[] split = combined.split(" ");
 
-            int M = ring.getNumActiveServers();
+            int M = ring.getNumActiveServers() - 1; // exclude current server (master)
             int numPerPart = split.length / M; // truncates down
 
             int startInd, endInd;
@@ -92,14 +92,30 @@ public class MapReduceCtrl {
         }
 
         // (4)
-        MapReduceCtrl.doMap(mapIds);
+        MapReduceCtrl.doMap(ring, mapIds);
 
         return new String[0];
     }
 
-    public static void doMap(List<String> mapIds) {
+    /**
+     * Given the ids of the parts to be mapped, delegate
+     * Mappers to process these requests. Only the Master should
+     * invoke this function; the Master should not be part
+     * of the Mappers.
+     *
+     * Also responsible for failure handling if any workers
+     * fail by starting a Map task in an available server.
+     *
+     * Returns a list of ids corresponding to the Mapped
+     * results.
+     *
+     * @param mapIds
+     * @return
+     */
+    private static String[] doMap(HashRing ring, List<String> mapIds) {
         logger.info("DO MAP: {}", mapIds);
 
         // Everything from step 5-7
+        return null;
     }
 }

@@ -7,12 +7,11 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import shared.messages.KVMessage;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.UnknownHostException;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Objects;
 
 public class CLI {
     private static final Logger logger = Logger.getRootLogger();
@@ -192,6 +191,18 @@ public class CLI {
                 System.out.print(error_msg);
                 logger.error(error_msg, e);
             }
+        } else if (tokens[0].equals("putf")) {
+            if (tokens.length != 3 || Objects.isNull(tokens[1])
+                || Objects.isNull(tokens[2])) {
+                printError("Invalid number of arguments");
+            }
+            String fileContents = readfile(tokens[2]);
+            if (Objects.isNull(fileContents)) {
+                logger.error("File is invalid!");
+                return;
+            }
+
+            putKV(tokens[1], fileContents);
         } else {
             printError("Unknown command");
             printHelp();
@@ -214,7 +225,6 @@ public class CLI {
     }
 
     private String setLevel(String levelString) {
-
         if (levelString.equals(Level.ALL.toString())) {
             logger.setLevel(Level.ALL);
             return Level.ALL.toString();
@@ -273,5 +283,27 @@ public class CLI {
             + "Possible log levels are:");
         System.out.println(PROMPT
             + "ALL | DEBUG | INFO | WARN | ERROR | FATAL | OFF");
+    }
+
+    private String readfile(String path) {
+        File file = new File(path);
+        if (!file.exists()) {
+            return null;
+        }
+
+        StringBuilder builder = new StringBuilder();
+        try {
+            BufferedReader r = new BufferedReader(new FileReader(file));
+
+            String line;
+            while ((line = r.readLine()) != null) {
+                builder.append(line).append(" ");
+            }
+
+        } catch (Exception e) {
+            return null;
+        }
+
+        return builder.toString().trim();
     }
 }
