@@ -6,26 +6,33 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.Pair;
 import shared.messages.KVDataSet;
-import shared.messages.MessageType;
-import shared.messages.UnifiedMessage;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static shared.messages.KVMessage.StatusType.ERROR;
-import static shared.messages.KVMessage.StatusType.SUCCESS;
+import static java.lang.Math.*;
 
 public class MapReduceCtrl {
     private static final Logger logger = LoggerFactory.getLogger(MapReduceCtrl.class);
+    private static final int SZ_PARTITION = 128; // bytes
 
     public static String[] masterMapReduce(HashRing ring, String[] keys) throws Exception {
         /*
          * (1) Get KV pairs for each key
-         * (2) Combine value, split into M arbitrary parts, where M
-         *     is the number of available worker nodes - can be in
-         *     any STATE, as long as they are not SHUTDOWN (e.g.
-         *     not running)
+         * (2) Combine value, split into parts. The number of splits
+         *     is defined such that the maximum number of splits is M,
+         *     where M is the number of available Mappers, and the
+         *     minimum split size is SZ_PARTITION. This gives rise
+         *     to the following formula:
+         *
+         *     Let M be the number of available Mappers
+         *     Let L be the number of total bytes
+         *     Let S be recommended size of the partition: SZ_PARTITION
+         *
+         *     Then, the partition size P is defined as:
+         *              P = min(L, max(S, L/M))
+         *
          * (3) Puts each part back into DFS
          */
         KVDataSet dataSet = new KVDataSet();
@@ -51,23 +58,25 @@ public class MapReduceCtrl {
             String combined = dataSet.combineValues();
             logger.debug("[MAP_REDUCE]: Combined: {}", combined);
             String[] split = combined.split(" ");
-
-            int M = ring.getNumActiveServers() - 1; // exclude current server (master)
-            int numPerPart = split.length / M; // truncates down
+            int M = ring.getNumActiveServers()-1;
+            int L = split.length;
+            int partSize = min(L, max(SZ_PARTITION, L/M)); // bytes
 
             int startInd, endInd;
-            int i;
-            for (i=0; i<M ;i++) {
-                startInd = i*numPerPart;
-                if (i+1 == M) {
-                    endInd = split.length;
-                } else {
-                    endInd = startInd + numPerPart;
-                }
+            String[] _arr;
+            int numLeft = L;
+            int i=0;
+            while (numLeft > 0) {
+                startInd = i*partSize;
+                endInd = min(L, startInd+partSize);
 
-                String[] _arr = ArrayUtils.subarray(split,startInd,endInd);
+                _arr = ArrayUtils.subarray(split,startInd,endInd);
                 parts.add(String.join(" ", _arr));
+
+                numLeft -= (endInd-startInd);
+                i++;
             }
+
             logger.info("[MAP_REDUCE]: Parts: {}", parts);
         }
 
