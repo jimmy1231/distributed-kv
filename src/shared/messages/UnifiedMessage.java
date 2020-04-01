@@ -19,6 +19,7 @@ public class UnifiedMessage implements KVMessage {
     private static Gson PRINT_UNIFIED_GSON = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .setPrettyPrinting()
+        .excludeFieldsWithoutExposeAnnotation()
         .create();
 
     private class __Serialized__ {
@@ -84,23 +85,23 @@ public class UnifiedMessage implements KVMessage {
 
     ////////////////////////////////////////////////////////////////////
     // Fields of UnifiedMessage
-    private UUID uuid;
-    private MessageType messageType;
-    private KVMessage.StatusType statusType;
+    @Expose private UUID uuid;
+    @Expose private MessageType messageType;
+    @Expose private KVMessage.StatusType statusType;
     private KVServerMetadata metadata;
-    private KVDataSet dataSet;
-    private String key;
-    private String value;
+    @Expose private KVDataSet dataSet;
+    @Expose private String key;
+    @Expose private String value;
 
-    private String[] keyRange;
-    private ECSNode server;
-    private ECSNode primary;
-    private String cacheStrategy;
-    private Integer cacheSize;
+    @Expose private String[] keyRange;
+    @Expose private ECSNode server;
+    @Expose private ECSNode primary;
+    @Expose private String cacheStrategy;
+    @Expose private Integer cacheSize;
 
-    private String message;
+    @Expose private String message;
 
-    private String[] keys;
+    @Expose private String[] keys;
     ////////////////////////////////////////////////////////////////////
 
     public static class Builder {
