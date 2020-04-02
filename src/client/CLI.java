@@ -195,6 +195,7 @@ public class CLI {
             if (tokens.length != 3 || Objects.isNull(tokens[1])
                 || Objects.isNull(tokens[2])) {
                 printError("Invalid number of arguments");
+                return;
             }
             String fileContents = readfile(tokens[2]);
             if (Objects.isNull(fileContents)) {
