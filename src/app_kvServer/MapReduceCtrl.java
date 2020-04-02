@@ -135,7 +135,8 @@ public class MapReduceCtrl {
         int nodeIdx = -1;
         List<ECSNode> availNodes = ring.filterServer(s ->
             !s.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.SHUT_DOWN)
-            && !s.getUuid().equals(master.getUuid())
+                && !s.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.IDLE)
+                && !s.getUuid().equals(master.getUuid())
         );
 
         Function<Integer, ECSNode> getServer = (n) -> {
