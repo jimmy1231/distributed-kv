@@ -1,6 +1,7 @@
 package app_kvServer;
 
 import app_kvECS.HashRing;
+import app_kvServer.dsmr.MapOutput;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import org.apache.commons.lang3.ArrayUtils;
@@ -8,14 +9,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.Pair;
 import shared.messages.KVDataSet;
+import shared.messages.KVMessage;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import static java.lang.Math.*;
+import static shared.messages.KVMessage.StatusType.MAP;
+import static shared.messages.KVMessage.StatusType.REDUCE;
 
 public class MapReduceCtrl {
     private static final Logger logger = LoggerFactory.getLogger(MapReduceCtrl.class);
@@ -59,7 +60,7 @@ public class MapReduceCtrl {
         }
 
         // (2)
-        List<String> parts = new ArrayList<>();
+        List<String> mapParts = new ArrayList<>();
         {
             String combined = dataSet.combineValues();
             logger.debug("[MAP_REDUCE]: Combined: {}", combined);
@@ -77,39 +78,80 @@ public class MapReduceCtrl {
                 endInd = min(L, startInd+partSize);
 
                 _arr = ArrayUtils.subarray(split,startInd,endInd);
-                parts.add(String.join(" ", _arr));
+                mapParts.add(String.join(" ", _arr));
 
                 numLeft -= (endInd-startInd+1);
                 i++;
             }
 
-            logger.info("[MAP_REDUCE]: Parts: {}", parts);
+            logger.info("[MAP_REDUCE]: Parts: {}", mapParts);
         }
 
-        // (3)
-        List<String> mapIds = new ArrayList<>();
+        // (3-4)
+        String[] mapResults = MapReduceCtrl.doMR(
+            master, ring,
+            putParts(ring, mapParts),
+            MAP);
+
+        // (9)
+        List<String> reduceParts = new ArrayList<>();
         {
-            String partKey;
-            Pair<String, String> entry;
-            for (String part : parts) {
-                partKey = UUID.randomUUID().toString();
-                entry = new Pair<>(partKey, part);
+            KVDataSet mapOutputSet = new KVDataSet();
+            Pair<String, String> resultPair;
+            MapOutput mapOutput;
+            for (String mapResultId : mapResults) {
                 try {
-                    KVServerRequestLib.serverPutKV(ring, entry);
+                    resultPair = KVServerRequestLib.serverGetKV(ring, mapResultId);
+                    assert(resultPair.getKey().equals(mapResultId));
+                    mapOutput = new MapOutput(resultPair.getValue());
+
+                    mapOutputSet.merge(mapOutput.getDataSet());
                 } catch (Exception e) {
-                    logger.error("[MAP_REDUCE]: Could not put data", entry, e);
-                    // TODO: provide fault tolerance
+                    logger.error("[MAP_REDUCE]: Failed to " +
+                            "retrieve map result: {}",
+                        mapResultId, e);
                     /* Swallow */
                 }
+            }
 
-                mapIds.add(partKey);
+            // sort mapOutputSet
+            mapOutputSet.sortByKeys(true);
+
+            /*
+             * Put entries that have the same keys in the same
+             * 'bin', assign the values as a ',' delimited string
+             * where each entry is the mapped result.
+             *
+             * The format is:
+             * <KEY=uuid, VALUE="mapKey mapValue,mapValue,...">
+             *     e.g. <"1asdf1223-12312dfas", "and 1,1,1,1,1">
+             */
+            List<Pair<String, String>> entries = mapOutputSet.getEntries();
+            List<String> mapValues = new ArrayList<>();
+            String lastKey = entries.size() > 0
+                ? entries.get(0).getKey()
+                : null;
+
+            for (Pair<String,String> entry : entries) {
+                if (entry.getKey().equals(lastKey)) {
+                    mapValues.add(entry.getValue());
+                } else {
+                    reduceParts.add(String.format("%s %s",
+                        lastKey, String.join(",", mapValues)
+                    ));
+                    mapValues = new ArrayList<>();
+                    mapValues.add(entry.getValue());
+                }
+
+                lastKey = entry.getKey();
             }
         }
 
-        // (4)
-        String[] mapResults = MapReduceCtrl.doMap(master, ring, mapIds);
-
-        return new String[0];
+        // (10)
+        return MapReduceCtrl.doMR(
+            master, ring,
+            putParts(ring, reduceParts),
+            REDUCE);
     }
 
     /**
@@ -124,13 +166,14 @@ public class MapReduceCtrl {
      * Returns a list of ids corresponding to the Mapped
      * results.
      *
-     * @param mapIds
+     * @param partIds
      * @return
      */
-    private static String[] doMap(ECSNode master,
-                                  HashRing ring,
-                                  final List<String> mapIds) throws Exception {
-        logger.info("DO MAP: {}", mapIds);
+    private static String[] doMR(ECSNode master,
+                                 HashRing ring,
+                                 final List<String> partIds,
+                                 final KVMessage.StatusType TYPE) throws Exception {
+        logger.info("DO {}: {}", TYPE, partIds);
 
         int nodeIdx = -1;
         List<ECSNode> availNodes = ring.filterServer(s ->
@@ -144,13 +187,13 @@ public class MapReduceCtrl {
             return availNodes.get(_n);
         };
 
-        List<MapperThread> threadPool = new ArrayList<>();
+        List<MapReduceThread> threadPool = new ArrayList<>();
         {
-            MapperThread mt;
+            MapReduceThread mt;
             ECSNode mapper;
-            for (String mapId : mapIds) {
+            for (String mapId : partIds) {
                 mapper = getServer.apply(nodeIdx+1);
-                mt = new MapperThread(mapper, mapId);
+                mt = new MapReduceThread(mapper, mapId, TYPE);
                 mt.start();
 
                 threadPool.add(mt);
@@ -162,17 +205,18 @@ public class MapReduceCtrl {
         {
             final int MAX_ITERS = 2;
             int iters = 0;
-            List<MapperThread> leftOvers = new ArrayList<>();
+            List<MapReduceThread> leftOvers = new ArrayList<>();
             while (!threadPool.isEmpty() && iters < MAX_ITERS) {
-                for (MapperThread mt : threadPool) {
+                for (MapReduceThread mt : threadPool) {
                     try {
                         mt.join();
-                        mapResults.add(mt.getMapResultId());
+                        mapResults.add(mt.getResultId());
                     } catch (InterruptedException e) {
                         // Retry mapper with new available node
-                        availNodes.remove(mt.getMapper());
+                        availNodes.remove(mt.getWorker());
                         ECSNode mapper = getServer.apply(nodeIdx + 1);
-                        MapperThread _mt = new MapperThread(mapper, mt.getMapId());
+                        MapReduceThread _mt = new MapReduceThread(
+                            mapper, mt.getPartId(), TYPE);
                         _mt.start();
 
                         leftOvers.add(_mt);
@@ -187,17 +231,39 @@ public class MapReduceCtrl {
         }
 
         // Map operation finished, delete map partitions
-        KVServerRequestLib.serverDeleteAll(ring, mapIds);
+        KVServerRequestLib.serverDeleteAll(ring, partIds);
 
-        if (mapResults.size() != mapIds.size()) {
+        if (mapResults.size() != partIds.size()) {
             throw new Exception(String.format(
                 "Map failed, not all tasks finished: " +
                     "Expecting: %s. Got: %s",
-                mapIds.size(), mapResults.size())
+                partIds.size(), mapResults.size())
             );
         }
 
         logger.info("[MASTER_MAP_REDUCE]: Map Success: {}", mapResults);
         return mapResults.toArray(new String[0]);
+    }
+
+    private static List<String> putParts(HashRing ring, List<String> parts) {
+        List<String> partIds = new ArrayList<>();
+
+        String partKey;
+        Pair<String, String> entry;
+        for (String part : parts) {
+            partKey = UUID.randomUUID().toString();
+            entry = new Pair<>(partKey, part);
+            try {
+                KVServerRequestLib.serverPutKV(ring, entry);
+            } catch (Exception e) {
+                logger.error("[MAP_REDUCE]: Could not put data", entry, e);
+                // TODO: provide fault tolerance
+                /* Swallow */
+            }
+
+            partIds.add(partKey);
+        }
+
+        return partIds;
     }
 }

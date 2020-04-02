@@ -9,8 +9,8 @@ import shared.Pair;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 
 public class KVDataSet {
@@ -50,6 +50,27 @@ public class KVDataSet {
 
     public void addEntry(Pair<String, String> entry) {
         this.entries.add(entry);
+    }
+
+    public void merge(KVDataSet other) {
+        entries.addAll(other.getEntries());
+    }
+
+    public void sortByKeys(boolean ascending) {
+        if (ascending) {
+            entries.sort(Comparator.comparing(Pair::getKey));
+        } else {
+            entries.sort((c1, c2) -> {
+                int compare = c1.getKey().compareTo(c2.getKey());
+                if (compare > 0) {
+                    return -1;
+                } else if (compare < 0) {
+                    return 1;
+                }
+
+                return 0;
+            });
+        }
     }
 
     public String combineValues() {

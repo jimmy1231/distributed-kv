@@ -4,7 +4,6 @@ import shared.Pair;
 import shared.messages.KVDataSet;
 
 import java.util.List;
-import java.util.Objects;
 
 public class MapOutput {
     private static final String SPLIT_DELIMITER = " ";
@@ -38,5 +37,14 @@ public class MapOutput {
         }
 
         return sb.toString().trim();
+    }
+
+    public KVDataSet getDataSet() {
+        return dataSet;
+    }
+
+    public MapOutput setDataSet(KVDataSet dataSet) {
+        this.dataSet = dataSet;
+        return this;
     }
 }

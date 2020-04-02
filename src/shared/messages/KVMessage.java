@@ -41,6 +41,7 @@ public interface KVMessage {
 
         MAP_REDUCE, /* MapReduce request from client */
 		MAP,		/* Master tells Mapper worker to perform the Map task */
+		REDUCE, 	/* Master tells Reducer worker to perform the Reduce task */
 
 		START,				/* ECSClient sending a START request to Server */
 		STOP,				/* ECS sends STOP request to server */

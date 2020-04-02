@@ -78,6 +78,20 @@ public class KVServerRequestLib {
         return mapResult;
     }
 
+    public static String serverDoReduce(ECSNode reducer,
+                                     String reduceId) throws Exception {
+        UnifiedMessage msg = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.SERVER_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.REDUCE)
+            .withKey(reduceId)
+            .build();
+
+        String mapResult = send(reducer, msg).getKey();
+        logger.info("Success Reduce! Reducer='{}', ReduceId='{}', ReduceResult={}",
+            reducer.getUuid(), reduceId, mapResult);
+        return mapResult;
+    }
+
     public static void serverPutMany(ECSNode server,
                                      KVDataSet dataSet) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
