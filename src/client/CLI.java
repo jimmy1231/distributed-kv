@@ -185,7 +185,8 @@ public class CLI {
             }
             String[] keys = ArrayUtils.subarray(tokens, 1, tokens.length);
             try {
-                client.getStore().mapReduce(keys);
+                String[] results = client.getStore().mapReduce(keys);
+                logger.info(Arrays.asList(results));
             } catch (Exception e) {
                 String error_msg = MessageFormat.format("Request failed: MapReduce <{1}>", keys.toString());
                 System.out.print(error_msg);
