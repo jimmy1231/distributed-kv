@@ -138,6 +138,7 @@ public class TCPSockModule {
             logger.trace("SEND_MESSAGE: {}", message);
             output.write(messageBytes, 0, messageBytes.length);
             output.flush();
+            logger.trace("MESSAGE SENT");
         } catch (Exception e) {
             logger.error("Failed to send message", e);
             return false;
