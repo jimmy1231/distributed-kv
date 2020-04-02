@@ -196,6 +196,7 @@ public class MapReduceCtrl {
             );
         }
 
-        return (String[])mapResults.toArray();
+        logger.info("[MASTER_MAP_REDUCE]: Map Success: {}", mapResults);
+        return mapResults.toArray(new String[0]);
     }
 }
