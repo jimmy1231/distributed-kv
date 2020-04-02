@@ -122,6 +122,8 @@ public class KVServerRequestLib {
 
             dataSet = new KVDataSet();
             for (String _key : entry.getValue()) {
+                logger.info("ADD_TO_DATASET: server={}, mapid={}",
+                    entry.getKey(), _key);
                 dataSet.addEntry(new Pair<>(_key, null));
             }
 
