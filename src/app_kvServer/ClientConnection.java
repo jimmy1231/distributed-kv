@@ -361,6 +361,7 @@ public class ClientConnection extends Thread {
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(msg.getStatusType());
+                    logger.info("PUT_DATA_SUCCESS: {}", msg.getKey());
                     break;
                 case SERVER_MOVEDATA:
                     server.recvData(msg.getDataSet());

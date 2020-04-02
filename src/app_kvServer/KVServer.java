@@ -434,7 +434,7 @@ public class KVServer implements IKVServer {
 		try {
 			// Sending message to the replica servers
 			module = new TCPSockModule(replica.getNodeHost(), replica.getNodePort(), TIMEOUT);
-			logger.debug("CONNECTING TO THE REPLICA");
+			logger.debug("CONNECTING TO THE REPLICA: {}", type);
 
 			switch (type) {
 				case PUT:
