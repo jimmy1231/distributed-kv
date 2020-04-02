@@ -523,7 +523,9 @@ public class ClientConnection extends Thread {
             dataToMap = KVServerRequestLib.serverGetKV(ring, mapId).getValue();
             mapper.Map(new MapInput(dataToMap));
 
-            Pair<String, String> mapResult = new Pair<>(resultKey, dataSet.serialize());
+            Pair<String, String> mapResult = new Pair<>(
+                resultKey, dataSet.toString()
+            );
             KVServerRequestLib.serverPutKV(ring, mapResult);
         } catch (Exception e) {
             logger.error("[MAPPER]: Error when Mapping data", e);
