@@ -6,8 +6,8 @@ import shared.messages.KVDataSet;
 import java.util.List;
 
 public class MapOutput {
-    private static final String SPLIT_DELIMITER = " ";
-    private static final String KV_DELIMITER = ",";
+    private static final String SPLIT_DELIMITER = "S__S";
+    private static final String KV_DELIMITER = "V__V";
     private KVDataSet dataSet;
 
     public MapOutput(KVDataSet dataSet) {

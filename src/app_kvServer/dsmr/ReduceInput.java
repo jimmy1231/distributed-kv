@@ -7,6 +7,10 @@ public class ReduceInput implements Iterable<String> {
     private String key;
     private List<String> values;
 
+    /**
+     * Input: "'word' 1,1,1,1,1,1,1,1,1,1,1"
+     * @param str
+     */
     public ReduceInput(String str) {
         String[] split = str.split(" ");
         key = split[0];

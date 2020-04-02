@@ -117,6 +117,8 @@ public class MapReduceCtrl {
 
             // sort mapOutputSet
             mapOutputSet.sortByKeys(true);
+            logger.info("[MAP_REDUCE]: Map results sorted: {}",
+                mapOutputSet.toString());
 
             /*
              * Put entries that have the same keys in the same
@@ -138,7 +140,7 @@ public class MapReduceCtrl {
                     input.addValue(entry.getValue());
                 } else {
                     reduceParts.add(input.toString());
-                    input = new ReduceInput(entry.getKey()); // new key
+                    input = new ReduceInput(entry.getKey(), true); // new key
                     input.addValue(entry.getValue());
                 }
 
