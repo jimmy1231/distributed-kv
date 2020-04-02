@@ -165,6 +165,13 @@ public class MapReduceCtrl {
                 }
                 reduceParts.add(dto.toString());
             }
+
+            // Map operation finished, delete map map results
+            List<String> listMapResults = Arrays.asList(mapResults);
+            logger.info("[MAP_REDUCE]: Deleting all map results: {}",
+                listMapResults);
+            KVServerRequestLib.serverDeleteAll(
+                ring, listMapResults);
         }
 
         // (10)
