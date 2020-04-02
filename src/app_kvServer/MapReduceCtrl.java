@@ -2,6 +2,7 @@ package app_kvServer;
 
 import app_kvECS.HashRing;
 import app_kvServer.dsmr.MapOutput;
+import app_kvServer.dsmr.ReduceInput;
 import ecs.ECSNode;
 import ecs.IECSNode;
 import org.apache.commons.lang3.ArrayUtils;
@@ -14,9 +15,9 @@ import shared.messages.KVMessage;
 import java.util.*;
 import java.util.function.Function;
 
+import static ecs.IECSNode.ECSNodeFlag.*;
 import static java.lang.Math.*;
-import static shared.messages.KVMessage.StatusType.MAP;
-import static shared.messages.KVMessage.StatusType.REDUCE;
+import static shared.messages.KVMessage.StatusType.*;
 
 public class MapReduceCtrl {
     private static final Logger logger = LoggerFactory.getLogger(MapReduceCtrl.class);
@@ -127,20 +128,18 @@ public class MapReduceCtrl {
              *     e.g. <"1asdf1223-12312dfas", "and 1,1,1,1,1">
              */
             List<Pair<String, String>> entries = mapOutputSet.getEntries();
-            List<String> mapValues = new ArrayList<>();
             String lastKey = entries.size() > 0
                 ? entries.get(0).getKey()
                 : null;
 
+            ReduceInput input = new ReduceInput(lastKey, true);
             for (Pair<String,String> entry : entries) {
                 if (entry.getKey().equals(lastKey)) {
-                    mapValues.add(entry.getValue());
+                    input.addValue(entry.getValue());
                 } else {
-                    reduceParts.add(String.format("%s %s",
-                        lastKey, String.join(",", mapValues)
-                    ));
-                    mapValues = new ArrayList<>();
-                    mapValues.add(entry.getValue());
+                    reduceParts.add(input.toString());
+                    input = new ReduceInput(entry.getKey()); // new key
+                    input.addValue(entry.getValue());
                 }
 
                 lastKey = entry.getKey();
@@ -177,8 +176,8 @@ public class MapReduceCtrl {
 
         int nodeIdx = -1;
         List<ECSNode> availNodes = ring.filterServer(s ->
-            !s.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.SHUT_DOWN)
-                && !s.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.IDLE)
+            !s.getEcsNodeFlag().equals(SHUT_DOWN)
+                && !s.getEcsNodeFlag().equals(IDLE)
                 && !s.getUuid().equals(master.getUuid())
         );
 
@@ -241,7 +240,8 @@ public class MapReduceCtrl {
             );
         }
 
-        logger.info("[MASTER_MAP_REDUCE]: Map Success: {}", mapResults);
+        logger.info("[MASTER_MAP_REDUCE]: {} Success: {}",
+            TYPE, mapResults);
         return mapResults.toArray(new String[0]);
     }
 

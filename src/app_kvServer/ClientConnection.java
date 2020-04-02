@@ -3,14 +3,11 @@ package app_kvServer;
 import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
-import app_kvServer.dsmr.MapInput;
-import app_kvServer.dsmr.MapOutput;
-import app_kvServer.dsmr.MapReduce;
+import app_kvServer.dsmr.*;
 import app_kvServer.dsmr.impl.WordFreqMapReduce;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import ecs.IECSNode;
-import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.Pair;
@@ -18,7 +15,6 @@ import shared.messages.*;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -145,7 +141,7 @@ public class ClientConnection extends Thread {
 
         /* Special case: MapReduce request - Master */
         if (msg.getStatusType().equals(MAP_REDUCE)) {
-            return handleMapReduceMaster(msg.getKeys());
+            return handleMRMaster(msg.getKeys());
         }
 
         /*
@@ -349,7 +345,13 @@ public class ClientConnection extends Thread {
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(SUCCESS)
-                        .withKey(handleMapReduceMapper(msg.getKey()));
+                        .withKey(handleMRMap(msg.getKey()));
+                    break;
+                case REDUCE:
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
+                        .withStatusType(SUCCESS)
+                        .withKey(handleMRReduce(msg.getKey()));
                     break;
                 case PUT_MANY:
                     handleClientPut(msg);
@@ -477,7 +479,7 @@ public class ClientConnection extends Thread {
         return msg;
     }
 
-    private UnifiedMessage handleMapReduceMaster(String[] keys) {
+    private UnifiedMessage handleMRMaster(String[] keys) {
         UnifiedMessage.Builder responseBuilder = new UnifiedMessage.Builder()
             .withMessageType(MessageType.SERVER_TO_CLIENT);
 
@@ -510,7 +512,7 @@ public class ClientConnection extends Thread {
             .build();
     }
 
-    private String handleMapReduceMapper(String mapId) throws Exception {
+    private String handleMRMap(String mapId) throws Exception {
         KVDataSet dataSet = new KVDataSet();
 
         MapReduce mapper = new WordFreqMapReduce((key, value) -> {
@@ -534,6 +536,33 @@ public class ClientConnection extends Thread {
         }
 
         logger.info("[MAPPER]: Map Success: {}", mapId);
+        return resultKey;
+    }
+
+    private String handleMRReduce(String partId) throws Exception {
+        KVDataSet dataSet = new KVDataSet();
+
+        MapReduce mapper = new WordFreqMapReduce((key, value) -> {
+            dataSet.addEntry(new Pair<>(key, value));
+        });
+
+        HashRing ring = server.getMetdata().getHashRing();
+        String resultKey = UUID.randomUUID().toString();
+        String dataToMap;
+        try {
+            dataToMap = KVServerRequestLib.serverGetKV(ring, partId).getValue();
+            mapper.Reduce(new ReduceInput(dataToMap));
+
+            Pair<String, String> mapResult = new Pair<>(
+                resultKey, new ReduceOutput(dataSet).toString()
+            );
+            KVServerRequestLib.serverPutKV(ring, mapResult);
+        } catch (Exception e) {
+            logger.error("[MAPPER]: Error when Reducing data", e);
+            throw e;
+        }
+
+        logger.info("[MAPPER]: Reduce Success: {}", partId);
         return resultKey;
     }
 
