@@ -579,6 +579,7 @@ public class KVServer implements IKVServer {
 				try {
 					String connectionId = UUID.randomUUID().toString();
 					Socket communicationSocket = listener.accept();
+
 					ClientConnection connection = new ClientConnection(
 							connectionId,
 							communicationSocket,

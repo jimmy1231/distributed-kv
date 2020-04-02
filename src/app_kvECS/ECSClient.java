@@ -31,7 +31,7 @@ public class ECSClient implements IECSClient {
     private static final String CONFIG_DIR_PATH = "./src/app_kvECS/config/";
     private static final String KVSERVER_START_FILE = "./run_kvserver.sh";
     private static final String ECS_CONFIG_FILE = CONFIG_DIR_PATH + "ecs.config";
-    private static final long HEARTBEAT_TIMEOUT = 1000*45; // 30 seconds
+    private static final long HEARTBEAT_TIMEOUT = 1000*60*45; // 45 minutes
     private int poolSize; // max number of servers that can participate in the service
     private List<ECSNode> allNodes = new ArrayList<>();
     private int serverCacheSize = 50000;
