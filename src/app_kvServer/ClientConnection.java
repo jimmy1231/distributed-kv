@@ -347,7 +347,7 @@ public class ClientConnection extends Thread {
                 case MAP:
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_SERVER)
-                        .withStatusType(MAP)
+                        .withStatusType(SUCCESS)
                         .withKey(handleMapReduceMapper(msg.getKey()));
                     break;
                 case PUT_MANY:
@@ -529,6 +529,7 @@ public class ClientConnection extends Thread {
             throw e;
         }
 
+        logger.info("[MAPPER]: Map Success: {}", mapId);
         return resultKey;
     }
 
