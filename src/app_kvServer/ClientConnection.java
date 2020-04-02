@@ -3,6 +3,9 @@ package app_kvServer;
 import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
+import app_kvServer.dsmr.MapInput;
+import app_kvServer.dsmr.MapReduce;
+import app_kvServer.dsmr.impl.WordFreqMapReduce;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import ecs.IECSNode;
@@ -345,7 +348,7 @@ public class ClientConnection extends Thread {
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(MAP)
-                        .withKey("");
+                        .withKey(handleMapReduceMapper(msg.getKey()));
                     break;
                 case PUT_MANY:
                     handleClientPut(msg);
@@ -503,6 +506,30 @@ public class ClientConnection extends Thread {
         return responseBuilder
             .withKeys(results)
             .build();
+    }
+
+    private String handleMapReduceMapper(String mapId) throws Exception {
+        KVDataSet dataSet = new KVDataSet();
+
+        MapReduce mapper = new WordFreqMapReduce((key, value) -> {
+            dataSet.addEntry(new Pair<>(key, value));
+        });
+
+        HashRing ring = server.getMetdata().getHashRing();
+        String resultKey = UUID.randomUUID().toString();
+        String dataToMap;
+        try {
+            dataToMap = KVServerRequestLib.serverGetKV(ring, mapId).getValue();
+            mapper.Map(new MapInput(dataToMap));
+
+            Pair<String, String> mapResult = new Pair<>(resultKey, dataSet.serialize());
+            KVServerRequestLib.serverPutKV(ring, mapResult);
+        } catch (Exception e) {
+            logger.error("[MAPPER]: Error when Mapping data", e);
+            throw e;
+        }
+
+        return resultKey;
     }
 
     /**
