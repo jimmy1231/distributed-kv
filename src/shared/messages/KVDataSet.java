@@ -3,6 +3,7 @@ package shared.messages;
 import app_kvECS.HashRing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
 import shared.Pair;
 
@@ -18,6 +19,7 @@ public class KVDataSet {
         .excludeFieldsWithoutExposeAnnotation()
         .create();
 
+    @Expose
     private List<Pair<String, String>> entries;
 
     public KVDataSet() {
