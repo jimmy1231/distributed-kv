@@ -24,6 +24,8 @@ public class MapperThread extends Thread {
                 mapper.getUuid(), mapId);
             mapResult = KVServerRequestLib.serverDoMap(mapper, mapId);
             mapResultId = mapResult;
+            logger.info("[MAPPER_THREAD]: FINISHED - Mapper='{}', MapId='{}'",
+                mapper.getUuid(), mapId);
         } catch (Exception e) {
             // interrupt self
             interrupt();

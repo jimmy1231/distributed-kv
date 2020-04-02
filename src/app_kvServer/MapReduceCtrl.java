@@ -79,7 +79,7 @@ public class MapReduceCtrl {
                 _arr = ArrayUtils.subarray(split,startInd,endInd);
                 parts.add(String.join(" ", _arr));
 
-                numLeft -= (endInd-startInd);
+                numLeft -= (endInd-startInd+1);
                 i++;
             }
 
