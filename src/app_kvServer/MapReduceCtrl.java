@@ -92,7 +92,7 @@ public class MapReduceCtrl {
         // (3-4)
         String[] mapResults = MapReduceCtrl.doMR(
             master, ring,
-            putParts(ring, mapParts),
+            putParts(ring, mapParts, MAP),
             MAP);
 
         // (9)
@@ -177,7 +177,7 @@ public class MapReduceCtrl {
         // (10)
         return MapReduceCtrl.doMR(
             master, ring,
-            putParts(ring, reduceParts),
+            putParts(ring, reduceParts, REDUCE),
             REDUCE);
     }
 
@@ -273,13 +273,16 @@ public class MapReduceCtrl {
         return mapResults.toArray(new String[0]);
     }
 
-    private static List<String> putParts(HashRing ring, List<String> parts) {
+    private static List<String> putParts(HashRing ring,
+                                         List<String> parts,
+                                         KVMessage.StatusType TYPE) {
         List<String> partIds = new ArrayList<>();
 
         String partKey;
         Pair<String, String> entry;
         for (String part : parts) {
-            partKey = UUID.randomUUID().toString();
+            partKey = String.format("%s-%s",
+                TYPE, UUID.randomUUID().toString());
             entry = new Pair<>(partKey, part);
             try {
                 KVServerRequestLib.serverPutKV(ring, entry);
