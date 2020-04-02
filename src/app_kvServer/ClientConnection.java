@@ -478,10 +478,15 @@ public class ClientConnection extends Thread {
 
         String[] results = null;
         boolean hasError = false;
+
+        HashRing ring;
+        ECSNode currentServer;
+
+
+        ring = server.getMetdata().getHashRing();
+        currentServer = ring.getServerByName(server.getMetdata().getName());
         try {
-            results = MapReduceCtrl.masterMapReduce(
-                server.getMetdata().getHashRing(), keys
-            );
+            results = MapReduceCtrl.masterMapReduce(currentServer, ring, keys);
         } catch (Exception e) {
             logger.error("Map failed, cannot continue..", e);
             hasError = true;

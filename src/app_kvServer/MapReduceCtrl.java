@@ -21,7 +21,9 @@ public class MapReduceCtrl {
     private static final Logger logger = LoggerFactory.getLogger(MapReduceCtrl.class);
     private static final int SZ_PARTITION = 128; // words
 
-    public static String[] masterMapReduce(HashRing ring, String[] keys) throws Exception {
+    public static String[] masterMapReduce(ECSNode master,
+                                           HashRing ring,
+                                           String[] keys) throws Exception {
         /*
          * (1) Get KV pairs for each key
          * (2) Combine value, split into parts. The number of splits
@@ -105,7 +107,7 @@ public class MapReduceCtrl {
         }
 
         // (4)
-        String[] mapResults = MapReduceCtrl.doMap(ring, mapIds);
+        String[] mapResults = MapReduceCtrl.doMap(master, ring, mapIds);
 
         return new String[0];
     }
@@ -125,12 +127,15 @@ public class MapReduceCtrl {
      * @param mapIds
      * @return
      */
-    private static String[] doMap(HashRing ring, List<String> mapIds) throws Exception {
+    private static String[] doMap(ECSNode master,
+                                  HashRing ring,
+                                  List<String> mapIds) throws Exception {
         logger.info("DO MAP: {}", mapIds);
 
         int nodeIdx = -1;
         List<ECSNode> availNodes = ring.filterServer(s ->
             !s.getEcsNodeFlag().equals(IECSNode.ECSNodeFlag.SHUT_DOWN)
+            && !s.getUuid().equals(master.getUuid())
         );
 
         Function<Integer, ECSNode> getServer = (n) -> {

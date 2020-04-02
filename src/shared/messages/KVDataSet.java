@@ -66,6 +66,11 @@ public class KVDataSet {
         return sb.toString();
     }
 
+    @Override
+    public String toString() {
+        return KVDATA_GSON.toJson(this);
+    }
+
     public String serialize() {
         String str = KVDATA_GSON.toJson(entries);
         return Base64.getEncoder().encodeToString(str.getBytes());
