@@ -548,10 +548,15 @@ public class ClientConnection extends Thread {
 
         HashRing ring = server.getMetdata().getHashRing();
         String resultKey = UUID.randomUUID().toString();
+        ReduceInput.ReduceDTO dto;
         String dataToMap;
         try {
             dataToMap = KVServerRequestLib.serverGetKV(ring, partId).getValue();
-            mapper.Reduce(new ReduceInput(dataToMap));
+            dto = new ReduceInput.ReduceDTO(dataToMap);
+
+            for (ReduceInput input : dto.getInputs()) {
+                mapper.Reduce(input);
+            }
 
             Pair<String, String> mapResult = new Pair<>(
                 resultKey, new ReduceOutput(dataSet).toString()

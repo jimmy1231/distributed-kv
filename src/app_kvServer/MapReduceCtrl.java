@@ -22,6 +22,7 @@ import static shared.messages.KVMessage.StatusType.*;
 public class MapReduceCtrl {
     private static final Logger logger = LoggerFactory.getLogger(MapReduceCtrl.class);
     private static final int SZ_PARTITION = 128; // words
+    private static final int SZ_REDUCE = 128; // words
 
     public static String[] masterMapReduce(ECSNode master,
                                            HashRing ring,
@@ -130,6 +131,7 @@ public class MapReduceCtrl {
              *     e.g. <"1asdf1223-12312dfas", "and 1,1,1,1,1">
              */
             List<Pair<String, String>> entries = mapOutputSet.getEntries();
+            Stack<ReduceInput> intermed = new Stack<>();
             String lastKey = entries.size() > 0
                 ? entries.get(0).getKey()
                 : null;
@@ -139,12 +141,29 @@ public class MapReduceCtrl {
                 if (entry.getKey().equals(lastKey)) {
                     input.addValue(entry.getValue());
                 } else {
-                    reduceParts.add(input.toString());
+                    intermed.push(input);
                     input = new ReduceInput(entry.getKey(), true); // new key
                     input.addValue(entry.getValue());
                 }
 
                 lastKey = entry.getKey();
+            }
+
+            /*
+             * Space optimization:
+             * Since values for Reduce are often small, it is beneficial
+             * to combine many Reduce operations into a batch for one
+             * Reducer to process together. This saves network bandwidth
+             * as well as storage space.
+             */
+            while (!intermed.empty()) {
+                ReduceInput.ReduceDTO dto = new ReduceInput.ReduceDTO();
+                int i = 0;
+                while (!intermed.empty() && i<SZ_REDUCE) {
+                    dto.addInput(intermed.pop());
+                    i++;
+                }
+                reduceParts.add(dto.toString());
             }
         }
 

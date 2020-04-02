@@ -1,11 +1,49 @@
 package app_kvServer.dsmr;
 
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ReduceInput implements Iterable<String> {
     private String key;
     private List<String> values;
+    private ReduceDTO transport;
+
+    public static class ReduceDTO {
+        private static final String DELIMITER = "%__B33F__%";
+        List<ReduceInput> inputs;
+
+        public ReduceDTO() {
+            inputs = new ArrayList<>();
+        }
+
+        public ReduceDTO(String str) {
+            inputs = new ArrayList<>();
+            String[] split = str.split(DELIMITER);
+            for (String inputStr : split) {
+                inputs.add(new ReduceInput(inputStr));
+            }
+        }
+
+        public void addInput(ReduceInput input) {
+            inputs.add(input);
+        }
+
+        public List<ReduceInput> getInputs() {
+            return inputs;
+        }
+
+        public ReduceDTO setInputs(List<ReduceInput> inputs) {
+            this.inputs = inputs;
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return inputs.stream()
+                .map(ReduceInput::toString)
+                .collect(Collectors.joining(DELIMITER));
+        }
+    }
 
     /**
      * Input: "'word' 1,1,1,1,1,1,1,1,1,1,1"
@@ -94,6 +132,5 @@ public class ReduceInput implements Iterable<String> {
         this.values = values;
         return this;
     }
-
     //////////////////////////////////////////////////////////////
 }
