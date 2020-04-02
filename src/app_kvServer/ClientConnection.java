@@ -4,6 +4,7 @@ import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
 import app_kvServer.dsmr.MapInput;
+import app_kvServer.dsmr.MapOutput;
 import app_kvServer.dsmr.MapReduce;
 import app_kvServer.dsmr.impl.WordFreqMapReduce;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -524,7 +525,7 @@ public class ClientConnection extends Thread {
             mapper.Map(new MapInput(dataToMap));
 
             Pair<String, String> mapResult = new Pair<>(
-                resultKey, dataSet.toString()
+                resultKey, new MapOutput(dataSet).toString()
             );
             KVServerRequestLib.serverPutKV(ring, mapResult);
         } catch (Exception e) {
