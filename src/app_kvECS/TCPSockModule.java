@@ -19,6 +19,7 @@ public class TCPSockModule {
     private static Logger logger = LoggerFactory.getLogger(TCPSockModule.class);
     private static int MAX_READ_BYTES = 4096;
     private static String DEADBEEF = "_______DEADBEEF_______";
+    private static final boolean CACHE_CONNECTIONS = false;
     private static Map<String, Socket> CONNECTION_POOL = new HashMap<>();
 
     private InputStream input;
@@ -116,8 +117,10 @@ public class TCPSockModule {
         Socket _socket;
         try {
             socket.close();
-            _socket = CONNECTION_POOL.remove(getSocketName());
-            assert(_socket.getPort() == port);
+            if (CACHE_CONNECTIONS) {
+                _socket = CONNECTION_POOL.remove(getSocketName());
+                assert (_socket.getPort() == port);
+            }
         } catch (Exception e) {
             logger.error("Error closing socket", e);
         }
@@ -279,8 +282,9 @@ public class TCPSockModule {
 
     private Socket connect(String host, int port, int timeout) throws Exception {
         Socket _socket;
-        if (Objects.nonNull(_socket = CONNECTION_POOL.get(getSocketName()))) {
-            if (_socket.isConnected()) {
+        if (CACHE_CONNECTIONS) {
+            _socket = CONNECTION_POOL.get(getSocketName());
+            if (Objects.nonNull(_socket) && _socket.isConnected()) {
                 return _socket;
             }
         }
@@ -313,7 +317,9 @@ public class TCPSockModule {
             throw e;
         }
 
-        CONNECTION_POOL.put(getSocketName(), _socket);
+        if (CACHE_CONNECTIONS) {
+            CONNECTION_POOL.put(getSocketName(), _socket);
+        }
         return _socket;
     }
 
