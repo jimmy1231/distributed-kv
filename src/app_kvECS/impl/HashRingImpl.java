@@ -109,6 +109,7 @@ public class HashRingImpl extends HashRing {
     public int getNumActiveServers() {
         return filterServer(
             node -> !node.getEcsNodeFlag().equals(SHUT_DOWN)
+            && !node.getEcsNodeFlag().equals(IDLE)
         ).size();
     }
 

@@ -288,7 +288,8 @@ public abstract class HashRing {
      *      predicate. If no servers evaluate to TRUE, then returns
      *      NULL.
      * {@link #getNumActiveServers()}
-     *      Returns the number of servers that are not SHUTDOWN
+     *      Returns the number of servers that are on the ring and
+     *      are not SHUT_DOWN
      */
     public abstract List<ECSNode> filterServer(Predicate<ECSNode> pred);
     public abstract void forEachServer(Consumer<ECSNode> consumer);
