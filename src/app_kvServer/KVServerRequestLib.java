@@ -98,7 +98,6 @@ public class KVServerRequestLib {
         List<String> keys4Server;
         ECSNode server;
         String serverName;
-        int i;
         for (String key : keys) {
             server = ring.getServerByObjectKey(key);
             serverName = server.getNodeName();
@@ -111,6 +110,7 @@ public class KVServerRequestLib {
 
             keys4Server.add(key);
         }
+        logger.info("SERVER_DELETE_ALL: {}", serversAndKeys);
 
         Iterator<Map.Entry<String, List<String>>> it;
         it = serversAndKeys.entrySet().iterator();

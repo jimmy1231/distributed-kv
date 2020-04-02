@@ -129,7 +129,7 @@ public class MapReduceCtrl {
      */
     private static String[] doMap(ECSNode master,
                                   HashRing ring,
-                                  List<String> mapIds) throws Exception {
+                                  final List<String> mapIds) throws Exception {
         logger.info("DO MAP: {}", mapIds);
 
         int nodeIdx = -1;
