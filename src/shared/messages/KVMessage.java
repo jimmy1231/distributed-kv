@@ -11,6 +11,7 @@ public interface KVMessage {
 		GET_ERROR, 		/* requested tuple (i.e. value) not found */
 		GET_SUCCESS, 	/* requested tuple (i.e. value) found */
 		PUT, 			/* Put - request */
+		PUT_MANY, 		/* Put a lot of data */
 		PUT_SUCCESS, 	/* Put - request successful, tuple inserted */
 		PUT_UPDATE, 	/* Put - request successful, i.e. value updated */
 		PUT_ERROR, 		/* Put - request not successful */
@@ -39,6 +40,7 @@ public interface KVMessage {
 		RECOVER_DATA, 	/* ECS sends this to a replica server telling it to send some of its replicated data to another server */
 
         MAP_REDUCE, /* MapReduce request from client */
+		MAP,		/* Master tells Mapper worker to perform the Map task */
 
 		START,				/* ECSClient sending a START request to Server */
 		STOP,				/* ECS sends STOP request to server */

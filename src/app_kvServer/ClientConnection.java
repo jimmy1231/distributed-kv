@@ -341,6 +341,18 @@ public class ClientConnection extends Thread {
                         .withStatusType(msg.getStatusType())
                         .withValue(msg.getValue());
                     break;
+                case MAP:
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
+                        .withStatusType(MAP)
+                        .withKey("");
+                    break;
+                case PUT_MANY:
+                    handleClientPut(msg);
+                    respBuilder
+                        .withMessageType(MessageType.SERVER_TO_SERVER)
+                        .withStatusType(msg.getStatusType());
+                    break;
                 case PUT_DATA:
                     handleClientPut(msg);
                     respBuilder
@@ -407,24 +419,35 @@ public class ClientConnection extends Thread {
         // If there is no UUID, that's a big no-no
         assert (Objects.nonNull(msg.getUUID()));
 
-        String key = msg.getKey(), value = msg.getValue();
-        logger.info("Received PUT <{}, {}>", key, value);
-        KVMessage.StatusType status;
-        try{
-            status = server.putKVWithStatusCheck(msg.getUUID(), key, value);
-            logger.info("PUT: {} <{}, {}>", status, key, value);
-        } catch (Exception e){
-            logger.error("PUT failed. <{}, {}>", key, value, e);
+        KVDataSet dataSet = msg.getDataSet();
+        if (Objects.isNull(dataSet)) {
+            dataSet = new KVDataSet();
+            dataSet.addEntry(new Pair<>(msg.getKey(), msg.getValue()));
+        }
+        logger.info("Received PUT DataSet='{}'", dataSet.toString());
 
-            // Delete scenario
-            if (Objects.isNull(value) || value.equals("null") || value.equals("")) {
-                status = KVMessage.StatusType.DELETE_ERROR;
-            }
-            else{
-                status =  KVMessage.StatusType.PUT_ERROR;
+        KVMessage.StatusType status = PUT_SUCCESS;
+        List<Pair<String, String>> entries = dataSet.getEntries();
+        for (Pair<String, String> pair : entries) {
+            String key = pair.getKey(), value = pair.getValue();
+
+            try {
+                status = server.putKVWithStatusCheck(msg.getUUID(), key, value);
+                logger.info("PUT: {} <{}, {}>", status, key, value);
+            } catch (Exception e) {
+                logger.error("PUT failed. <{}, {}>", key, value, e);
+
+                // Delete scenario
+                if (Objects.isNull(value) || value.equals("null") || value.equals("")) {
+                    status = KVMessage.StatusType.DELETE_ERROR;
+                }
+                else {
+                    status =  KVMessage.StatusType.PUT_ERROR;
+                }
             }
         }
 
+        logger.info("Success PUT DataSet='{}'", dataSet.toString());
         msg.setStatusType(status);
         return msg;
     }

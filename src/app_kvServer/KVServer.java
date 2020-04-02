@@ -41,6 +41,7 @@ public class KVServer implements IKVServer {
 	private Map<String, List<Pair<UUID, KVMessage.StatusType>>> replicatedPutRequestList;
 	private List<String> replicas; // Name of ECS nodes that are replicas of this server
 	private static final String REPLICA_DISK_PREFIX = "replica_kv_store";
+	private static final boolean ENABLE_REPLAY_DETECTION = false;
 
 	class KVServerDaemon extends Thread {
 		KVServer server;
@@ -167,11 +168,13 @@ public class KVServer implements IKVServer {
 	public KVMessage.StatusType putKVWithStatusCheck(UUID uuid, String key, String value) throws Exception{
 		// Check if the request with 'uuid' was processed last time
         // Even if it has been processed before, the last result was ERROR then try again
-		if (!primaryPutRequestList.isEmpty()
-			&& primaryPutRequestList.get(0).getKey() == uuid
-			&& primaryPutRequestList.get(0).getValue() != KVMessage.StatusType.PUT_ERROR
-		) {
-			return primaryPutRequestList.get(0).getValue();
+		if (ENABLE_REPLAY_DETECTION) {
+			if (!primaryPutRequestList.isEmpty()
+				&& primaryPutRequestList.get(0).getKey() == uuid
+				&& primaryPutRequestList.get(0).getValue() != KVMessage.StatusType.PUT_ERROR
+			) {
+				return primaryPutRequestList.get(0).getValue();
+			}
 		}
 
 		KVMessage.StatusType status = checkMessageFormat(key, value);
@@ -259,10 +262,6 @@ public class KVServer implements IKVServer {
 		pastRequest = putRequestList.stream().filter(r ->
 			r.getKey() == uuid && !r.getValue().equals(KVMessage.StatusType.PUT_ERROR)
 		).findAny().orElse(null);
-
-//		if (Objects.nonNull(pastRequest)) {
-//			return pastRequest.getValue();
-//		}
 
 		Disk disk = replicatedDisks.get(coordinatorName);
 		KVMessage.StatusType status;

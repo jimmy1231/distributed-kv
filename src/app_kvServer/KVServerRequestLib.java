@@ -11,8 +11,7 @@ import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class KVServerRequestLib {
     private static final Logger logger = LoggerFactory.getLogger(KVServerRequestLib.class);
@@ -63,6 +62,81 @@ public class KVServerRequestLib {
                 "-> {}, Key=<{}>, Data='{}'",
             server.getUuid(),
             entry.getKey(), entry.getValue());
+    }
+
+    public static String serverDoMap(ECSNode mapper,
+                                   String mapId) throws Exception {
+        UnifiedMessage msg = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.SERVER_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.MAP)
+            .withKey(mapId)
+            .build();
+
+        String mapResult = send(mapper, msg).getKey();
+        logger.info("Success Map! Mapper='{}', MapId='{}', MapResult={}",
+            mapper.getUuid(), mapId, mapResult);
+        return mapResult;
+    }
+
+    public static void serverPutMany(ECSNode server,
+                                     KVDataSet dataSet) throws Exception {
+        UnifiedMessage msg = new UnifiedMessage.Builder()
+            .withMessageType(MessageType.SERVER_TO_SERVER)
+            .withStatusType(KVMessage.StatusType.PUT_MANY)
+            .withDataSet(dataSet)
+            .build();
+
+        send(server, msg);
+        logger.info("Success Put Many: Server='{}', DataSet='{}'",
+            server, dataSet.toString());
+    }
+
+    public static void serverDeleteAll(HashRing ring,
+                                       List<String> keys) throws Exception {
+        Map<String, List<String>> serversAndKeys = new HashMap<>();
+
+        List<String> keys4Server;
+        ECSNode server;
+        String serverName;
+        int i;
+        for (String key : keys) {
+            server = ring.getServerByObjectKey(key);
+            serverName = server.getNodeName();
+
+            keys4Server = serversAndKeys.get(serverName);
+            if (Objects.isNull(keys4Server)) {
+                serversAndKeys.put(serverName, new ArrayList<>());
+                keys4Server = serversAndKeys.get(serverName);
+            }
+
+            keys4Server.add(key);
+        }
+
+        Iterator<Map.Entry<String, List<String>>> it;
+        it = serversAndKeys.entrySet().iterator();
+
+        Map.Entry<String, List<String>> entry;
+        KVDataSet dataSet;
+        while (it.hasNext()) {
+            entry = it.next();
+
+            dataSet = new KVDataSet();
+            for (String _key : entry.getValue()) {
+                dataSet.addEntry(new Pair<>(_key, null));
+            }
+
+            try {
+                serverPutMany(
+                    ring.getServerByName(entry.getKey()),
+                    dataSet
+                );
+            } catch (Exception e) {
+                logger.error("Failed to delete for Server={}. DataSet={}",
+                    entry.getKey(), dataSet.toString());
+                /* Swallow */
+            }
+        }
+
     }
 
     private static UnifiedMessage send(ECSNode server, UnifiedMessage msg) throws Exception {
