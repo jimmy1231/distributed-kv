@@ -21,8 +21,14 @@ import static shared.messages.KVMessage.StatusType.*;
 
 public class MapReduceCtrl {
     private static final Logger logger = LoggerFactory.getLogger(MapReduceCtrl.class);
-    private static final int SZ_PARTITION = 10*1024; // words
-    private static final int SZ_REDUCE = 10*1024; // words
+
+    /**
+     * Size of partition needs to be big enough so that it will
+     * make parallelizing among multiple workers worth it (e.g.
+     * faster than sequential processing).
+     */
+    private static final int SZ_PARTITION = 1024; // words
+    private static final int SZ_REDUCE = 1024; // words
 
     public static String[] masterMapReduce(ECSNode master,
                                            HashRing ring,
