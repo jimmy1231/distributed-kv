@@ -33,10 +33,10 @@ public class WordFreqMapReduce extends MapReduce {
         String token;
         int i;
         for (i=0; i<split.length; i++) {
-            token = split[i];
-            if (!EXCLUDE_WORD_LIST.contains(token.toLowerCase())
+            token = split[i].toLowerCase();
+            if (!EXCLUDE_WORD_LIST.contains(token)
                     && Pattern.matches("^[a-zA-Z]*$", token)) {
-                Emit.accept(split[i], "1");
+                Emit.accept(token, "1");
             }
         }
     }
