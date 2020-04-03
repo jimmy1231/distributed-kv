@@ -16,7 +16,8 @@ public class WordFreqMapReduce extends MapReduce {
         "the", "of", "for", "in", "you", "a", "with",
         "on", "was", "is", "to", "as", "at", "his", "her",
         "him", "he", "hers", "their", "they", "she", "and",
-        "were", "where", "from", "by", "be"
+        "were", "where", "from", "by", "be", "this", "that",
+        "an"
     ));
     private static final Pattern P = Pattern.compile("[\\x00-\\x7F]");
 
