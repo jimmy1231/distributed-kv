@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class MoreTests extends TestCase {
     @Test
     public void testRegex() {
-        assert(Pattern.matches("^[a-zA-Z]*$/g", "hithere"));
+        assert(Pattern.matches("^[a-zA-Z]*$", "hitheremynameisjimmyhithere"));
         // String to be scanned to find the pattern.
         String line = "This order was placed for QT3000! OK?";
         String pattern = "(.*)(\\d+)(.*)";
