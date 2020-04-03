@@ -210,6 +210,7 @@ public class MapReduceCtrl {
                                  final List<String> partIds,
                                  final KVMessage.StatusType TYPE) throws Exception {
         logger.info("DO {}: {}", TYPE, partIds);
+        int NUM_TASKS = partIds.size();
 
         int nodeIdx = -1;
         List<ECSNode> availNodes = ring.filterServer(s ->
@@ -250,6 +251,8 @@ public class MapReduceCtrl {
                         resultId = mt.getResultId();
                         if (Objects.nonNull(resultId)) {
                             resultIds.add(resultId);
+                        } else {
+                            NUM_TASKS--;
                         }
                     } catch (InterruptedException e) {
                         // Retry mapper with new available node
@@ -273,11 +276,11 @@ public class MapReduceCtrl {
         // Map operation finished, delete map partitions
         KVServerRequestLib.serverDeleteAll(ring, partIds);
 
-        if (resultIds.size() != partIds.size()) {
+        if (resultIds.size() != NUM_TASKS) {
             throw new Exception(String.format(
-                "Map failed, not all tasks finished: " +
+                "%s failed, not all tasks finished: " +
                     "Expecting: %s. Got: %s",
-                partIds.size(), resultIds.size())
+                TYPE, partIds.size(), resultIds.size())
             );
         }
 
