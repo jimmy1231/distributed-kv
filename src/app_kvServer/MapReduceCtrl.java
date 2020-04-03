@@ -149,6 +149,9 @@ public class MapReduceCtrl {
                 lastKey = entry.getKey();
             }
 
+            // Add left-overs
+            intermed.push(input);
+
             /*
              * Space optimization:
              * Since values for Reduce are often small, it is beneficial
