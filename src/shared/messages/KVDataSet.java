@@ -94,6 +94,10 @@ public class KVDataSet {
         return KVDATA_GSON.toJson(this);
     }
 
+    public int size() {
+        return entries.size();
+    }
+
     public String serialize() {
         String str = KVDATA_GSON.toJson(entries);
         return Base64.getEncoder().encodeToString(str.getBytes());

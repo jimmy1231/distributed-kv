@@ -237,16 +237,20 @@ public class MapReduceCtrl {
             }
         }
 
-        List<String> mapResults = new ArrayList<>();
+        List<String> resultIds = new ArrayList<>();
         {
             final int MAX_ITERS = 2;
             int iters = 0;
+            String resultId;
             List<MapReduceThread> leftOvers = new ArrayList<>();
             while (!threadPool.isEmpty() && iters < MAX_ITERS) {
                 for (MapReduceThread mt : threadPool) {
                     try {
                         mt.join();
-                        mapResults.add(mt.getResultId());
+                        resultId = mt.getResultId();
+                        if (Objects.nonNull(resultId)) {
+                            resultIds.add(resultId);
+                        }
                     } catch (InterruptedException e) {
                         // Retry mapper with new available node
                         availNodes.remove(mt.getWorker());
@@ -269,17 +273,17 @@ public class MapReduceCtrl {
         // Map operation finished, delete map partitions
         KVServerRequestLib.serverDeleteAll(ring, partIds);
 
-        if (mapResults.size() != partIds.size()) {
+        if (resultIds.size() != partIds.size()) {
             throw new Exception(String.format(
                 "Map failed, not all tasks finished: " +
                     "Expecting: %s. Got: %s",
-                partIds.size(), mapResults.size())
+                partIds.size(), resultIds.size())
             );
         }
 
         logger.info("[MASTER_MAP_REDUCE]: {} Success: {}",
-            TYPE, mapResults);
-        return mapResults.toArray(new String[0]);
+            TYPE, resultIds);
+        return resultIds.toArray(new String[0]);
     }
 
     private static List<String> putParts(HashRing ring,

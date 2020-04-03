@@ -520,17 +520,22 @@ public class ClientConnection extends Thread {
         });
 
         HashRing ring = server.getMetdata().getHashRing();
-        String resultKey = String.format("%s-%s",
-            "MAP-RESULT", UUID.randomUUID().toString());
+        String resultKey = null;
         String dataToMap;
         try {
             dataToMap = KVServerRequestLib.serverGetKV(ring, mapId).getValue();
             mapper.Map(new MapInput(dataToMap));
 
-            Pair<String, String> mapResult = new Pair<>(
-                resultKey, new MapOutput(dataSet).toString()
-            );
-            KVServerRequestLib.serverPutKV(ring, mapResult);
+            if (dataSet.size() > 0) {
+                resultKey = String.format("%s-%s",
+                    "MAP-RESULT",
+                    UUID.randomUUID().toString());
+
+                Pair<String, String> mapResult = new Pair<>(
+                    resultKey, new MapOutput(dataSet).toString()
+                );
+                KVServerRequestLib.serverPutKV(ring, mapResult);
+            }
         } catch (Exception e) {
             logger.error("[MAPPER]: Error when Mapping data", e);
             throw e;
@@ -548,8 +553,7 @@ public class ClientConnection extends Thread {
         });
 
         HashRing ring = server.getMetdata().getHashRing();
-        String resultKey = String.format("%s-%s",
-            "REDUCE-RESULT", UUID.randomUUID().toString());
+        String resultKey = null;
         ReduceInput.ReduceDTO dto;
         String dataToMap;
         try {
@@ -560,10 +564,16 @@ public class ClientConnection extends Thread {
                 mapper.Reduce(input);
             }
 
-            Pair<String, String> mapResult = new Pair<>(
-                resultKey, new ReduceOutput(dataSet).toString()
-            );
-            KVServerRequestLib.serverPutKV(ring, mapResult);
+            if (dataSet.size() > 0) {
+                resultKey = String.format("%s-%s",
+                    "REDUCE-RESULT",
+                    UUID.randomUUID().toString());
+
+                Pair<String, String> mapResult = new Pair<>(
+                    resultKey, new ReduceOutput(dataSet).toString()
+                );
+                KVServerRequestLib.serverPutKV(ring, mapResult);
+            }
         } catch (Exception e) {
             logger.error("[MAPPER]: Error when Reducing data", e);
             throw e;
