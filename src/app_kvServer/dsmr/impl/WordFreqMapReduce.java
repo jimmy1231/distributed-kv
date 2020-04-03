@@ -9,11 +9,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.regex.Pattern;
 
 public class WordFreqMapReduce extends MapReduce {
     private static final Set<String> EXCLUDE_WORD_LIST = new HashSet<>(Arrays.asList(
-        "the", "of", "for", "in", "you", "a"
+        "the", "of", "for", "in", "you", "a", "with",
+        "on", "was", "is", "to", "as", "at", "his", "her",
+        "him", "he", "hers", "their", "they", "she", "and",
+        "were", "where", "from", "by", "be"
     ));
+    private static final Pattern P = Pattern.compile("[\\x00-\\x7F]");
+
     public WordFreqMapReduce(BiConsumer<String, String> Emit) {
         // Define emitter
         super(Emit);
@@ -28,7 +34,8 @@ public class WordFreqMapReduce extends MapReduce {
         int i;
         for (i=0; i<split.length; i++) {
             token = split[i];
-            if (!EXCLUDE_WORD_LIST.contains(token)) {
+            if (!EXCLUDE_WORD_LIST.contains(token.toLowerCase())
+                && token.matches("[\\x00-\\x7F]")) {
                 Emit.accept(split[i], "1");
             }
         }
