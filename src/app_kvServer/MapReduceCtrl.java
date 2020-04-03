@@ -21,8 +21,8 @@ import static shared.messages.KVMessage.StatusType.*;
 
 public class MapReduceCtrl {
     private static final Logger logger = LoggerFactory.getLogger(MapReduceCtrl.class);
-    private static final int SZ_PARTITION = 128; // words
-    private static final int SZ_REDUCE = 128; // words
+    private static final int SZ_PARTITION = 10*1024; // words
+    private static final int SZ_REDUCE = 10*1024; // words
 
     public static String[] masterMapReduce(ECSNode master,
                                            HashRing ring,
