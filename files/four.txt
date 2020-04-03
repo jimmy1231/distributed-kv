@@ -1,0 +1,435 @@
+
+2020 coronavirus pandemic in Illinois
+From Wikipedia, the free encyclopedia
+Jump to navigationJump to search
+Graphic of a globe with a red analog clock
+This article documents a current event. Information may change rapidly as the event progresses, and initial news reports may be unreliable. The latest updates to this article may not reflect the most current information. Please feel free to improve this article (but note that updates without valid and reliable references will be removed) or discuss changes on the talk page. (March 2020) (Learn how and when to remove this template message)
+2020 coronavirus pandemic in Illinois
+COVID-19 in Illinois.svg
+Map of counties in Illinois with confirmed cases (as of April 1):
+  No confirmed cases reported
+  <5 confirmed cases
+  5-25 confirmed cases
+  26-50 confirmed cases
+  51-100 confirmed cases
+  101-250 confirmed cases
+  >250 confirmed cases
+Disease	COVID-19
+Virus strain	SARS-CoV-2
+Location	Illinois, United States
+First outbreak	Wuhan, Hubei, China
+Index case	Chicago
+Arrival date	January 24, 2020
+(2 months, 1 week and 2 days)
+Confirmed cases	6,980[1]
+Active cases	6,837
+Recovered	2
+Deaths
+141
+Official website
+Illinois Department of Public Health: Coronavirus Disease 2019
+The 2020 coronavirus pandemic in Illinois began on January 24, 2020, when a woman in Chicago, who had just returned from the pandemic's place of origin in Wuhan, China, tested positive for the virus.[2] This was the second case of coronavirus disease 2019 (COVID-19) in the United States during the 2019–20 coronavirus pandemic. The woman's husband was diagnosed with the disease a few days later, the first known case of human-to-human transmission in the United States. Community transmission was not suspected until March 8, when a case with no connection to other cases or recent travel was confirmed.[3] As of April 1, there were 6,980 diagnosed cases in the state, and 141 deaths.[1]
+
+In mid-March, as the number of known cases rose into the double digits, Governor J. B. Pritzker issued a disaster proclamation, the state's equivalent of a state of emergency, to respond to the crisis. The state took measures to halt the spread of the disease by closing all schools and colleges, ordering a stop to eviction enforcements, ordering all bars and restaurants closed to sit-in diners, and otherwise restricting large gatherings of people. As the virus spread further, the state enacted an even stronger shelter in place order, affecting schools and businesses across the state.[4] At first declared between the dates of March 21 and April 7, the order was later extended until April 30.[5]
+
+Chicago, Illinois saw the first case in the United States where an infant died after testing positive for COVID-19, though the exact case of death was unknown.[6]
+
+
+Contents
+1	Timeline
+1.1	January
+1.2	February
+1.3	March
+1.4	April
+2	Government response
+3	Economic impact
+4	School closures
+5	Impact on sports
+6	Statistics
+7	References
+8	External links
+Timeline
+COVID-19 cases in Illinois, United States  (vte)
+     Deaths        Active cases and recoveries
+Date
+# of cases
+# of deaths
+2020-01-24	​	1(+1)
+⋮	​	1(=)
+2020-01-30	​	2(+1)(+100%)
+⋮	​	2(=)
+2020-02-29	​	3(+1)(+50%)
+⋮	​	3(=)
+2020-03-02	​	4(+1)(+33%)
+⋮	​	4(=)
+2020-03-05	​	5(+1)(+25%)
+2020-03-06	​	6(+1)(+20%)
+⋮	​	6(=)
+2020-03-08	​	7(+1)(+17%)
+2020-03-09	​	11(+4)(+57%)
+2020-03-10	​	19(+8)(+73%)
+2020-03-11	​	25(+6)(+32%)
+2020-03-12	​	32(+7)(+28%)
+2020-03-13	​	46(+14)(+44%)
+2020-03-14	​	64(+18)(+39%)
+2020-03-15	​	93(+29)(+45%)
+2020-03-16	​	105(+12)(+13%)
+2020-03-17	​​	160(+55)(+52%)	1(+100%)
+2020-03-18	​​	288(+128)(+80%)	1(=)
+2020-03-19	​​	422(+134)(+47%)	4(+300%)
+2020-03-20	​​	585(+163)(+39%)	5(+25%)
+2020-03-21	​​	753(+168)(+29%)	6(+20%)
+2020-03-22	​​	1,049(+296)(+39%)	9(+50%)
+2020-03-23	​​	1,285(+236)(+23%)	12(+33%)
+2020-03-24	​​	1,535(+250)(+19%)	16(+33%)
+2020-03-25	​​	1,865(+330)(+22%)	19(+19%)
+2020-03-26	​​	2,538(+673)(+36%)	26(+37%)
+2020-03-27	​​	3,026(+488)(+19%)	34(+31%)
+2020-03-28	​​	3,491(+465)(+15%)	47(+38%)
+2020-03-29	​​	4,596(+1,105)(+32%)	65(+38%)
+2020-03-30	​​	5,057(+461)(+10%)	73(+12%)
+2020-03-31	​​	5,994(+937)(+19%)	99(+36%)
+2020-04-01	​​	6,980(+986)(+16%)	141(+42%)
+Cases: The number of cases confirmed in Illinois.
+Sources: Daily IDPH reports[7][8]
+
+January
+On January 24, 2020, Illinois health officials announced the first confirmed case of infection with the novel coronavirus in the state of Illinois, also the second confirmed case in the United States. The case was a woman in her 60s who had returned from Wuhan, China, the place of origin of the outbreak. She had frequently visited a hospitalized relative,[9] and began to experience symptoms after returning to Chicago. She was isolated at St. Alexius Medical Center in the Chicago suburb of Hoffman Estates.[10]
+
+On January 30, the Centers for Disease Control and Prevention (CDC) confirmed that the first known human-to-human transmission in the U.S. of the SARS-CoV-2 virus (then known as 2019-nCoV) had occurred in Chicago. According to the CDC, the woman who was the first Illinois case had transmitted the virus to her husband, who was confirmed as the second Illinois case and the sixth U.S. case after testing positive. He was isolated at the same hospital as his wife.[11]
+
+February
+On February 7, the two Illinois cases were released from the hospital and began home isolation.[12] Both made full recoveries and were released from isolation on February 14.[13][14] On February 29, a third Illinois resident tested positive for the virus in suburban Cook County.[15]
+
+March
+On March 2, a fourth case was announced by Illinois officials, the wife of the third case; she subsequently began home isolation. Other details were announced by officials: her husband had been isolated at Northwest Community Hospital in Arlington Heights since his case was reported two days earlier; both individuals were in their 70s; and the man was likely exposed to the virus through recent travel to an undisclosed U.S. state with community transmission. The man was later released to home isolation.[16][17]
+
+On March 5, public health officials in Chicago reported a fifth case of coronavirus in a man in his 20s. The man, a student at Vanderbilt University,[18] recently traveled to Italy to study abroad, and returned to Illinois on a flight to Chicago O'Hare International Airport. The new case was hospitalized at Rush University Medical Center.[19] On March 6, a sixth case was reported in Chicago. The patient, a classroom assistant in the Vaughn Occupational High School, had been on the Grand Princess cruise ship where multiple passengers had tested positive.[20]
+
+On March 8, a seventh case was announced in Cook County. The man in his 60s had not traveled to an area impacted by coronavirus, and did not have any contact with other cases; as a result, Illinois officials reported the patient as the first evidence of community transmission within Illinois. He was also reported to be in serious condition.[21] Additionally, a Missouri case connected to Illinois was confirmed; the patient had returned from Italy on a flight to O'Hare Airport, then took an Amtrak train to St. Louis, where she tested positive.[22]
+
+On March 9, four additional cases were announced in Cook County, bringing the state's total number of cases to eleven. Two of the new cases were family members of the classroom aide diagnosed on March 6; the two others included a California resident who traveled to Illinois, and a woman who had returned from an Egyptian cruise which was linked to many COVID-19 cases.[23] In response to the growing number of cases in the state and the country, Governor J. B. Pritzker announced a disaster proclamation (a state of emergency) for the state of Illinois.[24] On March 10, Governor Pritzker announced eight new presumptive positive cases, two of which were the first cases outside of Cook County (in Kane and McHenry Counties). These cases brought Illinois's total number of cases to 19.[25]
+
+On March 11, six new cases of the coronavirus were reported by officials, including the first in Lake County, bringing the total to 25.[26] One of these cases was located at One Prudential Plaza, marking the first confirmed case in a major downtown Chicago office building.[27] Illinois colleges and universities, such as Northwestern University and the University of Illinois, announced measures to combat the spread of the virus on their campuses through extensions of Spring Break as well as implementing online classes for part or all of the remaining semester.[28][29] In response to the growing pandemic, both Former Vice President Joe Biden and Senator Bernie Sanders canceled campaign rallies planned for Illinois. Additionally, Chicago Mayor Lori Lightfoot canceled the city's annual St. Patrick's Day parade and Chicago River dyeing in response to coronavirus.[30] On March 12, seven new cases of the coronavirus were reported by officials, including the first child who tested positive in Illinois. This brought the total to 32.[31]
+
+On March 13, fourteen new cases of the coronavirus were reported by officials, bringing the total to 46. Governor Pritzker announced statewide school closures beginning March 17 until March 30.[32] Casinos statewide would close for fourteen days beginning on March 16.[33] Additionally, the Circuit Court of Cook County announced that "no orders for an eviction or foreclosure will be entered during the 30-day period,"[34] and the Archdiocese of Chicago announced it would stop holding public Mass from March 14.[35]
+
+On March 14, the total number of cases in Illinois rose to 66. These included the first cases in Downstate Illinois, with patients testing positive in Woodford, Cumberland, St. Clair, and Sangamon Counties.[36] One of the cases in Sangamon County was a woman in critical condition who was hospitalized in Springfield, the state's capital.[37] Another new case, in DuPage County, was the first Illinoisan resident of a long-term care facility to contract the virus. At O'Hare Airport, travelers returning from Europe faced enhanced screening from U.S. Customs officials due to the federal travel ban put in place the day before. The screenings led to long waits and overcrowded facilities in the airport, which both Governor Pritzker and Mayor Lightfoot harshly criticized as unsafe.[38]
+
+On March 15, the number of cases rose to 93. Cases were confirmed in Champaign, Clinton, Whiteside, and Winnebago Counties; meanwhile, Governor Pritzker ordered all bars and restaurants closed to sit-in diners.[39] On March 16, the number of cases rose to 105, and Peoria and Will Counties confirmed their first cases.[1][40] Governor Pritzker announced restrictions for public gatherings, limiting crowds to under 50 people amid growing concerns over the community spread of the virus in the state.[30]
+
+
+Signs during the outbreak asking restaurant patrons to wash and sanitize their hands
+On March 17, the number of cases rose to 160. Officials announced the first death related to COVID-19, a woman in her 60s from Chicago; a retired South Side nurse, the woman suffered from an underlying condition later revealed to be asthma, and died at the University of Chicago Medical Center.[41][42] 22 of the new cases were confirmed at a Willowbrook nursing home, including 18 residents and four staff members; these cases were related to an initial case announced on March 14. Northwestern University, UIC, and the Illinois Institute of Technology confirmed that individuals on campus had tested positive for the coronavirus. Other new cases included employees at Midway International Airport and a Chicago Fire Department worker.[43]
+
+
+March 18, 2020 sign at a home improvement box store in Brickyard detailing what has sold out during the COVID-19 outbreak
+On March 18, an increase of 128 new cases brought the total number of individuals infected to 288. Kendall and Madison Counties confirmed their first cases.[1] The new cases included 20 more individuals at the Chateau Nursing and Rehabilitation Center in DuPage County, bringing the total number of the cases at the nursing home to 42.[44] Many students and staff members in various schools and colleges in Illinois also tested positive.[45]
+
+On March 19, there were 134 new coronavirus cases reported throughout the state along with three deaths which included a male in his 50s from Will County, a female in her 80s from Cook County, and an out-of-state female in her 70s who was in Sangamon County.[46] The number of cases being reported has rapidly risen as the tests are becoming more readily available along with an increase in testing by and hospital and commercial laboratories. The health departments of Adams and McLean Counties announced that they each had a confirmed case of COVID-19.[47][48]
+
+
+The Chicago Theater and empty streets on March 20, 2020
+On March 20, the Illinois Department of Public Health announced that there was an increase of 163 new cases along with the death of a woman in her 70s in Cook County.[49] The age range for those with confirmed contraction of the COVID-19 disease range from ages 3 to 99. Christian County announced the first confirmed case contracted within that county.[50] Work began on converting McCormick Place into an alternate care facility for 3,000 patients. The $15 million project is being paid for by FEMA and is scheduled for completion on April 30.[51]
+
+On March 21, there was an increase of another 168 confirmed cases announced in the state along with another death, a man in his 70s in Cook County.[52] This brought the total deaths from the coronavirus disease to six. DeKalb County reported its first confirmed case of the disease. Thousands of residents of Rogers Park, Chicago participate in #chicagosingalong singing Livin' on a Prayer by Bon Jovi. Bon Jovi sent congratulations via Instagram.[53]
+
+
+Streets of Chicago, empty on March 22, 2020
+On March 22, the number of confirmed cases once again rose by 296 bringing the number of COVID-19 cases to 1049 throughout the state, one of which was an infant.[54] Officials announced that there were three new deaths related to the disease of which claimed the life of two men from Cook County that were in their 80s and a McLean County woman in her 70s. Jo Daviess, Livingston, Rock Island, and Stephenson counties all reported their first case of the disease on this day.
+
+
+Chicago "L" tracks in Chicago over Wabash Street with empty streets on March 23, 2020
+On March 23, State officials announced an increase of 236 cases and an additional three deaths, all of which were males from Cook County. Two of the deaths were men in their 80s and one in his 90s.[55] Monroe County announced its first case of the Coronavirus disease on this date which brings the total counties with confirmed cases to 31 of the 102 that are in the state.
+
+On March 24, there were 250 more confirmed cases of the coronavirus along with an additional four deaths throughout the state.[56] The demographics of the deaths consisted of three Cook County residents with two of which were in their 60s and a male in his 50s, the forth was a DuPage County resident in her 90s. Grundy County reported its first case on this date.
+
+On March 25, 330 more confirmed cases of the coronavirus were announced along with three more deaths related to the disease.[57] Of those deaths were a Will County woman in her 50s, a Cook County man in his 60s, and a Kane County man in his 90s. Two Illinois Department of Corrections (IDOC) correctional officers along with one man incarcerated at Stateville Correctional Center have tested positive with the coronavirus along with a contractual worker at Sheridan Correctional Center. Both correctional facilities went on 14-day lockdowns as a precaution. At the Stateville facility, those who have been identified as being potentially exposed are being quarantined to reduce risk to others. IDOC determined, after consulting with IDPH, that the staff and incarcerated men at the Sheridan facility was at low to medium risk of exposure. Two other incarcerated men at North Lawndale Adult Transition Center were confirmed to have contracted the disease.[58] Douglas, Marshall, and Morgan counties have reported their first confirmed cases.[59][60][61] Northern Illinois University (NIU) announced that two students tested positive for COVID-19.[62] One of the students was briefly on campus on March 16 whereas the other student had not been on the campus since March 3 but had recently traveled with a small group of NIU students.[63]
+
+On March 26, the IDPH announced 673 new cases of coronavirus disease along with seven deaths. These deaths included a woman in her 90s, a man in his 70s, two men and two women in their 60s and a man in his 50s; no county information for these individuals was available.[64] Iroquois County Public Health Department officials announced the first confirmed positive case in Iroquois County.[65]
+
+On March 27, another 488 new confirmed cases of coronavirus disease were announced along with eight new deaths.[66] Of the fatalities caused by the coronavirus disease, 86% were individuals over the age of 60. Bureau and Henry Counties announced cases on this date.
+
+On March 28, officials announced another 465 new confirmed cases along with thirteen deaths, one of which was an infant in Cook County.[67] The other twelve deaths were from the following counties: Cook (two males in their 60s, two males in their 70s, a female in her 70s, a female in her 80s, and a male in his 80s), McHenry (a male in his 50s), Kane (two males in their 70s), Lake (a female in her 90s), and Will (a female in her 90s). Carroll, Fayette, and Macon counties reported their first cases on this day.
+
+On March 29, there were 1,105 new cases of coronavirus disease reported along with 18 additional deaths in six Illinois counties. Those deaths were reported in the following counties: Cook (a male in his 50s, two females in their 60s, two males in their 70s, three females in their 70s, two in their males 80s, and a female in her 80s), DuPage County (a male in his 60s), Kane (a male in his 40s and two males in their 90s), Kendall (a male in his 60s), LaSalle (a male in his 80s), and St. Clair (a female in her 70s). Bond, Knox, Menard, and Montgomery counties reported their first confirmed cases on this date.[68] The same day, Illinois Governor J.B. Pritzker announced that an infant in the city of Chicago died after testing positive for COVID-19.[69] This death, which was first death for any infant in the United States who tested positive for COVID-19, came despite the fact that infants made up a small fraction of COVID-19 related deaths worldwide.[6]
+
+On March 30, Dr. Ngozi Ezike, director of the IDPH, announced that there were 461 new cases and eight deaths. Counties that reported deaths were Cook (a male in his 50s, a male in his 60s, a female in her 60s, a female in her 70s), DuPage (a male in his 60s), Kendall (a female in her 60s), and Will (a male in his 50s and a male in his 60s). One death was an incarcerated man from Stateville Correctional Center. Additionally, there were twelve men that are incarcerated at Stateville which are now hospitalized, with several requiring ventilators. An additional 77 incarcerated individuals with symptoms who are isolated at the facility along with eleven staff members that are also being isolated. Testing for COVID-19 disclosed the first case of infection on March 22 in Cook County Jail. 10% of the 5,000 inmates were released as a cautionary measure, but the number of infections had risen to 134 by March 30.[70] The first confirmed cases of coronavirus disease were announced on this day for Clark, Crawford, Marion, Randolph, and Saline Counties.[71]
+
+On March 31, an additional 937 confirmed cases were announced along with 26 deaths that brought the total of deceased to 99. Ford and Ogle counties reported their first confirmed cases on this date whereas the following counties had deaths related to the disease: Cook (two males in their 50s, one male in his 60s, two females in their 60s, five males in their 70s, two females in their 70s, three males in their 80s, one female in her 80s, and one male in his 90s), DuPage (two females in their 70s), Kane (one male in his 80s), Lake (one female in her 60s), McLean (one male in his 70s), Morgan (one male in his 80s), St. Clair (one female in her 30s), Will (one male in his 80s and one female in her 80s).[72]
+
+April
+On April 1, there were 986 new cases announced by IDPH along with another 42 deaths. Massac and Vermilion counties both reported cases on this date. The counties reporting deaths on this date were the following: Carroll (a male in his 80s), Cook (a male in his 20s, two males in their 30s, two males in their 40s, a male in his 50s, a female in her 50s, three males in their 60s, two females in their 60s, five males in their 70s, three females in their 70s, three males in their 80s, four females in their 80s, a female in her 90s, a female in her 100s and five with incomplete data), DuPage (a female in her 60s, a female in her 70s), Kane (a female in her 90s), Lake (a male in his 50s), Sangamon (a male in his 90s), Will (a male in his 60s), and Winnebago (a male in his 60s).[73]
+
+Government response
+On March 9, Governor J. B. Pritzker issued a disaster proclamation, the state's equivalent to a state of emergency, as four new cases were announced in the state.[74] On March 12, Chicago Mayor Lori Lightfoot announced that after meeting with Comcast executives, the company would "double internet speeds to low income households nationally. Also, 60 free days of internet for low income households" would be available starting March 16.[75] On March 13, Governor Pritzker announced that all schools in Illinois would close for a period to begin the following Tuesday and last until the end of the month. The governor's announcement came after hundreds of public school districts and private schools had already announced closures.[76] On March 15, Governor Pritzker announced that all bars and restaurants will be closed until March 30 as "it is his way on enforcing and preserving the safety and health of all residents of Illinois". Businesses with delivery options will still be able to serve.[77][78][79]
+
+On March 16, Governor Pritzker announced that all gatherings of 50 or more people will be canceled in accordance with new guidelines which were issued by the CDC.[80] The Illinois Gaming Board suspended all video gaming operations at all licensed video gaming establishments and suspended gambling operations at all casinos from March 16 until March 30.[81][82] Illinois Secretary of State Jesse White announced that all driver services facilities throughout the state would be closed from March 17 through March 31. White's office stated that expiration dates will be extended by 30 days through an emergency rule, this includes for driver's licenses, identification cards, vehicle registrations, document filings and other transactions.[83] The Illinois Department of Natural Resources announced that all state sites, which include state parks, fish and wildlife areas, recreational areas, and historic sites would be closed until further notice. This also included the Illinois State Museum and its branches which include the Research and Collections Center, Dickson Mounds Museum in Lewistown and the Lockport Gallery in Lockport.[84][85]
+
+On March 17, 60 members of the Illinois National Guard were activated to assist during the COVID-19 pandemic in Illinois for the anticipated need of medical staffing and logistic support. Of those 60, 43 are airmen from the Peoria-based 182d Airlift Wing's Medical Group whereas the other 17 are planners and liaison officers from both the Army and Air National Guard.[86] On March 18, Governor Pritzker announced a new website that would be a centralized hub with information an resources related to the coronavirus and the impact on Illinois residents and businesses.[87]
+
+On March 20, Governor Pritzker announced a statewide stay-at-home order starting on March 21 until April 7, 2020. All non-essential businesses are required to be closed (e.g. theaters, parks, libraries, etc.) whereas essential businesses such as grocery stores, gas stations, hospitals, pharmacies are to remain open.[88] The State of Illinois is working with U.S. Department of Health and Human Services and the private companies of Wal-Mart and Walgreens to provide testing sites in the hardest-hit communities within the state.[49] In a March 22 interview on CNN's State of the Union, Governor Pritzker compared the federal government's procurement of essential medical supplies to the "Wild West". "We're competing against [other states], we’re competing against other countries," Pritzker said.[89] When asked about protective masks for medical workers, FEMA Director Peter Gaynor could not give any specific answers.[90]
+
+On March 25, the Illinois tax filling deadline was extended from April 15 to July 15.[91] This was announced by Governor Pritzker during the daily coronavirus press conference along with a bulletin release from the Illinois Department of Revenue.[92] Gov. Pritzker also announced that three new emergency assistance programs that allow for small businesses to have access more than $90 million in aid. These programs are available through the Illinois Department of Commerce and Economic Opportunity (DCEO).[93]
+
+On March 26, roughly 50 additional Illinois National Guard soldiers from the 1844th Transportation Company based in East St. Louis were activated to assist with the COVID-19 response operations.[94] The majority of those activated soldiers will help with medical warehouse operations in central Illinois whereas four soldiers will be assigned to the State Emergency Operations Center in Springfield, "where their jobs will be to assist with communications, analyze virus response operations and give analysis for possible flood response operations" as stated in a press release.
+
+The City of Chicago closed parks, beaches, the 606 trail network, and the lakefront due to too many people gathering with violators facing fines and possible arrest.[95][96]
+
+On March 27, the Illinois Secretary of State, Jesse White announced that notaries public are granted the authority to perform remote, online notarizations during the COVID-19 pandemic via an executive order, Executive Order in Response to COVID-19 (COVID-19 Executive Order No. 12).[97][98] This authority is temporary and is set to expire when the state disaster proclamation is removed.
+
+On March 31, a CMAS Severe (emergency alert) notification was issued to smartphones in Illinois and neighboring states with the message: "State needs licensed healthcare workers to sign-up at IllinoisHelps.net to fight COVID-19." The message was initiated by Illinois Healthcare Professional Emergency Volunteer Program, a state run emergency response organization.[99]
+
+Economic impact
+Main article: Socio-economic impact of the 2019–20 coronavirus pandemic
+
+Navy Pier, closed on March 22, 2020
+
+Empty shelves due to panic buying in a Jewel supermarket in Lincoln Square, Chicago
+
+The Bean on March 22, 2020, with very few attendees
+From March 16 until May 6, American Airlines, which has a major hub at O'Hare International Airport in Chicago, will suspend long haul international flights, reducing its international capacity by 75%.[100]
+
+Chicago's Navy Pier announced that it will be closed to the public until April 2.[101][102]
+
+On March 15, Pritzker ordered all bars and restaurant dining rooms to close from March 17 to 30 to mitigate the spread of the coronavirus affecting the state.[4]
+
+On March 20, United Airlines, whose primary hub is at O'Hare International Airport in Chicago, will cancel 95% of its international flights in response to the pandemic starting in April.[103]
+
+School closures
+On March 9, Loyola Academy in Wilmette canceled classes due to potential exposure of a student to the virus.[104]
+
+In the following days, several universities in Illinois closed or cancelled classes. Northwestern University extended its spring break by one week, after which classes would be held remotely rather than on campus.[28] The University of Illinois and Northern Illinois University took similar measures, adding that residence and dining halls would remain open.[29]
+
+Many more Illinois schools, both public and private, announced closures in the following days, including the Archdiocese of Chicago. When Chicago Public Schools did not announce a closure, the Chicago Teachers Union demanded that the district close its schools immediately.[105] On March 13 Governor Pritzker announced that all schools in the state would be closed between March 17 and 30, and later extended to at least April 8.[32][106] On March 19 Mayor Lori E. Lightfoot announced that Chicago Public Schools will remain closed until Tuesday, April 21, 2020.[107] However this will change when Pritzker signs an extend sign-in-home order until April 30.[108]
+
+Impact on sports
+Main article: Impact of the 2019–20 coronavirus pandemic on sports
+Most of state's sports teams were affected. Major League Baseball cancelled the remainder of spring training on March 12, and on March 16, they announced that the season will be postponed indefinitely, after the recommendations from the CDC to restrict events of more than 50 people for the next eight weeks, affecting the Chicago White Sox and Chicago Cubs.[109] Also on March 12, the National Basketball Association suspended the season for 30 days, affecting the Chicago Bulls.[110] Also on that date, the National Hockey League, suspended the season indefinitely, affecting the Chicago Blackhawks.[111] Also on March 12, Major League Soccer suspended the season for 30 days, affecting the Chicago Fire FC.[112]
+
+In college sports, the National Collegiate Athletic Association cancelled all winter and spring tournaments on March 12, most notably the Division I men's and women's basketball tournaments, affecting colleges and universities statewide.[113] On March 16, the National Junior College Athletic Association canceled the remainder of the winter seasons as well as the spring seasons.[114] Also on March 12, the Illinois High School Association announced the cancellation of most remaining winter State Series postseason tournaments, with basketball being the main activity affected.[115]
+
+Statistics
+Coronavirus disease 2019 (COVID-19) cases in Illinois[1]
+Updated March 31, 2020
+
+County	Active Cases	Deaths	Recovered	Total Cases
+Adams	2	0	0	2
+Bond	2	0	0	2
+Bureau	2	0	0	2
+Carroll	3	1	0	4
+Champaign	33	0	0	33
+Christian	14	0	0	14
+Clark	1	0	0	1
+Clinton	8	0	0	8
+Cook	5,055	95	2	5,152
+Crawford	1	0	0	1
+Cumberland	1	0	0	1
+DeKalb	14	0	0	14
+Douglas	8	0	0	8
+DuPage	380	12	0	392
+Fayette	2	0	0	2
+Ford	1	0	0	1
+Franklin	1	0	0	1
+Grundy	4	0	0	4
+Henry	3	0	0	3
+Iroquois	1	0	0	1
+Jackson	4	0	0	4
+Jo Daviess	3	0	0	3
+Kane	134	8	0	142
+Kankakee	51	0	0	51
+Kendall	25	2	0	27
+Knox	1	0	0	1
+Lake	474	3	0	477
+LaSalle	5	1	0	6
+Livingston	5	0	0	5
+Macon	2	0	0	2
+Madison	25	0	0	25
+Marion	2	0	0	2
+Marshall	1	0	0	1
+Massac	1	0	0	1
+McHenry	67	2	0	69
+McLean	17	2	0	19
+Menard	1	0	0	1
+Monroe	3	0	0	3
+Montgomery	2	0	0	2
+Morgan	4	1	0	5
+Ogle	1	0	0	1
+Peoria	10	0	0	10
+Randolph	7	0	0	7
+Rock Island	15	2	0	17
+Saline	1	0	0	1
+Sangamon	13	1	0	14
+St. Clair	51	2	0	53
+Stephenson	3	0	0	3
+Tazewell	4	0	0	4
+Vermilion	1	0	0	1
+Washington	1	0	0	1
+Whiteside	5	0	0	5
+Will	313	9	0	322
+Williamson	1	0	0	1
+Winnebago	17	1	0	18
+Woodford	3	0	0	3
+Total	6,837	141	2	6,980
+References
+ "Coronavirus Disease 2019 (COVID-19) in Illinois Test Results". Illinois Department of Public Health. Archived from the original on March 14, 2020. Retrieved March 16, 2020.
+ "Chicago woman infects husband with coronavirus, US issues travel warning". WGN9 TV. Chicago, IL. Archived from the original on March 12, 2020. Retrieved January 30, 2020.
+ Antinori, Shannon (March 8, 2020). "Illinois Coronavirus: 7th Case May Be From Community Transmission". Patch. Retrieved March 17, 2020.
+ "EXECUTIVE ORDER TO EXPAND TELEHEALTH SERVICES AND PROTECT HEATH CARE PROVIDERS IN RESPONSE TO COVID-19 (COVID-19 EXECUTIVE ORDER NO. 8)". Official State of Illinois Website. Retrieved March 31, 2020.
+ Sfondeles, Tina (March 31, 2020). "26 more coronavirus deaths in Illinois with Pritzker set to extend stay-at-home order through April". Chicago Sun-Times. Retrieved March 31, 2020.
+ "Illinois infant with COVID-19 dies; exact cause of death unknown". Los Angeles Times. Retrieved March 30, 2020.
+ "IDPH News". Illinois Department of Public Health. March 18, 2020. Retrieved March 18, 2020.
+ "Coronavirus Disease 2019 (COVID-19) in Illinois Test Results". Illinois Department of Public Health. Archived from the original on March 14, 2020. Retrieved March 16, 2020.
+ Ghinai, Isaac (March 13, 2020). "First known person-to-person transmission of severe acute respiratory syndrome coronavirus 2 (SARS-CoV-2) in the USA". The Lancet: 4. doi:10.1016/S0140-6736(20)30607-3. PMID 32178768. Archived from the original on March 16, 2020. Retrieved March 16, 2020.
+ "Coronavirus Confirmed In Chicago; Woman In Her 60s Being Treated For Symptoms". CBS Chicago. January 24, 2020. Archived from the original on February 6, 2020. Retrieved March 14, 2020.
+ Ellwood, Patrick (January 30, 2020). "Chicago woman infects husband with coronavirus, US issues travel warning". WGNTV. WGN9 Chicago. Archived from the original on March 12, 2020. Retrieved March 14, 2020.
+ Griffin, Jake (February 7, 2020). "Couple diagnosed with coronavirus now out of Hoffman Estates hospital". Daily Herald. Daily Herald. Daily Herald. Archived from the original on March 5, 2020. Retrieved March 14, 2020.
+ "Chicago Coronavirus Patients Released From Home Isolation Following Recovery". NBC5 Chicago. NBC. February 15, 2020. Archived from the original on March 6, 2020. Retrieved March 14, 2020.
+ "Public Health Officials Announce Two Chicago Patients Released From Home Isolation Per CDC Guidance". Illinois Department of Public Health. February 15, 2020. Archived from the original on March 3, 2020. Retrieved March 14, 2020.
+ "State of Illinois Public Health Officials Announce New Presumptive Positive COVID-19 Case In Illinois". Illinois Department of Public Health. February 29, 2020. Archived from the original on March 3, 2020. Retrieved March 14, 2020.
+ Rosenberg-Douglas, Katherine; McCoppin, Robert; Schenker, Lisa (March 2, 2020). "4th case of coronavirus found in Illinois as wife of infected man being treated at Arlington Heights hospital also tests positive". Chicago Tribune. Tribune Publishing. Archived from the original on March 16, 2020. Retrieved March 15, 2020.
+ Peterson, Eric (March 6, 2020). "Coronavirus patient released from Arlington Heights hospital to home isolation". Daily Herald. Herald Publishing. Archived from the original on March 6, 2020. Retrieved March 16, 2020.
+ Durchholz, Eva; Friedman, Rachel; John Milton, Immanual (March 5, 2020). "BREAKING: Vanderbilt student tests positive for coronavirus in Chicago". Vanderbilt Hustler. Vanderbilt University. Archived from the original on March 12, 2020. Retrieved March 16, 2020.
+ "Coronavirus in Illinois: 5th Case Confirmed in Man Who Flew to O'Hare After Travel to Italy". WMAQ. March 5, 2020. Archived from the original on March 5, 2020. Retrieved March 5, 2020.
+ Leone, Gregory Pratt, Angie Leventis Lourgos, Javonte Anderson, Hannah. "CPS special education classroom assistant tested positive with coronavirus, marking Illinois' 6th patient". chicagotribune.com. Archived from the original on March 7, 2020. Retrieved March 7, 2020.
+ "Health Officials Confirm 7th Coronavirus Case in Illinois". NBC 5 Chicago. NBC. March 8, 2020. Archived from the original on March 12, 2020. Retrieved March 15, 2020.
+ "Missouri Woman With Coronavirus Flew Into O'Hare, Took Train From Chicago". NBC 5 Chicago. NBC. March 8, 2020. Archived from the original on March 12, 2020. Retrieved March 15, 2020.
+ "What We Know About the 4 New Coronavirus Cases in Illinois". NBC 5 Chicago. NBC. March 10, 2020. Archived from the original on March 18, 2020. Retrieved March 18, 2020.
+ "Pritzker says Illinois coronavirus tally hits 11, declares state of emergency". March 9, 2020. Archived from the original on March 10, 2020. Retrieved March 9, 2020.
+ Horng, Eric (March 10, 2020). "8 new Illinois coronavirus cases announced in Kane, Henry, Cook Counties, bringing state total to 19; 4 schools closed". abc7chicago. Retrieved March 10, 2020.
+ "Illinois announces 6 new coronavirus cases, bringing total to 25; majority in Chicago area". ABC7 Chicago. Archived from the original on March 12, 2020. Retrieved March 12, 2020.
+ Goldberg, Stephanie; Ecker, Danny; Gallun, Alby (March 11, 2020). "Pru Plaza coronavirus case confirmed". Crain's Chicago Business. Archived from the original on March 17, 2020. Retrieved March 17, 2020.
+ "Coronavirus Update, March 11, 2020". Northwestern University. Archived from the original on March 11, 2020. Retrieved March 12, 2020.
+ Zigterman, Ben. "UPDATE: UI to shift to online classes after spring break". The News-Gazette. Archived from the original on March 12, 2020. Retrieved March 13, 2020.
+ "Coronavirus in Illinois updates: Gov. J.B. Pritzker orders gatherings of 50 or more to be canceled as state's total COVID-19 cases reach 105". Chicago Tribune. Tribune Publishing. March 16, 2020. Archived from the original on March 16, 2020. Retrieved March 17, 2020.
+ "7 more coronavirus cases confirmed in Illinois, including child; state total now 32". FOX 32 Chicago. March 12, 2020.
+ staff, Chicago Tribune. "Coronavirus in Illinois updates: Here's what's happening Saturday with COVID-19 in the Chicago area". chicagotribune.com. Archived from the original on March 13, 2020. Retrieved March 13, 2020.
+ "All Illinois Casinos to Close for 14 Days Starting Monday". Archived from the original on March 16, 2020. Retrieved March 19, 2020.
+ "Information Regarding Corona Virus". Illinois Circuit Court of Cook County. Retrieved March 14, 2020.
+ "Archdiocese of Chicago Suspends All Public Mass Beginning March 14". NBC 5 Chicago. NBC. March 13, 2020. Archived from the original on March 17, 2020. Retrieved March 17, 2020.
+ "First Cases of Coronavirus Disease in Central and Southern Illinois". Illinois Department of Public Health. March 14, 2020. Archived from the original on March 15, 2020. Retrieved March 14, 2020.
+ Morgan, Josh. "Two patients in Springfield test positive for COVID-19". WREX. Archived from the original on March 15, 2020. Retrieved March 15, 2020.
+ Behm, Carly; Wittich, Jake (March 15, 2020). "Pritzker tweets 'federal government needs to get its s@#t together' after coronavirus screenings cause delays, crowds at O'Hare". Chicago Sun-Times. Archived from the original on March 15, 2020. Retrieved March 15, 2020.
+ "Public Health Officials Announce 29 New Cases of Coronavirus Disease in Illinois". Illinois Department of Public Health. Retrieved March 15, 2020.
+ "Public Health Officials Announce 12 New Cases of Coronavirus Disease in Illinois". IDPH. Archived from the original on March 16, 2020. Retrieved March 16, 2020.
+ "Public Health Officials Announce First Illinois Coronavirus Disease Death". Illinois Department of Public Health. Archived from the original on March 17, 2020. Retrieved March 17, 2020.
+ "Retired nurse from Chicago's South Side state's first COVID-19 death". WGN 9 Chicago. WGN. March 18, 2020. Archived from the original on March 18, 2020. Retrieved March 18, 2020.
+ "Coronavirus in Illinois updates: State's 1st death from COVID-19 reported in Chicago". Chicago Tribune. March 17, 2020. Archived from the original on March 17, 2020. Retrieved March 17, 2020.
+ D'Onofrio, Jessica (March 18, 2020). "Coronavirus Illinois update: Willowbrook nursing home outbreak leaves 42 sick with COVID-19". ABC 7 Chicago. ABC. Archived from the original on March 18, 2020. Retrieved March 18, 2020.
+ "Coronavirus in Illinois updates Wednesday: 128 new cases of COVID-19 announced, including 20 more people at long-term care facility". Chicago Tribune. March 18, 2020. Archived from the original on March 17, 2020. Retrieved March 18, 2020.
+ "Public Health Officials Announce the Deaths of Three More Individuals in Illinois with Coronavirus Disease". Illinois Department of Public Health. Retrieved March 19, 2020.
+ Roberts, Jim (March 19, 2020). "First confirmed case of COVID-19 reported in Adams County". WGEM. Retrieved March 19, 2020.
+ Denham, Ryan; Stock, Eric. "First Confirmed COVID-19 Case Reported In McLean County". WGLT. Retrieved March 19, 2020.
+ "Public Health Officials Announce 163 New Cases of Coronavirus Disease". IDPH. Retrieved March 20, 2020.
+ "Health officials: Christian County resident has COVID-19". WAND. Retrieved March 20, 2020.
+ Illinois tops 5,000 coronavirus cases as construction on a McCormick Place field hospital begins By STACY ST. CLAIR, GREGORY PRATT and JAMIE MUNKS, The Chicago Tribune, 30 Mar 2020
+ "Public Health Officials Announce 168 New Cases of Coronavirus Disease". IDPH. Retrieved March 21, 2020.
+ Boyle, Colin. "Chicago Singalong Of 'Livin' On A Prayer' Unites Thousands In COVID-19 Seclusion — Including Jon Bon Jovi". Block Club Chicago. Retrieved March 21, 2020.
+ "Public Health Officials Announce 296 New Cases of Coronavirus Disease". IDPH. Retrieved March 22, 2020.
+ "Public Health Officials Announce 236 New Cases of Coronavirus Disease". IDPH. Retrieved March 23, 2020.
+ "Public Health Officials Announce 250 New Cases of Coronavirus Disease". IDPH. Retrieved March 24, 2020.
+ "Public Health Officials Announce 330 New Cases of Coronavirus Disease". IDPH. Retrieved March 25, 2020.
+ "COVID-19 Response - Facilities". Illinois Department of Corrections. Retrieved March 25, 2020.
+ "Douglas County reports its first COVID-19 case". WRSP. March 25, 2020. Retrieved March 25, 2020.
+ Sterrett, Craig. "Marshall County reports first COVID-19 case". News Tribune. Retrieved March 25, 2020.
+ "Coronavirus case confirmed in Morgan County". Jacksonville Journal-Courier. Retrieved March 25, 2020.
+ "Two Members of NIU Campus Community Test Positive for COVID-19 from President Freeman". NIU Communications. Retrieved March 26, 2020.
+ "Two NIU students test positive for COVID-19, marks 2nd and 3rd DeKalb County cases". WIFR. Retrieved March 26, 2020.
+ "Public Health Officials Announce 673 New Cases of Coronavirus Disease". IDPH. Retrieved March 26, 2020.
+ "First Positive Case of COVID-19 in Iroquois County Confirmed" (PDF). Iroquois County Public Health Department. Retrieved March 26, 2020.
+ "Public Health Officials Announce 488 New Cases of Coronavirus Disease". IDPH. Retrieved March 27, 2020.
+ "Public Health Officials Announce the First Death of an Infant with Coronavirus Disease". IDPH. Retrieved March 28, 2020.
+ "Public Health Officials Announce 1,105 New Cases of Coronavirus Disease". IDPH. Retrieved March 29, 2020.
+ Associated Press. "Coronavirus: Illinois governor announces rare death of baby". Retrieved March 31, 2020 – via The Guardian.
+ Concerns grow at Cook County Jail as COVID-19 spreads by Mike Lowe, WGN-TV 9, 30 Mar 2020
+ "Public Health Officials Announce 461 New Cases of Coronavirus Disease". IDPH. Retrieved March 30, 2020.
+ "Public Health Officials Announce 937 New Cases of Coronavirus Disease" (PDF). State of Illinois. Retrieved March 31, 2020.
+ "Public Health Officials Announce 986 New Cases of Coronavirus Disease". IDPH. Retrieved April 1, 2020.
+ Lansu, Michael (March 9, 2020). "Four New Coronavirus Cases Prompt Illinois Disaster Declaration". WBEZ.org. Chicago Public Media. Retrieved March 11, 2020.
+ Schutz, Paris (March 12, 2020). "Lightfoot: Effective Monday, Comcast will double internet speeds to low income households nationally. Also, 60 free days of internet for low income households. Lightfoot says the move came after requests from her office". @paschutz. Archived from the original on March 13, 2020. Retrieved March 13, 2020.
+ "All Illinois Schools to Close Due to Coronavirus, Governor Announces". NBC-5 Chicago. NBCUniversal. March 13, 2020. Archived from the original on March 15, 2020. Retrieved March 13, 2020.
+ Melendez, Lauren (March 15, 2020). "Dining-in at all restaurants; bars across Illinois to cease for two weeks amid COVID-19 spread". WEEK. Archived from the original on March 16, 2020. Retrieved March 15, 2020.
+ Sfondeles, Tina (March 15, 2020). "Pritzker orders all bars and restaurants to close to dine-in customers by end of day Monday". Chicago Sun-Times. Archived from the original on March 16, 2020. Retrieved March 15, 2020.
+ Keeshan, Charles. "Pritzker Orders All Bars, Restaurant Dining Rooms Closed." Daily Herald, Paddock Publications, Inc., 16 Mar. 2020, www.dailyherald.com/news/20200315/pritzker-orders-all-bars-restaurant-dining-rooms-closed Archived 2020-03-17 at the Wayback Machine
+ "2 New Coronavirus Cases in Illinois, Total Now at 105". NBC Chicago. Retrieved March 16, 2020.
+ "All Illinois Casinos to Close for 14 Days Starting Monday". NBC Chicago. March 13, 2020. Archived from the original on March 16, 2020. Retrieved March 16, 2020.
+ "Gaming Board announces suspension of all licensed video gaming operations" (PDF). Illinois Gaming Board. March 16, 2020. Retrieved March 16, 2020.
+ "Jesse White Announces Closure of All Driver Services Facilities Effective March 17 Through March 31" (PDF). Office of the Illinois Secretary of State. Retrieved March 16, 2020.
+ "Effective Immediately: Illinois Department of Natural Resources Closes All State Sites". Illinois Department of Natural Resources. Retrieved March 17, 2020.
+ "Illinois State Museum, Branches to Close Until Further Notice". Illinois Department of Natural Resources. Retrieved March 17, 2020.
+ Raymond, Marcella. "Illinois activates National Guard to help with COVID-19 outbreak". WGN. Retrieved March 18, 2020.
+ "Gov. Pritzker Launches Coronavirus.illinois.gov with Resources for Illinois Residents, Small Businesses". Illinois.gov. Retrieved March 19, 2020.
+ "Illinois Governor Issues Stay-at-Home Order". NBC Chicago. March 20, 2020. Retrieved March 22, 2020.
+ Ian Kullgren (March 22, 2020). "Illinois Gov. Pritzker mocks Trump's coronavirus efforts". Politico. Retrieved March 23, 2020.
+ Christopher Wilson (March 22, 2020). "As hospitals plead for supplies, FEMA director has no answers on mask shipments". Yahoo! News.
+ "Gov. Pritzker's Coronavirus (COVID-19) Press Conference - March 25, 2020". State of Illinois Coronavirus (COVID-19) Response. Retrieved March 25, 2020.
+ "Illinois Income Tax Filing and Payment Extension" (PDF). Illinois Redpartment of Revenue. Retrieved March 25, 2020.
+ "More than $90 million to support Illinois small businesses". WICS. March 25, 2020. Retrieved March 25, 2020.
+ "Close to 60 National Guard members activated to help in central IL". WAND TV. Retrieved March 26, 2020.
+ Buckley, Gregory Pratt, John Byrne, Madeline. "City's Lakefront Trail, adjoining parks, beaches and The 606 trail closed to public, Chicago aldermen say". chicagotribune.com. Retrieved March 26, 2020.
+ Spielman, Fran (March 26, 2020). "Lakefront, Riverwalk, 606 closed to public: police on patrol, scofflaws could face arrest". Chicago Sun-Times. Archived from the original on April 1, 2020. Retrieved March 26, 2020.
+ "Jesse White Allows Notaries to Perform Duties Remotely Due to COVID-19 Pandemic" (PDF). Illinois Secretary of State. March 27, 2020. Retrieved March 27, 2020.
+ "EXECUTIVE ORDER IN RESPONSE TO COVID-19 (COVID-19 EXECUTIVE ORDER NO. 12)" (PDF). Illinois Secretary of State. March 26, 2020. Archived from the original (PDF) on April 1, 2020. Retrieved March 27, 2020.
+ Heller, Marsha. "Mass emergency text alert from Ill. asks for healthcare workers". KFVS 12. Archived from the original on April 1, 2020. Retrieved April 1, 2020.
+ "American Airlines to suspend nearly all long-haul international flights starting March 16". Yahoo! News. Archived from the original on March 15, 2020. Retrieved March 14, 2020.
+ Nolen, Jermaine (March 15, 2020). "Navy Pier closed through April 2 to help slow spread of coronavirus". Chicago Sun-Times. Archived from the original on March 16, 2020. Retrieved March 15, 2020.
+ "COVID-19 UPDATES". Navy Pier - Official. Retrieved March 16, 2020.
+ Ali, Rasha. "United Airlines cuts 95% of international flights for April due to coronavirus pandemic". USA Today. Retrieved March 21, 2020.
+ "Loyola Academy in Wilmette Cancels Classes Over Coronavirus Exposure". Archived from the original on March 10, 2020. Retrieved March 11, 2020.
+ "Coronavirus Closings: Chicago Teachers Union Demands CPS Close All Schools Due To COVID-19". CBS 2 Chicago. CBS Television Stations. March 13, 2020. Archived from the original on March 14, 2020. Retrieved March 15, 2020.
+ Issa, Nader (March 20, 2020). "Illinois students to remain out of school until at least April 8 after Pritzker extends closure". Chicago Sun-Times. Retrieved March 27, 2020.
+ Issa, Nader; Spielman, Fran (March 19, 2020). "Chicago Public Schools closure extended until mid-April, Lightfoot says". Chicago Sun TImes. Chicago Sun Times. Retrieved March 19, 2020.
+ "Illinois' Stay-at-Home Order Extended Through April, Pritzker Announces". NBC Chicago. Retrieved April 1, 2020.
+ Feinsand, Mark (March 16, 2020). "Opening of regular season to be pushed back". MLB.com. Archived from the original on March 17, 2020. Retrieved March 16, 2020.
+ "Silver: NBA hiatus likely to last 'at least' 30 days". ESPN.com. March 12, 2020. Archived from the original on March 13, 2020. Retrieved March 13, 2020.
+ "NHL statement on coronavirus". NHL. Archived from the original on March 14, 2020. Retrieved March 12, 2020.
+ "MLS postponed for 30 days; USMNT, USWNT friendlies canceled". ESPN. March 12, 2020. Archived from the original on March 15, 2020. Retrieved March 12, 2020.
+ "NCAA cancels remaining winter and spring championships". NCAA. March 12, 2020. Archived from the original on March 12, 2020. Retrieved March 12, 2020.
+ DeCamp, Scott (March 16, 2020). "NJCAA cancels spring sports, basketball nationals amid coronavirus outbreak". MLive.com. Archived from the original on March 17, 2020. Retrieved March 16, 2020.
+ "IHSA cancels basketball, all remaining winter State Series tournaments because of coronavirus". Retrieved March 13, 2020.
+External links
+	Wikimedia Commons has media related to COVID-19 pandemic in Illinois.
+Coronavirus Disease 2019 (COVID-19) information from Illinois Department of Public Health
+State of Illinois Coronavirus (COVID-19) Response
+vte
+2019–20 coronavirus pandemic
+vte
+2020 coronavirus pandemic in the United States
+SARS-CoV-2 (Wikimedia colors).svgCoronavirus disease 2019 portalFlag of Illinois.svgIllinois portalWHO Rod.svgMedicine portalPortal-puzzle.svgPandemic portalSida-aids.pngViruses portal
+Categories: 2020 coronavirus pandemic in the United States by state2020 in IllinoisDisasters in IllinoisHealth in IllinoisMarch 2020 events in the United StatesApril 2020 events in the United States
+Navigation menu
+Not logged inTalkContributionsCreate accountLog inArticleTalkReadEditView historySearch
+Search Wikipedia
+Main page
+Contents
+Featured content
+Current events
+Random article
+Donate to Wikipedia
+Wikipedia store
+Interaction
+Help
+About Wikipedia
+Community portal
+Recent changes
+Contact page
+Tools
+What links here
+Related changes
+Upload file
+Special pages
+Permanent link
+Page information
+Wikidata item
+Cite this page
+In other projects
+Wikimedia Commons
+Print/export
+Download as PDF
+Printable version
+
+Languages
+Add links
+This page was last edited on 2 April 2020, at 17:48 (UTC).
+Text is available under the Creative Commons Attribution-ShareAlike License; additional terms may apply. By using this site, you agree to the Terms of Use and Privacy Policy. Wikipedia® is a registered trademark of the Wikimedia Foundation, Inc., a non-profit organization.
+Privacy policyAbout WikipediaDisclaimersContact WikipediaDevelopersStatisticsCookie statementMobile viewWikimedia FoundationPowered by MediaWiki

@@ -521,7 +521,7 @@ public class ClientConnection extends Thread {
 
         HashRing ring = server.getMetdata().getHashRing();
         String resultKey = String.format("%s-%s",
-            "MAP-RESULT-", UUID.randomUUID().toString());
+            "MAP-RESULT", UUID.randomUUID().toString());
         String dataToMap;
         try {
             dataToMap = KVServerRequestLib.serverGetKV(ring, mapId).getValue();
@@ -549,7 +549,7 @@ public class ClientConnection extends Thread {
 
         HashRing ring = server.getMetdata().getHashRing();
         String resultKey = String.format("%s-%s",
-            "REDUCE-RESULT-", UUID.randomUUID().toString());
+            "REDUCE-RESULT", UUID.randomUUID().toString());
         ReduceInput.ReduceDTO dto;
         String dataToMap;
         try {
