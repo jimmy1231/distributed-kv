@@ -4,12 +4,15 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReduceInput implements Iterable<String> {
+    private static final String KEY_DELIMITER = "%_KEY_%";
+    private static final String VALUE_DELIMITER = "%_VALUE_%";
+
     private String key;
     private List<String> values;
     private ReduceDTO transport;
 
     public static class ReduceDTO {
-        private static final String DELIMITER = "%__B33F__%";
+        private static final String DELIMITER = "%_DTO_%";
         List<ReduceInput> inputs;
 
         public ReduceDTO() {
@@ -50,9 +53,9 @@ public class ReduceInput implements Iterable<String> {
      * @param str
      */
     public ReduceInput(String str) {
-        String[] split = str.split(" ");
+        String[] split = str.split(KEY_DELIMITER);
         key = split[0];
-        values = Arrays.asList(split[1].split(","));
+        values = Arrays.asList(split[1].split(VALUE_DELIMITER));
     }
 
     public ReduceInput(String key, List<String> values) {
@@ -111,7 +114,8 @@ public class ReduceInput implements Iterable<String> {
 
     @Override
     public String toString() {
-        return String.format("%s %s", key, String.join(",", values));
+        return String.format("%s%s%s",
+            key, KEY_DELIMITER, String.join(VALUE_DELIMITER, values));
     }
 
     //////////////////////////////////////////////////////////////
