@@ -29,7 +29,7 @@ public class MapReduceCtrl {
      * faster than sequential processing).
      */
     private static final int SZ_PARTITION = 1024; // words
-    private static final int SZ_REDUCE = 1024; // words
+    private static final int SZ_REDUCE = 5; // number of aggregated map outputs per reduce task
 
     public static String[] masterMapReduce(MapReduce.Type type,
                                            ECSNode master,
