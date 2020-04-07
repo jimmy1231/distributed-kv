@@ -21,6 +21,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 import java.rmi.server.ServerNotActiveException;
 import java.util.*;
+import java.util.function.BiConsumer;
 
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
@@ -412,13 +413,18 @@ public class KVStore implements KVCommInterface {
 									int numOutputFiles,
 									int numInputFiles) {
 		StringBuilder sb = new StringBuilder();
+
 		sb.append("\n******************** MapReduce Summary ********************\n");
 		sb.append(String.format("MapReduce Function: %s\n", mrType));
-		sb.append(String.format("Number of Input Files: %d\n", numInputFiles));
-		sb.append(String.format("Number of Output Files: %d\n", numOutputFiles));
-		sb.append(String.format("Size of input (byteS): %d\n", 0));
-		sb.append(String.format("Size of output (bytes): %d\n", 0));
+		sb.append(String.format("# Input Files: %d\n", numInputFiles));
+		sb.append(String.format("# Output Files: %d\n", numOutputFiles));
+		sb.append(String.format("Input size (bytes): %d\n", 0));
+		sb.append(String.format("Output size (bytes): %d\n", 0));
+		sb.append(String.format("# Map Workers: %d\n", 0));
+		sb.append(String.format("# Reduce Workers: %d\n", 0));
 		sb.append(String.format("Time Elapsed (ms): %d\n", timeEnd-timeStart));
+		sb.append(String.format("Time Elapsed - MAP (ms): %d\n", 0));
+		sb.append(String.format("Time Elapsed - REDUCE (ms): %d\n", 0));
 		sb.append("******************** MapReduce Summary ********************\n");
 
 		return sb.toString();
