@@ -28,8 +28,8 @@ public class MapReduceCtrl {
      * make parallelizing among multiple workers worth it (e.g.
      * faster than sequential processing).
      */
-    private static final int SZ_PARTITION = 1024; // words
-    private static final int SZ_REDUCE = 5; // number of aggregated map outputs per reduce task
+    private static final int SZ_PARTITION = 2048; // words
+    private static final int SZ_REDUCE = 1024; // number of aggregated map outputs per reduce task
 
     public static String[] masterMapReduce(MapReduce.Type type,
                                            ECSNode master,
