@@ -3,10 +3,12 @@ package client;
 import app_kvECS.KVServerMetadata;
 import app_kvECS.TCPSockModule;
 import app_kvServer.dsmr.MapReduce;
+import app_kvServer.dsmr.ReduceOutput;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import shared.Pair;
 import shared.messages.KVMessage;
 import shared.messages.Message;
 import app_kvECS.HashRing;
@@ -17,6 +19,8 @@ import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.rmi.server.ServerNotActiveException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -213,6 +217,17 @@ public class KVStore implements KVCommInterface {
 	 */
 	@Override
 	public String[] mapReduce(MapReduce.Type mrType, String[] keys) throws Exception {
+		switch (mrType) {
+			case WORD_FREQ:
+				clientMRWordFreq(keys);
+				break;
+			case SORT:
+				clientMRSort(keys);
+				break;
+			case K_MEANS_CLUSTERING:
+				clientMRKMeans(keys);
+				break;
+		}
 		UnifiedMessage msg = new UnifiedMessage.Builder()
 			.withMessageType(MessageType.CLIENT_TO_SERVER)
 			.withStatusType(KVMessage.StatusType.MAP_REDUCE)
@@ -234,6 +249,131 @@ public class KVStore implements KVCommInterface {
 		}
 
 		return new String[0];
+	}
+
+	private void clientMRWordFreq(String[] keys) {
+		UnifiedMessage msg, result;
+		msg = new UnifiedMessage.Builder()
+			.withMessageType(MessageType.CLIENT_TO_SERVER)
+			.withStatusType(KVMessage.StatusType.MAP_REDUCE)
+			.withMrType(MapReduce.Type.WORD_FREQ)
+			.withKeys(keys)
+			.build();
+
+		long startTime, endTime;
+		try {
+			startTime = System.currentTimeMillis();
+			result = request(msg);
+			endTime = System.currentTimeMillis();
+		} catch (Exception e) {
+			return;
+		}
+
+		// display output
+		List<ReduceOutput> outputs = new ArrayList<>();
+		String[] resultKeys = result.getKeys();
+		ReduceOutput output;
+		for (String key : resultKeys) {
+			try {
+				output = new ReduceOutput(get(key).getValue());
+				outputs.add(output);
+			} catch (Exception e) {
+				/* Swallow */
+			}
+		}
+
+		// Display N x COL_WIDTH table
+		final int COL_WIDTH = 5;
+		StringBuilder SB = new StringBuilder();
+		List<Pair<String, String>> entries;
+		int cnt = 0;
+		for (ReduceOutput r : outputs) {
+			entries = r.getDataSet().getEntries();
+			for (Pair<String, String> entry : entries) {
+				if (cnt >= COL_WIDTH) {
+					SB.append("\n");
+					cnt = 0;
+				}
+				SB.append(String.format(
+					"%10s %5s | ", entry.getKey(), entry.getValue())
+				);
+
+				cnt++;
+			}
+		}
+
+		logger.info(mrSummary(
+			MapReduce.Type.WORD_FREQ,
+			startTime, endTime, outputs.size(), keys.length) +
+			"\n" + SB.toString());
+	}
+
+	private void clientMRSort(String[] keys) {
+		UnifiedMessage msg, result;
+		msg = new UnifiedMessage.Builder()
+			.withMessageType(MessageType.CLIENT_TO_SERVER)
+			.withStatusType(KVMessage.StatusType.MAP_REDUCE)
+			.withMrType(MapReduce.Type.SORT)
+			.withKeys(keys)
+			.build();
+
+		try {
+			result = request(msg);
+		} catch (Exception e) {
+			return;
+		}
+	}
+
+	private void clientMRKMeans(String[] keys) {
+		UnifiedMessage msg, result;
+		msg = new UnifiedMessage.Builder()
+			.withMessageType(MessageType.CLIENT_TO_SERVER)
+			.withStatusType(KVMessage.StatusType.MAP_REDUCE)
+			.withMrType(MapReduce.Type.K_MEANS_CLUSTERING)
+			.withKeys(keys)
+			.build();
+
+		// Wrapper
+		try {
+			result = request(msg);
+		} catch (Exception e) {
+			return;
+		}
+	}
+
+	private UnifiedMessage request(UnifiedMessage msg) throws Exception {
+		KVMessage reply = null;
+		try {
+			sendMessage(msg);
+			reply = receiveMessage();
+		} catch (Exception e) {
+			logger.error("Request error: {}", e);
+			throw e;
+		}
+
+		if (Objects.nonNull(reply) && reply instanceof UnifiedMessage) {
+			return (UnifiedMessage)reply;
+		}
+
+		throw new Exception("Unrecognized message format");
+	}
+
+	private static String mrSummary(MapReduce.Type mrType,
+									long timeStart,
+									long timeEnd,
+									int numOutputFiles,
+									int numInputFiles) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\n******************** MapReduce Summary ********************\n");
+		sb.append(String.format("MapReduce Function: %s\n", mrType));
+		sb.append(String.format("Number of Input Files: %d\n", numInputFiles));
+		sb.append(String.format("Number of Output Files: %d\n", numOutputFiles));
+		sb.append(String.format("Size of input: %d\n", 0));
+		sb.append(String.format("Size of output: %d\n", 0));
+		sb.append(String.format("Time Elapsed: %d\n", timeEnd-timeStart));
+		sb.append("******************** MapReduce Summary ********************\n");
+
+		return sb.toString();
 	}
 
 	@Override

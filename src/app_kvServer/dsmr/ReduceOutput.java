@@ -6,8 +6,8 @@ import shared.messages.KVDataSet;
 import java.util.List;
 
 public class ReduceOutput {
-    private static final String SPLIT_DELIMITER = " ";
-    private static final String KV_DELIMITER = ",";
+    private static final String SPLIT_DELIMITER = "%_SPLIT_%";
+    private static final String KV_DELIMITER = "%_KV_%";
     private KVDataSet dataSet;
 
     public ReduceOutput(KVDataSet dataSet) {
