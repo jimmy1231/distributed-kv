@@ -2,6 +2,7 @@ package app_kvServer;
 
 import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
+import app_kvServer.dsmr.MapReduce;
 import ecs.ECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,10 +66,12 @@ public class KVServerRequestLib {
     }
 
     public static String serverDoMap(ECSNode mapper,
-                                   String mapId) throws Exception {
+                                     String mapId,
+                                     MapReduce.Type mrType) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.SERVER_TO_SERVER)
             .withStatusType(KVMessage.StatusType.MAP)
+            .withMrType(mrType)
             .withKey(mapId)
             .build();
 
@@ -79,10 +82,12 @@ public class KVServerRequestLib {
     }
 
     public static String serverDoReduce(ECSNode reducer,
-                                     String reduceId) throws Exception {
+                                        String reduceId,
+                                        MapReduce.Type mrType) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.SERVER_TO_SERVER)
             .withStatusType(KVMessage.StatusType.REDUCE)
+            .withMrType(mrType)
             .withKey(reduceId)
             .build();
 

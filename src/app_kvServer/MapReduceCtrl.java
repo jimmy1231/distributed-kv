@@ -2,6 +2,7 @@ package app_kvServer;
 
 import app_kvECS.HashRing;
 import app_kvServer.dsmr.MapOutput;
+import app_kvServer.dsmr.MapReduce;
 import app_kvServer.dsmr.ReduceInput;
 import ecs.ECSNode;
 import ecs.IECSNode;
@@ -30,7 +31,8 @@ public class MapReduceCtrl {
     private static final int SZ_PARTITION = 1024; // words
     private static final int SZ_REDUCE = 1024; // words
 
-    public static String[] masterMapReduce(ECSNode master,
+    public static String[] masterMapReduce(MapReduce.Type type,
+                                           ECSNode master,
                                            HashRing ring,
                                            String[] keys) throws Exception {
         /*
@@ -99,6 +101,7 @@ public class MapReduceCtrl {
         String[] mapResults = MapReduceCtrl.doMR(
             master, ring,
             putParts(ring, mapParts, MAP),
+            type,
             MAP);
 
         // (9)
@@ -187,6 +190,7 @@ public class MapReduceCtrl {
         return MapReduceCtrl.doMR(
             master, ring,
             putParts(ring, reduceParts, REDUCE),
+            type,
             REDUCE);
     }
 
@@ -208,6 +212,7 @@ public class MapReduceCtrl {
     private static String[] doMR(ECSNode master,
                                  HashRing ring,
                                  final List<String> partIds,
+                                 final MapReduce.Type mrType,
                                  final KVMessage.StatusType TYPE) throws Exception {
         logger.info("DO {}: {}", TYPE, partIds);
         int NUM_TASKS = partIds.size();
@@ -230,7 +235,7 @@ public class MapReduceCtrl {
             ECSNode mapper;
             for (String mapId : partIds) {
                 mapper = getServer.apply(nodeIdx+1);
-                mt = new MapReduceThread(mapper, mapId, TYPE);
+                mt = new MapReduceThread(mapper, mapId, mrType, TYPE);
                 mt.start();
 
                 threadPool.add(mt);
@@ -259,7 +264,7 @@ public class MapReduceCtrl {
                         availNodes.remove(mt.getWorker());
                         ECSNode mapper = getServer.apply(nodeIdx + 1);
                         MapReduceThread _mt = new MapReduceThread(
-                            mapper, mt.getPartId(), TYPE);
+                            mapper, mt.getPartId(), mrType, TYPE);
                         _mt.start();
 
                         leftOvers.add(_mt);

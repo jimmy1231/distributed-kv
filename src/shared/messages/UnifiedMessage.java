@@ -2,6 +2,7 @@ package shared.messages;
 
 import app_kvECS.KVServerMetadata;
 import app_kvECS.impl.KVServerMetadataImpl;
+import app_kvServer.dsmr.MapReduce;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
@@ -30,6 +31,8 @@ public class UnifiedMessage implements KVMessage {
         @Expose
         KVMessage.StatusType statusType;
         @Expose
+        MapReduce.Type mrType;
+        @Expose
         String metadata;
         @Expose
         String dataSet;
@@ -55,6 +58,7 @@ public class UnifiedMessage implements KVMessage {
         __Serialized__(UUID uuid,
                        MessageType messageType,
                        KVMessage.StatusType statusType,
+                       MapReduce.Type mrType,
                        String metadata,
                        String dataSet,
                        String key,
@@ -69,6 +73,7 @@ public class UnifiedMessage implements KVMessage {
             this.uuid = uuid;
             this.messageType = messageType;
             this.statusType = statusType;
+            this.mrType = mrType;
             this.metadata = metadata;
             this.dataSet = dataSet;
             this.key = key;
@@ -88,6 +93,7 @@ public class UnifiedMessage implements KVMessage {
     @Expose private UUID uuid;
     @Expose private MessageType messageType;
     @Expose private KVMessage.StatusType statusType;
+    @Expose private MapReduce.Type mrType;
     private KVServerMetadata metadata;
     @Expose private KVDataSet dataSet;
     @Expose private String key;
@@ -123,6 +129,11 @@ public class UnifiedMessage implements KVMessage {
 
         public Builder withStatusType(KVMessage.StatusType statusType) {
             object.statusType = statusType;
+            return this;
+        }
+
+        public Builder withMrType(MapReduce.Type mrType) {
+            object.mrType = mrType;
             return this;
         }
 
@@ -191,6 +202,7 @@ public class UnifiedMessage implements KVMessage {
             Objects.nonNull(uuid) ? uuid : null,
             messageType,
             Objects.nonNull(statusType) ? statusType : null,
+            Objects.nonNull(mrType) ? mrType : null,
             Objects.nonNull(metadata) ? metadata.serialize() : null,
             Objects.nonNull(dataSet) ? dataSet.serialize() : null,
             Objects.nonNull(key) ? key : null,
@@ -215,6 +227,7 @@ public class UnifiedMessage implements KVMessage {
         this.uuid = s.uuid;
         this.messageType = s.messageType;
         this.statusType = s.statusType;
+        this.mrType = s.mrType;
         this.key = s.key;
         this.value = s.value;
         this.keyRange = s.keyRange;
@@ -263,6 +276,15 @@ public class UnifiedMessage implements KVMessage {
 
     public void setStatusType(KVMessage.StatusType statusType) {
         this.statusType = statusType;
+    }
+
+    public MapReduce.Type getMrType() {
+        return mrType;
+    }
+
+    public UnifiedMessage setMrType(MapReduce.Type mrType) {
+        this.mrType = mrType;
+        return this;
     }
 
     public KVServerMetadata getMetadata() {

@@ -1,5 +1,6 @@
 package client;
 
+import app_kvServer.dsmr.MapReduce;
 import shared.messages.KVMessage;
 
 public interface KVCommInterface {
@@ -51,7 +52,7 @@ public interface KVCommInterface {
 	 * @return
 	 * @throws Exception
 	 */
-	public String[] mapReduce(String[] keys) throws Exception;
+	public String[] mapReduce(MapReduce.Type mrType, String[] keys) throws Exception;
 
 	public void printRing();
 }

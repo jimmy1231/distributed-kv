@@ -1,5 +1,6 @@
 package app_kvServer;
 
+import app_kvServer.dsmr.MapReduce;
 import ecs.ECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,11 @@ public class MapReduceThread extends Thread {
     private ECSNode worker;
     private String partId;
     private String resultId;
+    private MapReduce.Type mrType;
     private KVMessage.StatusType mapOrReduce;
 
     public MapReduceThread(ECSNode worker, String partId,
+                           MapReduce.Type mrType,
                            KVMessage.StatusType mapOrReduce) throws Exception {
         switch (mapOrReduce) {
             case MAP:
@@ -26,6 +29,7 @@ public class MapReduceThread extends Thread {
         this.worker = worker;
         this.partId = partId;
         this.mapOrReduce = mapOrReduce;
+        this.mrType = mrType;
     }
 
     @Override
@@ -37,11 +41,11 @@ public class MapReduceThread extends Thread {
 
             switch (mapOrReduce) {
                 case MAP:
-                    resultId = KVServerRequestLib.serverDoMap(worker, partId);
+                    resultId = KVServerRequestLib.serverDoMap(worker, partId, mrType);
                     this.resultId = resultId;
                     break;
                 case REDUCE:
-                    resultId = KVServerRequestLib.serverDoReduce(worker, partId);
+                    resultId = KVServerRequestLib.serverDoReduce(worker, partId, mrType);
                     this.resultId = resultId;
                     break;
                 default:

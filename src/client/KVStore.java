@@ -2,6 +2,7 @@ package client;
 
 import app_kvECS.KVServerMetadata;
 import app_kvECS.TCPSockModule;
+import app_kvServer.dsmr.MapReduce;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import org.slf4j.Logger;
@@ -211,10 +212,11 @@ public class KVStore implements KVCommInterface {
 	 * @throws Exception
 	 */
 	@Override
-	public String[] mapReduce(String[] keys) throws Exception {
+	public String[] mapReduce(MapReduce.Type mrType, String[] keys) throws Exception {
 		UnifiedMessage msg = new UnifiedMessage.Builder()
 			.withMessageType(MessageType.CLIENT_TO_SERVER)
 			.withStatusType(KVMessage.StatusType.MAP_REDUCE)
+			.withMrType(mrType)
 			.withKeys(keys)
 			.build();
 

@@ -4,7 +4,9 @@ import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
 import app_kvECS.KVServerMetadata;
 import app_kvServer.dsmr.*;
-import app_kvServer.dsmr.impl.WordFreqMapReduce;
+import app_kvServer.dsmr.impl.KMeansClustering;
+import app_kvServer.dsmr.impl.Sort;
+import app_kvServer.dsmr.impl.WordFreq;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import ecs.IECSNode;
@@ -18,6 +20,7 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import static shared.messages.KVMessage.StatusType.*;
@@ -141,7 +144,7 @@ public class ClientConnection extends Thread {
 
         /* Special case: MapReduce request - Master */
         if (msg.getStatusType().equals(MAP_REDUCE)) {
-            return handleMRMaster(msg.getKeys());
+            return handleMRMaster(msg.getMrType(), msg.getKeys());
         }
 
         /*
@@ -345,13 +348,13 @@ public class ClientConnection extends Thread {
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(SUCCESS)
-                        .withKey(handleMRMap(msg.getKey()));
+                        .withKey(handleMRMap(msg.getMrType(), msg.getKey()));
                     break;
                 case REDUCE:
                     respBuilder
                         .withMessageType(MessageType.SERVER_TO_SERVER)
                         .withStatusType(SUCCESS)
-                        .withKey(handleMRReduce(msg.getKey()));
+                        .withKey(handleMRReduce(msg.getMrType(), msg.getKey()));
                     break;
                 case PUT_MANY:
                     handleClientPut(msg);
@@ -479,7 +482,7 @@ public class ClientConnection extends Thread {
         return msg;
     }
 
-    private UnifiedMessage handleMRMaster(String[] keys) {
+    private UnifiedMessage handleMRMaster(MapReduce.Type type, String[] keys) {
         UnifiedMessage.Builder responseBuilder = new UnifiedMessage.Builder()
             .withMessageType(MessageType.SERVER_TO_CLIENT);
 
@@ -493,7 +496,7 @@ public class ClientConnection extends Thread {
         ring = server.getMetdata().getHashRing();
         currentServer = ring.getServerByName(server.getMetdata().getName());
         try {
-            results = MapReduceCtrl.masterMapReduce(currentServer, ring, keys);
+            results = MapReduceCtrl.masterMapReduce(type, currentServer, ring, keys);
         } catch (Exception e) {
             logger.error("Map failed, cannot continue..", e);
             hasError = true;
@@ -512,12 +515,28 @@ public class ClientConnection extends Thread {
             .build();
     }
 
-    private String handleMRMap(String mapId) throws Exception {
+    private String handleMRMap(MapReduce.Type type, String mapId) throws Exception {
         KVDataSet dataSet = new KVDataSet();
-
-        MapReduce mapper = new WordFreqMapReduce((key, value) -> {
+        BiConsumer<String, String> Emit = (key, value) -> {
             dataSet.addEntry(new Pair<>(key, value));
-        });
+        };
+
+        MapReduce mapper = null;
+        switch (type) {
+            case K_MEANS_CLUSTERING:
+                DFS DFS = new DFS(server.getMetdata().getHashRing());
+                mapper = new KMeansClustering(Emit, DFS);
+                break;
+            case WORD_FREQ:
+                mapper = new WordFreq(Emit);
+                break;
+            case SORT:
+                mapper = new Sort(Emit);
+                break;
+            default:
+                throw new Exception(String.format(
+                    "Unsupported MR Type: %s", type));
+        }
 
         HashRing ring = server.getMetdata().getHashRing();
         String resultKey = null;
@@ -545,12 +564,28 @@ public class ClientConnection extends Thread {
         return resultKey;
     }
 
-    private String handleMRReduce(String partId) throws Exception {
+    private String handleMRReduce(MapReduce.Type type, String partId) throws Exception {
         KVDataSet dataSet = new KVDataSet();
-
-        MapReduce mapper = new WordFreqMapReduce((key, value) -> {
+        BiConsumer<String, String> Emit = (key, value) -> {
             dataSet.addEntry(new Pair<>(key, value));
-        });
+        };
+
+        MapReduce mapper = null;
+        switch (type) {
+            case K_MEANS_CLUSTERING:
+                DFS DFS = new DFS(server.getMetdata().getHashRing());
+                mapper = new KMeansClustering(Emit, DFS);
+                break;
+            case WORD_FREQ:
+                mapper = new WordFreq(Emit);
+                break;
+            case SORT:
+                mapper = new Sort(Emit);
+                break;
+            default:
+                throw new Exception(String.format(
+                    "Unsupported MR Type: %s", type));
+        }
 
         HashRing ring = server.getMetdata().getHashRing();
         String resultKey = null;

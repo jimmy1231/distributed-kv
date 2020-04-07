@@ -1,6 +1,7 @@
 package client;
 
 import app_kvClient.KVClient;
+import app_kvServer.dsmr.MapReduce;
 import logger.LogSetup;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.log4j.Level;
@@ -179,16 +180,19 @@ public class CLI {
             printHelp();
         } else if (tokens[0].equals("print_ring")) {
             client.getStore().printRing();
-        } else if (tokens[0].equals("mapreduce")) {
-            if (tokens.length < 2) {
+        } else if (tokens[0].equals("MapReduce")) {
+            if (tokens.length < 3) {
                 printError("Too few arguments");
             }
-            String[] keys = ArrayUtils.subarray(tokens, 1, tokens.length);
+            String[] keys = ArrayUtils.subarray(tokens, 2, tokens.length);
+            MapReduce.Type mrType;
             try {
-                String[] results = client.getStore().mapReduce(keys);
+                mrType = MapReduce.Type.valueOf(tokens[1]);
+                String[] results = client.getStore().mapReduce(mrType, keys);
                 logger.info(Arrays.asList(results));
             } catch (Exception e) {
-                String error_msg = MessageFormat.format("Request failed: MapReduce <{1}>", keys.toString());
+                String error_msg = MessageFormat.format(
+                    "Request failed: MapReduce <{1}>", keys.toString());
                 System.out.print(error_msg);
                 logger.error(error_msg, e);
             }

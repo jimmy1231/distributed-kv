@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
-public class WordFreqMapReduce extends MapReduce {
+public class WordFreq extends MapReduce {
     private static final Set<String> EXCLUDE_WORD_LIST = new HashSet<>(Arrays.asList(
         "the", "of", "for", "in", "you", "a", "with",
         "on", "was", "is", "to", "as", "at", "his", "her",
@@ -21,7 +21,7 @@ public class WordFreqMapReduce extends MapReduce {
     ));
     private static final Pattern P = Pattern.compile("[\\x00-\\x7F]");
 
-    public WordFreqMapReduce(BiConsumer<String, String> Emit) {
+    public WordFreq(BiConsumer<String, String> Emit) {
         // Define emitter
         super(Emit);
     }
