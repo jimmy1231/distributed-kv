@@ -322,11 +322,13 @@ public class KVStore implements KVCommInterface {
 			it = output.getDataSet().iterator();
 			List<String> binValues;
 			String strBinValues;
-			int idx = 0;
+			Pair<String, String> pair;
 			int col = 0;
 			while (it.hasNext()) {
-				SB.append(String.format("\n<BIN %d>\n", idx));
-				strBinValues = it.next().getValue();
+				pair = it.next();
+				SB.append(String.format("\n<BIN %s>\n", pair.getKey()));
+
+				strBinValues = pair.getValue();
 				binValues = Arrays.asList(strBinValues.split(Sort.DELIMITER));
 
 				for (String value : binValues) {
@@ -338,7 +340,6 @@ public class KVStore implements KVCommInterface {
 					SB.append(String.format("%10s | ", value));
 					col++;
 				}
-				idx++;
 			}
 		}
 
