@@ -321,8 +321,8 @@ public class KVStore implements KVCommInterface {
 				int k1 = Integer.parseInt(c1.getKey());
 				int k2 = Integer.parseInt(c2.getKey());
 
-				if (k1 < k2) return 1;
-				else if (k1 > k2) return -1;
+				if (k1 < k2) return -1;
+				else if (k1 > k2) return 1;
 				return 0;
 			});
 
