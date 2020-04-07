@@ -317,7 +317,14 @@ public class KVStore implements KVCommInterface {
 		StringBuilder SB = new StringBuilder();
 		Iterator<Pair<String, String>> it;
 		for (ReduceOutput output : outputs) {
-			output.getDataSet().sortByKeys(true);
+			output.getDataSet().sort((c1,c2) -> {
+				int k1 = Integer.parseInt(c1.getKey());
+				int k2 = Integer.parseInt(c2.getKey());
+
+				if (k1 < k2) return 1;
+				else if (k1 > k2) return -1;
+				return 0;
+			});
 
 			it = output.getDataSet().iterator();
 			List<String> binValues;

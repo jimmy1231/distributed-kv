@@ -72,6 +72,10 @@ public class KVDataSet implements Iterable<Pair<String, String>> {
         }
     }
 
+    public void sort(Comparator<Pair<String, String>> comparator) {
+        entries.sort(comparator);
+    }
+
     public String combineValues() {
         StringBuilder sb = new StringBuilder();
         Pair<String, String> entry;
