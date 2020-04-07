@@ -8,12 +8,9 @@ import com.google.gson.reflect.TypeToken;
 import shared.Pair;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
-public class KVDataSet {
+public class KVDataSet implements Iterable<Pair<String, String>> {
     private static Gson KVDATA_GSON = new GsonBuilder()
         .enableComplexMapKeySerialization()
         .excludeFieldsWithoutExposeAnnotation()
@@ -31,12 +28,14 @@ public class KVDataSet {
         this.entries = entries;
     }
 
-    public static Gson getKvdataGson() {
-        return KVDATA_GSON;
-    }
-
-    public static void setKvdataGson(Gson kvdataGson) {
-        KVDATA_GSON = kvdataGson;
+    /**
+     * Returns an iterator over elements of type {@code T}.
+     *
+     * @return an Iterator.
+     */
+    @Override
+    public Iterator<Pair<String, String>> iterator() {
+        return entries.iterator();
     }
 
     public List<Pair<String, String>> getEntries() {

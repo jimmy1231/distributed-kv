@@ -4,6 +4,7 @@ import app_kvECS.KVServerMetadata;
 import app_kvECS.TCPSockModule;
 import app_kvServer.dsmr.MapReduce;
 import app_kvServer.dsmr.ReduceOutput;
+import app_kvServer.dsmr.impl.Sort;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import ecs.ECSNode;
 import org.slf4j.Logger;
@@ -19,10 +20,7 @@ import java.io.*;
 import java.net.ConnectException;
 import java.net.Socket;
 import java.rmi.server.ServerNotActiveException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 enum connectionStatus {CONNECTED, DISCONNECTED, CONNECTION_LOST};
 
@@ -261,25 +259,13 @@ public class KVStore implements KVCommInterface {
 			.build();
 
 		long startTime, endTime;
+		List<ReduceOutput> outputs;
 		try {
 			startTime = System.currentTimeMillis();
-			result = request(msg);
+			outputs = mrRequest(msg);
 			endTime = System.currentTimeMillis();
 		} catch (Exception e) {
 			return;
-		}
-
-		// display output
-		List<ReduceOutput> outputs = new ArrayList<>();
-		String[] resultKeys = result.getKeys();
-		ReduceOutput output;
-		for (String key : resultKeys) {
-			try {
-				output = new ReduceOutput(get(key).getValue());
-				outputs.add(output);
-			} catch (Exception e) {
-				/* Swallow */
-			}
 		}
 
 		// Display N x COL_WIDTH table
@@ -295,7 +281,7 @@ public class KVStore implements KVCommInterface {
 					cnt = 0;
 				}
 				SB.append(String.format(
-					"%10s %5s | ", entry.getKey(), entry.getValue())
+					"%15s: %10s | ", entry.getKey(), entry.getValue())
 				);
 
 				cnt++;
@@ -309,7 +295,7 @@ public class KVStore implements KVCommInterface {
 	}
 
 	private void clientMRSort(String[] keys) {
-		UnifiedMessage msg, result;
+		UnifiedMessage msg;
 		msg = new UnifiedMessage.Builder()
 			.withMessageType(MessageType.CLIENT_TO_SERVER)
 			.withStatusType(KVMessage.StatusType.MAP_REDUCE)
@@ -317,15 +303,53 @@ public class KVStore implements KVCommInterface {
 			.withKeys(keys)
 			.build();
 
+		long startTime, endTime;
+		List<ReduceOutput> outputs;
 		try {
-			result = request(msg);
+			startTime = System.currentTimeMillis();
+			outputs = mrRequest(msg);
+			endTime = System.currentTimeMillis();
 		} catch (Exception e) {
 			return;
 		}
+
+		final int MAX_NUM_COLS = 10;
+		StringBuilder SB = new StringBuilder();
+		Iterator<Pair<String, String>> it;
+		for (ReduceOutput output : outputs) {
+			output.getDataSet().sortByKeys(true);
+
+			it = output.getDataSet().iterator();
+			List<String> binValues;
+			String strBinValues;
+			int idx = 0;
+			int col = 0;
+			while (it.hasNext()) {
+				SB.append(String.format("\n<BIN %d>\n", idx));
+				strBinValues = it.next().getValue();
+				binValues = Arrays.asList(strBinValues.split(Sort.DELIMITER));
+
+				for (String value : binValues) {
+					if (col >= MAX_NUM_COLS) {
+						SB.append("\n");
+						col = 0;
+					}
+
+					SB.append(String.format("%15s | ", value));
+					col++;
+				}
+				idx++;
+			}
+		}
+
+		logger.info(mrSummary(
+			MapReduce.Type.SORT,
+			startTime, endTime, outputs.size(), keys.length) +
+			"\n" + SB.toString());
 	}
 
 	private void clientMRKMeans(String[] keys) {
-		UnifiedMessage msg, result;
+		UnifiedMessage msg;
 		msg = new UnifiedMessage.Builder()
 			.withMessageType(MessageType.CLIENT_TO_SERVER)
 			.withStatusType(KVMessage.StatusType.MAP_REDUCE)
@@ -334,14 +358,15 @@ public class KVStore implements KVCommInterface {
 			.build();
 
 		// Wrapper
+		List<ReduceOutput> result;
 		try {
-			result = request(msg);
+			result = mrRequest(msg);
 		} catch (Exception e) {
 			return;
 		}
 	}
 
-	private UnifiedMessage request(UnifiedMessage msg) throws Exception {
+	private List<ReduceOutput> mrRequest(UnifiedMessage msg) throws Exception {
 		KVMessage reply = null;
 		try {
 			sendMessage(msg);
@@ -351,11 +376,26 @@ public class KVStore implements KVCommInterface {
 			throw e;
 		}
 
+		UnifiedMessage result;
 		if (Objects.nonNull(reply) && reply instanceof UnifiedMessage) {
-			return (UnifiedMessage)reply;
+			result = (UnifiedMessage)reply;
+		} else {
+			throw new Exception("Unrecognized message format");
 		}
 
-		throw new Exception("Unrecognized message format");
+		List<ReduceOutput> outputs = new ArrayList<>();
+		String[] resultKeys = result.getKeys();
+		ReduceOutput output;
+		for (String key : resultKeys) {
+			try {
+				output = new ReduceOutput(get(key).getValue());
+				outputs.add(output);
+			} catch (Exception e) {
+				/* Swallow */
+			}
+		}
+
+		return outputs;
 	}
 
 	private static String mrSummary(MapReduce.Type mrType,
@@ -368,9 +408,9 @@ public class KVStore implements KVCommInterface {
 		sb.append(String.format("MapReduce Function: %s\n", mrType));
 		sb.append(String.format("Number of Input Files: %d\n", numInputFiles));
 		sb.append(String.format("Number of Output Files: %d\n", numOutputFiles));
-		sb.append(String.format("Size of input: %d\n", 0));
-		sb.append(String.format("Size of output: %d\n", 0));
-		sb.append(String.format("Time Elapsed: %d\n", timeEnd-timeStart));
+		sb.append(String.format("Size of input (byteS): %d\n", 0));
+		sb.append(String.format("Size of output (bytes): %d\n", 0));
+		sb.append(String.format("Time Elapsed (ms): %d\n", timeEnd-timeStart));
 		sb.append("******************** MapReduce Summary ********************\n");
 
 		return sb.toString();

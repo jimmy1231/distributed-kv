@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.BiConsumer;
 
 public class Sort extends MapReduce {
+    public static final String DELIMITER = "%_SORT_%";
     private static final List<Integer> BIN_RANGES = Arrays.asList(
         0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100,
         110, 120, 130, 140, 150, 160, 170, 180,
@@ -58,6 +59,6 @@ public class Sort extends MapReduce {
     @Override
     public void Reduce(ReduceInput input) {
         input.getValues().sort(Comparator.naturalOrder());
-        Emit.accept(input.getKey(), input.getValues().toString());
+        Emit.accept(input.getKey(), String.join(DELIMITER, input.getValues()));
     }
 }
