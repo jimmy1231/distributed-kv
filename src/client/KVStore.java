@@ -335,7 +335,7 @@ public class KVStore implements KVCommInterface {
 						col = 0;
 					}
 
-					SB.append(String.format("%15s | ", value));
+					SB.append(String.format("%10s | ", value));
 					col++;
 				}
 				idx++;
