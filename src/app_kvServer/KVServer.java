@@ -67,7 +67,7 @@ public class KVServer implements IKVServer {
      *           and "LFU".
      */
     public KVServer(int port, int cacheSize, String strategy) {
-        disk = new Disk(String.format("kv_store_%d.txt", port));
+        disk = new Disk(String.format("kv_store_%s.txt", UUID.randomUUID().toString()));
         replicas = new ArrayList<>();
         primaryPutRequestList = new ArrayList<Pair<UUID, KVMessage.StatusType>>();
         replicatedDisks = new HashMap<String, Disk>();
@@ -398,13 +398,13 @@ public class KVServer implements IKVServer {
         String coordName2 = coordinator2.getNodeName();
 
         this.replicatedDisks.put(coordName1,
-            new Disk(String.format("%s_%d_%d.txt",
-                REPLICA_DISK_PREFIX, getPort(),
-                coordinator1.getNodePort())));
+            new Disk(String.format("%s_%s_%s.txt",
+                REPLICA_DISK_PREFIX, getMetdata().getName(),
+                coordinator1.getNodeName())));
         this.replicatedDisks.put(coordName2,
-            new Disk(String.format("%s_%d_%d.txt",
-                REPLICA_DISK_PREFIX, getPort(),
-                coordinator2.getNodePort())));
+            new Disk(String.format("%s_%s_%s.txt",
+                REPLICA_DISK_PREFIX, getMetdata().getName(),
+                coordinator2.getNodeName())));
 
         // Also initialize putRequestList to keep track of replication requests
         this.replicatedPutRequestList.put(coordName1, new ArrayList<>());
@@ -790,9 +790,9 @@ public class KVServer implements IKVServer {
         logger.info("RECEIVER {} {}\n", this.getHostname(), this.getPort());
 
         List<Pair<String, String>> entries = dataSet.getEntries();
-        Disk disk = new Disk((String.format("%s_%d_%d.txt",
-            REPLICA_DISK_PREFIX, getPort(),
-            primary.getNodePort())));
+        Disk disk = new Disk((String.format("%s_%s_%s.txt",
+            REPLICA_DISK_PREFIX, getMetdata().getName(),
+            primary.getNodeName())));
 
         try {
             for (Pair<String, String> entry : entries) {
