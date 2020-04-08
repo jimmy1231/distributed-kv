@@ -180,7 +180,7 @@ public class CLI {
             printHelp();
         } else if (tokens[0].equals("print_ring")) {
             client.getStore().printRing();
-        } else if (tokens[0].equals("MapReduce")) {
+        } else if (tokens[0].equals("mr")) {
             if (tokens.length < 3) {
                 printError("Too few arguments");
             }
