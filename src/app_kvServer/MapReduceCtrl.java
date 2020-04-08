@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import shared.Pair;
 import shared.messages.KVDataSet;
 import shared.messages.KVMessage;
+import shared.messages.MRReport;
 
 import java.util.*;
 import java.util.function.Function;
@@ -34,7 +35,8 @@ public class MapReduceCtrl {
     public static String[] masterMapReduce(MapReduce.Type type,
                                            ECSNode master,
                                            HashRing ring,
-                                           String[] keys) throws Exception {
+                                           String[] keys,
+                                           MRReport mrReport) throws Exception {
         /*
          * (1) Get KV pairs for each key
          * (2) Combine value, split into parts. The number of splits
@@ -74,6 +76,8 @@ public class MapReduceCtrl {
         {
             String combined = dataSet.combineValues();
             logger.debug("[MAP_REDUCE]: Combined: {}", combined);
+            mrReport.setInputSize(combined.length());
+
             String[] split = combined.split(" ");
             int M = ring.getNumActiveServers()-1;
             int L = split.length;
@@ -98,11 +102,16 @@ public class MapReduceCtrl {
         }
 
         // (3-4)
+        mrReport.setNumMappers(mapParts.size());
+        long start, end;
+        start = System.currentTimeMillis();
         String[] mapResults = MapReduceCtrl.doMR(
             master, ring,
             putParts(ring, mapParts, MAP),
             type,
             MAP);
+        end = System.currentTimeMillis();
+        mrReport.setTimeMap(end-start);
 
         // (9)
         List<String> reduceParts = new ArrayList<>();
@@ -187,11 +196,16 @@ public class MapReduceCtrl {
         }
 
         // (10)
-        return MapReduceCtrl.doMR(
+        mrReport.setNumReducers(reduceParts.size());
+        start = System.currentTimeMillis();
+        String[] results = MapReduceCtrl.doMR(
             master, ring,
             putParts(ring, reduceParts, REDUCE),
             type,
             REDUCE);
+        end = System.currentTimeMillis();
+        mrReport.setTimeReduce(end-start);
+        return results;
     }
 
     /**

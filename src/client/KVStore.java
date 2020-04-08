@@ -10,11 +10,8 @@ import ecs.ECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.Pair;
-import shared.messages.KVMessage;
-import shared.messages.Message;
+import shared.messages.*;
 import app_kvECS.HashRing;
-import shared.messages.MessageType;
-import shared.messages.UnifiedMessage;
 
 import java.io.*;
 import java.net.ConnectException;
@@ -260,11 +257,16 @@ public class KVStore implements KVCommInterface {
 			.build();
 
 		long startTime, endTime;
+		Pair<MRReport, List<ReduceOutput>> resultPair;
 		List<ReduceOutput> outputs;
+		MRReport mrReport;
 		try {
 			startTime = System.currentTimeMillis();
-			outputs = mrRequest(msg);
+			resultPair = mrRequest(msg);
 			endTime = System.currentTimeMillis();
+
+			outputs = resultPair.getValue();
+			mrReport = resultPair.getKey();
 		} catch (Exception e) {
 			return;
 		}
@@ -274,6 +276,7 @@ public class KVStore implements KVCommInterface {
 		StringBuilder SB = new StringBuilder();
 		List<Pair<String, String>> entries;
 		int cnt = 0;
+		int outputSize = 0;
 		for (ReduceOutput r : outputs) {
 			entries = r.getDataSet().getEntries();
 			for (Pair<String, String> entry : entries) {
@@ -281,6 +284,8 @@ public class KVStore implements KVCommInterface {
 					SB.append("\n");
 					cnt = 0;
 				}
+
+				outputSize += entry.toString().length();
 				SB.append(String.format(
 					"%15s: %10s | ", entry.getKey(), entry.getValue())
 				);
@@ -289,9 +294,10 @@ public class KVStore implements KVCommInterface {
 			}
 		}
 
+		mrReport.setOutputSize(outputSize);
 		logger.info(mrSummary(
 			MapReduce.Type.WORD_FREQ,
-			startTime, endTime, outputs.size(), keys.length) +
+			startTime, endTime, outputs.size(), keys.length, mrReport) +
 			"\n" + SB.toString());
 	}
 
@@ -305,16 +311,22 @@ public class KVStore implements KVCommInterface {
 			.build();
 
 		long startTime, endTime;
+		Pair<MRReport, List<ReduceOutput>> resultPair;
 		List<ReduceOutput> outputs;
+		MRReport mrReport;
 		try {
 			startTime = System.currentTimeMillis();
-			outputs = mrRequest(msg);
+			resultPair = mrRequest(msg);
 			endTime = System.currentTimeMillis();
+
+			outputs = resultPair.getValue();
+			mrReport = resultPair.getKey();
 		} catch (Exception e) {
 			return;
 		}
 
 		final int MAX_NUM_COLS = 10;
+		int outputSize = 0;
 		StringBuilder SB = new StringBuilder();
 		Iterator<Pair<String, String>> it;
 		for (ReduceOutput output : outputs) {
@@ -345,15 +357,17 @@ public class KVStore implements KVCommInterface {
 						col = 0;
 					}
 
+					outputSize += value.length();
 					SB.append(String.format("%10s | ", value));
 					col++;
 				}
 			}
 		}
 
+		mrReport.setOutputSize(outputSize);
 		logger.info(mrSummary(
 			MapReduce.Type.SORT,
-			startTime, endTime, outputs.size(), keys.length) +
+			startTime, endTime, outputs.size(), keys.length, mrReport) +
 			"\n" + SB.toString());
 	}
 
@@ -367,15 +381,18 @@ public class KVStore implements KVCommInterface {
 			.build();
 
 		// Wrapper
+		Pair<MRReport, List<ReduceOutput>> resultPair;
 		List<ReduceOutput> result;
 		try {
-			result = mrRequest(msg);
+			resultPair = mrRequest(msg);
+			result = resultPair.getValue();
 		} catch (Exception e) {
 			return;
 		}
 	}
 
-	private List<ReduceOutput> mrRequest(UnifiedMessage msg) throws Exception {
+	private Pair<MRReport, List<ReduceOutput>>
+	mrRequest(UnifiedMessage msg) throws Exception {
 		KVMessage reply = null;
 		try {
 			sendMessage(msg);
@@ -404,27 +421,29 @@ public class KVStore implements KVCommInterface {
 			}
 		}
 
-		return outputs;
+		return new Pair<>(result.getMrReport(), outputs);
 	}
 
 	private static String mrSummary(MapReduce.Type mrType,
 									long timeStart,
 									long timeEnd,
 									int numOutputFiles,
-									int numInputFiles) {
+									int numInputFiles,
+									MRReport mrReport) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("\n******************** MapReduce Summary ********************\n");
 		sb.append(String.format("MapReduce Function: %s\n", mrType));
 		sb.append(String.format("# Input Files: %d\n", numInputFiles));
 		sb.append(String.format("# Output Files: %d\n", numOutputFiles));
-		sb.append(String.format("Input size (bytes): %d\n", 0));
-		sb.append(String.format("Output size (bytes): %d\n", 0));
-		sb.append(String.format("# Map Workers: %d\n", 0));
-		sb.append(String.format("# Reduce Workers: %d\n", 0));
+		sb.append(String.format("Input size (bytes): %d\n", mrReport.getInputSize()));
+		sb.append(String.format("Output size (bytes): %d\n", mrReport.getOutputSize()));
+		sb.append(String.format("# Total Available Workers: %d\n", mrReport.getNumAvailNodes()));
+		sb.append(String.format("# Map Workers: %d\n", mrReport.getNumMappers()));
+		sb.append(String.format("# Reduce Workers: %d\n", mrReport.getNumReducers()));
 		sb.append(String.format("Time Elapsed (ms): %d\n", timeEnd-timeStart));
-		sb.append(String.format("Time Elapsed - MAP (ms): %d\n", 0));
-		sb.append(String.format("Time Elapsed - REDUCE (ms): %d\n", 0));
+		sb.append(String.format("Time Elapsed - MAP (ms): %d\n", mrReport.getTimeMap()));
+		sb.append(String.format("Time Elapsed - REDUCE (ms): %d\n", mrReport.getTimeReduce()));
 		sb.append("******************** MapReduce Summary ********************\n");
 
 		return sb.toString();

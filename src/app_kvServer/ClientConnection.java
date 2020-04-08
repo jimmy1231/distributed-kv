@@ -492,11 +492,13 @@ public class ClientConnection extends Thread {
         HashRing ring;
         ECSNode currentServer;
 
-
         ring = server.getMetdata().getHashRing();
         currentServer = ring.getServerByName(server.getMetdata().getName());
+        MRReport mrReport = new MRReport();
+        mrReport.setNumAvailNodes(ring.getNumActiveServers());
         try {
-            results = MapReduceCtrl.masterMapReduce(type, currentServer, ring, keys);
+            results = MapReduceCtrl.masterMapReduce(
+                type, currentServer, ring, keys, mrReport);
         } catch (Exception e) {
             logger.error("Map failed, cannot continue..", e);
             hasError = true;
@@ -505,6 +507,7 @@ public class ClientConnection extends Thread {
         if (hasError || Objects.isNull(results)) {
             return responseBuilder
                 .withStatusType(ERROR)
+                .withMRReport(mrReport)
                 .withMessage("Map failed, cannot continue..")
                 .build();
         }
@@ -512,6 +515,7 @@ public class ClientConnection extends Thread {
         // Successful
         return responseBuilder
             .withKeys(results)
+            .withMRReport(mrReport)
             .build();
     }
 
