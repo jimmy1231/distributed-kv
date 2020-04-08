@@ -436,14 +436,14 @@ public class KVStore implements KVCommInterface {
 		sb.append(String.format("MapReduce Function: %s\n", mrType));
 		sb.append(String.format("Input Files: %d\n", numInputFiles));
 		sb.append(String.format("Output Files: %d\n", numOutputFiles));
-		sb.append(String.format("Input size (bytes): %d\n", mrReport.getInputSize()));
-		sb.append(String.format("Output size (bytes): %d\n", mrReport.getOutputSize()));
+		sb.append(String.format("Input size (bytes): %,d\n", mrReport.getInputSize()));
+		sb.append(String.format("Output size (bytes): %,d\n", mrReport.getOutputSize()));
 		sb.append(String.format("Total Available Workers: %d\n", mrReport.getNumAvailNodes()));
 		sb.append(String.format("Map Workers: %d\n", mrReport.getNumMappers()));
 		sb.append(String.format("Reduce Workers: %d\n", mrReport.getNumReducers()));
-		sb.append(String.format("Time Elapsed (ms): %d\n", timeEnd-timeStart));
-		sb.append(String.format("Time Elapsed - MAP (ms): %d\n", mrReport.getTimeMap()));
-		sb.append(String.format("Time Elapsed - REDUCE (ms): %d\n", mrReport.getTimeReduce()));
+		sb.append(String.format("Time Elapsed (ms): %,d\n", timeEnd-timeStart));
+		sb.append(String.format("Time Elapsed - MAP (ms): %,d\n", mrReport.getTimeMap()));
+		sb.append(String.format("Time Elapsed - REDUCE (ms): %,d\n", mrReport.getTimeReduce()));
 		sb.append("******************** MapReduce Summary ********************\n");
 
 		return sb.toString();
