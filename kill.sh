@@ -4,7 +4,7 @@ input="src/app_kvECS/config/ecs.config"
 while IFS=' ' read -r serverName ip port
 do
     echo "Server_Name: $serverName, IP: $ip, Port: $port"
-    declare pid = $(lsof -i :${port} | grep ${port} | awk '{print $2}')
+    declare pid=$(lsof -i :${port} | grep ${port} | awk '{print $2}')
     echo "Process running on $pid"
     ssh -n ${ip} nohup kill -9 ${pid}
 done < "$input"
