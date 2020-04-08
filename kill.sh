@@ -4,7 +4,8 @@ input="src/app_kvECS/config/ecs.config"
 while IFS=' ' read -r serverName ip port
 do
     echo "Server_Name: $serverName, IP: $ip, Port: $port"
-    ssh -n ${port} kill -9 $(ps aux | grep ${port} | awk '{print $2}')
+    ssh -n ${ip} nohup kill -9 $(ps aux | grep ${port} | awk '{print $2}')
+
 done < "$input"
 
 rm -f ~/kv_store* && rm -f ~/replica* && rm -f ~/logs/server*.log
