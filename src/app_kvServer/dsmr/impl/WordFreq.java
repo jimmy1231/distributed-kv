@@ -54,7 +54,7 @@ public class WordFreq extends MapReduce {
             }
         }
 
-        if (value > 20) {
+        if (value > 3) {
             Emit.accept(input.getKey(), Integer.toString(value));
         }
     }
