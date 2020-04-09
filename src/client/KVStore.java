@@ -298,7 +298,8 @@ public class KVStore implements KVCommInterface {
 		String outputStr = SB.toString();
 		logger.info(mrSummary(
 			MapReduce.Type.WORD_FREQ,
-			startTime, endTime, outputs.size(), keys.length, mrReport));
+			startTime, endTime, outputs.size(), keys.length, mrReport)
+		+ "\n" + outputStr);
 	}
 
 	private void clientMRSort(String[] keys) {
@@ -368,7 +369,8 @@ public class KVStore implements KVCommInterface {
 		String outputStr = SB.toString();
 		logger.info(mrSummary(
 			MapReduce.Type.SORT,
-			startTime, endTime, outputs.size(), keys.length, mrReport));
+			startTime, endTime, outputs.size(), keys.length, mrReport)
+			+ "\n" + outputStr);
 	}
 
 	private void clientMRKMeans(String[] keys) {
