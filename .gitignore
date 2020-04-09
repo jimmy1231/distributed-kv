@@ -18,3 +18,4 @@ kv_store.txt
 !*/zookeeper-3.4/**/*.jar
 !zookeeper-3.4/**/*.jar
 run_kvserver.sh
+files/
