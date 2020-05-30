@@ -1,14 +1,14 @@
 package testing;
 
-import app_kvECS.TCPSockModule;
-import app_kvECS.HashRing;
-import app_kvECS.ServerMetadata;
-import app_kvECS.impl.HashRingImpl;
-import app_kvECS.impl.ServerMetadataImpl;
+import ecs.TCPSockModule;
+import ecs.HashRing;
+import ecs.ServerMetadata;
+import ecs.impl.HashRingImpl;
+import ecs.impl.ServerMetadataImpl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import app_kvECS.ECSNode;
-import app_kvECS.IECSNode;
+import ecs.ECSNode;
+import ecs.IECSNode;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;

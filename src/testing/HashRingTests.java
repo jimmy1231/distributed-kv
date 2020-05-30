@@ -1,10 +1,10 @@
 package testing;
 
-import app_kvECS.HashRing;
-import app_kvECS.TCPSockModule;
-import app_kvECS.impl.HashRingImpl;
-import app_kvECS.ECSNode;
-import app_kvECS.IECSNode;
+import ecs.HashRing;
+import ecs.TCPSockModule;
+import ecs.impl.HashRingImpl;
+import ecs.ECSNode;
+import ecs.IECSNode;
 import junit.framework.TestCase;
 import org.junit.Rule;
 import org.junit.Test;

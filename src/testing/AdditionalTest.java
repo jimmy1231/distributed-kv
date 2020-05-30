@@ -1,8 +1,8 @@
 package testing;
 
-import app_kvServer.DSCache;
-import app_kvServer.Disk;
-import app_kvClient.KVStore;
+import server.DSCache;
+import server.Disk;
+import client.KVStore;
 import org.junit.Rule;
 import org.junit.Test;
 

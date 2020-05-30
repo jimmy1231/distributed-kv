@@ -4,7 +4,7 @@ import java.io.IOException;
 
 import org.apache.log4j.Level;
 
-import app_kvServer.Server;
+import server.Server;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import logger.LogSetup;

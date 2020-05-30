@@ -1,6 +1,6 @@
 package shared.messages;
 
-import app_kvECS.ServerMetadata;
+import ecs.ServerMetadata;
 
 public interface KVMessage {
 	

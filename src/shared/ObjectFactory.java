@@ -1,9 +1,9 @@
 package shared;
 
-import app_kvClient.IClient;
-import app_kvServer.IServer;
-import app_kvClient.Client;
-import app_kvServer.Server;
+import client.IClient;
+import server.IServer;
+import client.Client;
+import server.Server;
 
 public final class ObjectFactory {
 	/*

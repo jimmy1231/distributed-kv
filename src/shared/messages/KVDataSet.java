@@ -1,6 +1,6 @@
 package shared.messages;
 
-import app_kvECS.HashRing;
+import ecs.HashRing;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;

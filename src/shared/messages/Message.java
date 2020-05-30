@@ -2,7 +2,7 @@ package shared.messages;
 
 import java.io.Serializable;
 
-import app_kvECS.ServerMetadata;
+import ecs.ServerMetadata;
 
 /**
  * Represents a message format

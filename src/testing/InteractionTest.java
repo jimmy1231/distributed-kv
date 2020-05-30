@@ -2,7 +2,7 @@ package testing;
 
 import org.junit.Test;
 
-import app_kvClient.KVStore;
+import client.KVStore;
 import junit.framework.TestCase;
 import shared.messages.KVMessage;
 import shared.messages.KVMessage.StatusType;

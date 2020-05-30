@@ -1,12 +1,12 @@
 package shared.messages;
 
-import app_kvECS.ServerMetadata;
-import app_kvECS.impl.ServerMetadataImpl;
-import app_kvServer.dsmr.MapReduce;
+import ecs.ServerMetadata;
+import ecs.impl.ServerMetadataImpl;
+import server.dsmr.MapReduce;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import app_kvECS.ECSNode;
+import ecs.ECSNode;
 
 import java.util.Base64;
 import java.util.Objects;
