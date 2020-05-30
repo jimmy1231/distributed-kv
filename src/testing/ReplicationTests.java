@@ -1,23 +1,21 @@
 package testing;
 
 import app_kvECS.HashRing;
-import app_kvECS.KVServerMetadata;
+import app_kvECS.ServerMetadata;
 import app_kvECS.impl.HashRingImpl;
-import app_kvECS.impl.KVServerMetadataImpl;
-import app_kvServer.IKVServer;
-import app_kvServer.KVServer;
-import ecs.ECSNode;
-import ecs.IECSNode;
+import app_kvECS.impl.ServerMetadataImpl;
+import app_kvServer.Server;
+import app_kvECS.ECSNode;
+import app_kvECS.IECSNode;
 import junit.framework.TestCase;
-import shared.messages.KVMessage;
 
 public class ReplicationTests extends TestCase {
-    private KVServer server;
+    private Server server;
     private HashRing hashRing;
-    private KVServerMetadata metadata;
+    private ServerMetadata metadata;
 
     public void setUp() {
-        server = new KVServer(50000, 1000, "FIFO");
+        server = new Server(50000, 1000, "FIFO");
         hashRing = new HashRingImpl();
         ECSNode s1 = new ECSNode("Server1", "localhost", 50000);
         ECSNode s2 = new ECSNode("Server2", "localhost", 50001);
@@ -32,7 +30,7 @@ public class ReplicationTests extends TestCase {
         hashRing.addServer(s3);
         hashRing.updateRing();
 
-        metadata = new KVServerMetadataImpl("Server1", "localhost", IECSNode.ECSNodeFlag.START, hashRing);
+        metadata = new ServerMetadataImpl("Server1", "localhost", IECSNode.ECSNodeFlag.START, hashRing);
         server.update(metadata);
     }
 

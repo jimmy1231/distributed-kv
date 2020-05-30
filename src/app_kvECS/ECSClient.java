@@ -6,13 +6,11 @@ import java.io.IOException;
 import java.util.*;
 import java.util.function.Predicate;
 
-import app_kvECS.impl.KVServerMetadataImpl;
+import app_kvECS.impl.ServerMetadataImpl;
 
 import app_kvECS.impl.HashRingImpl;
 import app_kvECS.HashRing.*;
 
-import ecs.ECSNode;
-import ecs.IECSNode;
 import logger.LogSetup;
 import org.apache.log4j.Level;
 import org.slf4j.Logger;
@@ -22,7 +20,6 @@ import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
 
-import static shared.messages.KVMessage.StatusType.SERVER_DUMP_DATA;
 import static shared.messages.KVMessage.StatusType.SERVER_REPLICATE;
 
 
@@ -122,7 +119,7 @@ public class ECSClient implements IECSClient {
         boolean success = true;
         List<ECSNode> servers = ring.filterServer(filter);
 
-        KVServerMetadata metadata = null;
+        ServerMetadata metadata = null;
         UnifiedMessage req = null;
         UnifiedMessage res;
 
@@ -134,7 +131,7 @@ public class ECSClient implements IECSClient {
             port = server.getNodePort();
             try {
                 setServerStatus(server, requestType);
-                metadata = new KVServerMetadataImpl(
+                metadata = new ServerMetadataImpl(
                     server.getNodeName(),
                     server.getNodeHost(),
                     server.getEcsNodeFlag(),
@@ -234,7 +231,7 @@ public class ECSClient implements IECSClient {
                 .withStatusType(KVMessage.StatusType.SERVER_INIT)
                 .withCacheSize(cacheSize)
                 .withCacheStrategy(cacheStrategy)
-                .withMetadata(new KVServerMetadataImpl(
+                .withMetadata(new ServerMetadataImpl(
                     nodeToAdd.getNodeName(),
                     nodeToAdd.getNodeHost(),
                     IECSNode.ECSNodeFlag.STOP,
@@ -319,7 +316,7 @@ public class ECSClient implements IECSClient {
             int port = server.getNodePort();
             try {
                 socketModule = new TCPSockModule(host, port);
-                KVServerMetadata newMetaData = new KVServerMetadataImpl(
+                ServerMetadata newMetaData = new ServerMetadataImpl(
                     server.getNodeName(),
                     server.getNodeHost(),
                     server.getEcsNodeFlag(),
@@ -537,7 +534,7 @@ public class ECSClient implements IECSClient {
             try {
                 ECSRequestsLib.initServer(S_n,
                     S_i.getCacheStrategy(), S_i.getCacheSize(),
-                    new KVServerMetadataImpl(
+                    new ServerMetadataImpl(
                         S_n.getNodeName(),
                         S_n.getNodeHost(),
                         IECSNode.ECSNodeFlag.STOP,
@@ -603,7 +600,7 @@ public class ECSClient implements IECSClient {
             if (!prevFlg.equals(_server.getEcsNodeFlag())) {
                 try {
                     ECSRequestsLib.updateServer(_server,
-                        new KVServerMetadataImpl(
+                        new ServerMetadataImpl(
                             _server.getNodeName(),
                             _server.getNodeHost(),
                             _server.getEcsNodeFlag(),

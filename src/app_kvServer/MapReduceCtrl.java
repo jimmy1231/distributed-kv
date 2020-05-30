@@ -4,8 +4,7 @@ import app_kvECS.HashRing;
 import app_kvServer.dsmr.MapOutput;
 import app_kvServer.dsmr.MapReduce;
 import app_kvServer.dsmr.ReduceInput;
-import ecs.ECSNode;
-import ecs.IECSNode;
+import app_kvECS.ECSNode;
 import org.apache.commons.lang3.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,7 @@ import shared.messages.MRReport;
 import java.util.*;
 import java.util.function.Function;
 
-import static ecs.IECSNode.ECSNodeFlag.*;
+import static app_kvECS.IECSNode.ECSNodeFlag.*;
 import static java.lang.Math.*;
 import static shared.messages.KVMessage.StatusType.*;
 
@@ -63,7 +62,7 @@ public class MapReduceCtrl {
             for (i = 0; i < keys.length; i++) {
                 key = keys[i];
                 try {
-                    dataSet.addEntry(KVServerRequestLib.serverGetKV(ring, key));
+                    dataSet.addEntry(ServerRequestLib.serverGetKV(ring, key));
                 } catch (Exception e) {
                     logger.error("Could not get data with key: {}", key, e);
                     /* Swallow */
@@ -121,7 +120,7 @@ public class MapReduceCtrl {
             MapOutput mapOutput;
             for (String mapResultId : mapResults) {
                 try {
-                    resultPair = KVServerRequestLib.serverGetKV(ring, mapResultId);
+                    resultPair = ServerRequestLib.serverGetKV(ring, mapResultId);
                     assert(resultPair.getKey().equals(mapResultId));
                     mapOutput = new MapOutput(resultPair.getValue());
 
@@ -191,7 +190,7 @@ public class MapReduceCtrl {
             List<String> listMapResults = Arrays.asList(mapResults);
             logger.info("[MAP_REDUCE]: Deleting all map results: {}",
                 listMapResults);
-            KVServerRequestLib.serverDeleteAll(
+            ServerRequestLib.serverDeleteAll(
                 ring, listMapResults);
         }
 
@@ -293,7 +292,7 @@ public class MapReduceCtrl {
         }
 
         // Map operation finished, delete map partitions
-        KVServerRequestLib.serverDeleteAll(ring, partIds);
+        ServerRequestLib.serverDeleteAll(ring, partIds);
 
         if (resultIds.size() != NUM_TASKS) {
             throw new Exception(String.format(
@@ -320,7 +319,7 @@ public class MapReduceCtrl {
                 TYPE, UUID.randomUUID().toString());
             entry = new Pair<>(partKey, part);
             try {
-                KVServerRequestLib.serverPutKV(ring, entry);
+                ServerRequestLib.serverPutKV(ring, entry);
             } catch (Exception e) {
                 logger.error("[MAP_REDUCE]: Could not put data", entry, e);
                 // TODO: provide fault tolerance

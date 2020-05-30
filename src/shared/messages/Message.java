@@ -2,7 +2,7 @@ package shared.messages;
 
 import java.io.Serializable;
 
-import app_kvECS.KVServerMetadata;
+import app_kvECS.ServerMetadata;
 
 /**
  * Represents a message format
@@ -11,7 +11,7 @@ public class Message implements KVMessage, Serializable{
     private String key;
     private String value;
     private StatusType status;
-    private KVServerMetadata metadata;
+    private ServerMetadata metadata;
 
     public Message(){
         super();
@@ -50,12 +50,12 @@ public class Message implements KVMessage, Serializable{
     }
 
     @Override
-    public KVServerMetadata getMetadata() {
+    public ServerMetadata getMetadata() {
 	return metadata;
     }
 
     @Override
-    public void setMetadata(KVServerMetadata newMetadata) {
+    public void setMetadata(ServerMetadata newMetadata) {
 	metadata = newMetadata;
     }
 }

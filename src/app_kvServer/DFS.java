@@ -11,10 +11,10 @@ public class DFS {
     }
 
     public String get(String id) throws Exception {
-        return KVServerRequestLib.serverGetKV(ring, id).getValue();
+        return ServerRequestLib.serverGetKV(ring, id).getValue();
     }
 
     public void put(Pair<String, String> entry) throws Exception {
-        KVServerRequestLib.serverPutKV(ring, entry);
+        ServerRequestLib.serverPutKV(ring, entry);
     }
 }

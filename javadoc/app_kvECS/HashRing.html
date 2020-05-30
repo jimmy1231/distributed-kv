@@ -186,7 +186,7 @@ extends java.lang.Object</pre>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#HashRing-java.util.Map-java.util.Map-">HashRing</a></span>(java.util.Map&lt;<a href="../app_kvECS/HashRing.Hash.html" title="class in app_kvECS">HashRing.Hash</a>,java.lang.String&gt;&nbsp;ring,
-        java.util.Map&lt;java.lang.String,ecs.ECSNode&gt;&nbsp;servers)</code>&nbsp;</td>
+        java.util.Map&lt;java.lang.String,app_kvECS.ECSNode&gt;&nbsp;servers)</code>&nbsp;</td>
 </tr>
 </table>
 </li>
@@ -205,37 +205,37 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>abstract void</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#addServer-ecs.ECSNode-">addServer</a></span>(ecs.ECSNode&nbsp;server)</code>&nbsp;</td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#addServer-ecs.ECSNode-">addServer</a></span>(app_kvECS.ECSNode&nbsp;server)</code>&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>abstract java.util.List&lt;ecs.ECSNode&gt;</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#filterServer-java.util.function.Predicate-">filterServer</a></span>(java.util.function.Predicate&lt;ecs.ECSNode&gt;&nbsp;pred)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#filterServer-java.util.function.Predicate-">filterServer</a></span>(java.util.function.Predicate&lt;app_kvECS.ECSNode&gt;&nbsp;pred)</code>
 <div class="block">Works like a filter function, except on the list of servers
  in the HashRing.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>abstract ecs.ECSNode</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getPredecessorServer-ecs.ECSNode-">getPredecessorServer</a></span>(ecs.ECSNode&nbsp;server)</code>&nbsp;</td>
+<td class="colFirst"><code>abstract app_kvECS.ECSNode</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getPredecessorServer-ecs.ECSNode-">getPredecessorServer</a></span>(app_kvECS.ECSNode&nbsp;server)</code>&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>abstract ecs.ECSNode</code></td>
+<td class="colFirst"><code>abstract app_kvECS.ECSNode</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getServerByHash-app_kvECS.HashRing.Hash-">getServerByHash</a></span>(<a href="../app_kvECS/HashRing.Hash.html" title="class in app_kvECS">HashRing.Hash</a>&nbsp;hash)</code>
 <div class="block"><a href="../app_kvECS/HashRing.html#getServerByHash-app_kvECS.HashRing.Hash-"><code>getServerByHash(Hash)</code></a>
       Gets nearest server -> traverse HashRing in CW order.</div>
 </td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code>abstract ecs.ECSNode</code></td>
+<td class="colFirst"><code>abstract app_kvECS.ECSNode</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getServerByName-java.lang.String-">getServerByName</a></span>(java.lang.String&nbsp;serverName)</code>&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>abstract ecs.ECSNode</code></td>
+<td class="colFirst"><code>abstract app_kvECS.ECSNode</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getServerByObjectKey-java.lang.String-">getServerByObjectKey</a></span>(java.lang.String&nbsp;objectKey)</code>&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>abstract <a href="../app_kvECS/HashRing.HashRange.html" title="class in app_kvECS">HashRing.HashRange</a></code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getServerHashRange-ecs.ECSNode-">getServerHashRange</a></span>(ecs.ECSNode&nbsp;server)</code>
+<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getServerHashRange-ecs.ECSNode-">getServerHashRange</a></span>(app_kvECS.ECSNode&nbsp;server)</code>
 <div class="block"><a href="../app_kvECS/HashRing.html#getServerHashRange-ecs.ECSNode-"><code>getServerHashRange(ECSNode)</code></a>
       Gets the HashRange for the specified server given
       the server object
@@ -249,8 +249,8 @@ extends java.lang.Object</pre>
 <td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getServerHashRange-java.lang.String-">getServerHashRange</a></span>(java.lang.String&nbsp;serverName)</code>&nbsp;</td>
 </tr>
 <tr id="i8" class="altColor">
-<td class="colFirst"><code>abstract ecs.ECSNode</code></td>
-<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getSuccessorServer-ecs.ECSNode-">getSuccessorServer</a></span>(ecs.ECSNode&nbsp;server)</code>
+<td class="colFirst"><code>abstract app_kvECS.ECSNode</code></td>
+<td class="colLast"><code><span class="memberNameLink"><a href="../app_kvECS/HashRing.html#getSuccessorServer-ecs.ECSNode-">getSuccessorServer</a></span>(app_kvECS.ECSNode&nbsp;server)</code>
 <div class="block"><a href="../app_kvECS/HashRing.html#getSuccessorServer-ecs.ECSNode-"><code>getSuccessorServer(ECSNode)</code></a>
       Gets the server immediately succeeding the current
       server in the HashRing (look "ahead of" the current server)
@@ -342,7 +342,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>HashRing</h4>
 <pre>protected&nbsp;HashRing(java.util.Map&lt;<a href="../app_kvECS/HashRing.Hash.html" title="class in app_kvECS">HashRing.Hash</a>,java.lang.String&gt;&nbsp;ring,
-                   java.util.Map&lt;java.lang.String,ecs.ECSNode&gt;&nbsp;servers)</pre>
+                   java.util.Map&lt;java.lang.String,app_kvECS.ECSNode&gt;&nbsp;servers)</pre>
 </li>
 </ul>
 </li>
@@ -397,7 +397,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getServerByHash</h4>
-<pre>public abstract&nbsp;ecs.ECSNode&nbsp;getServerByHash(<a href="../app_kvECS/HashRing.Hash.html" title="class in app_kvECS">HashRing.Hash</a>&nbsp;hash)</pre>
+<pre>public abstract&nbsp;app_kvECS.ECSNode&nbsp;getServerByHash(<a href="../app_kvECS/HashRing.Hash.html" title="class in app_kvECS">HashRing.Hash</a>&nbsp;hash)</pre>
 <div class="block"><a href="../app_kvECS/HashRing.html#getServerByHash-app_kvECS.HashRing.Hash-"><code>getServerByHash(Hash)</code></a>
       Gets nearest server -> traverse HashRing in CW order.
  <a href="../app_kvECS/HashRing.html#getServerByName-java.lang.String-"><code>getServerByName(String)</code></a>
@@ -523,7 +523,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>getServerHashRange</h4>
-<pre>public abstract&nbsp;<a href="../app_kvECS/HashRing.HashRange.html" title="class in app_kvECS">HashRing.HashRange</a>&nbsp;getServerHashRange(ecs.ECSNode&nbsp;server)</pre>
+<pre>public abstract&nbsp;<a href="../app_kvECS/HashRing.HashRange.html" title="class in app_kvECS">HashRing.HashRange</a>&nbsp;getServerHashRange(app_kvECS.ECSNode&nbsp;server)</pre>
 <div class="block"><a href="../app_kvECS/HashRing.html#getServerHashRange-ecs.ECSNode-"><code>getServerHashRange(ECSNode)</code></a>
       Gets the HashRange for the specified server given
       the server object

@@ -2,14 +2,14 @@ package app_kvServer;
 
 import app_kvECS.HashRing;
 import app_kvECS.TCPSockModule;
-import app_kvECS.KVServerMetadata;
+import app_kvECS.ServerMetadata;
 import app_kvServer.dsmr.*;
 import app_kvServer.dsmr.impl.KMeansClustering;
 import app_kvServer.dsmr.impl.Sort;
 import app_kvServer.dsmr.impl.WordFreq;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import ecs.ECSNode;
-import ecs.IECSNode;
+import app_kvECS.ECSNode;
+import app_kvECS.IECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.Pair;
@@ -41,7 +41,7 @@ public class ClientConnection extends Thread {
     private static final int DROP_SIZE = 128 * BUFFER_SIZE;
 
     private Socket clientSocket;
-    private KVServer server;
+    private Server server;
     private InputStream input;
     private OutputStream output;
     private ObjectMapper objectMapper;
@@ -50,7 +50,7 @@ public class ClientConnection extends Thread {
      * Constructs a new CientConnection object for a given TCP socket.
      * @param clientSocket the Socket object for the client connection.
      */
-    public ClientConnection(String id, Socket clientSocket, KVServer server) {
+    public ClientConnection(String id, Socket clientSocket, Server server) {
         this.id = id;
         this.clientSocket = clientSocket;
         this.server = server;
@@ -191,7 +191,7 @@ public class ClientConnection extends Thread {
 
     private UnifiedMessage handleAdminMessage(UnifiedMessage msg) throws Exception {
         logger.info("HANDLE_ADMIN_MESSAGE: StatusType={}", msg.getStatus());
-        KVServerMetadata metadata = msg.getMetadata();
+        ServerMetadata metadata = msg.getMetadata();
         IECSNode.ECSNodeFlag flg = server.getStatus();
         UnifiedMessage.Builder respBuilder = new UnifiedMessage.Builder();
 
@@ -546,7 +546,7 @@ public class ClientConnection extends Thread {
         String resultKey = null;
         String dataToMap;
         try {
-            dataToMap = KVServerRequestLib.serverGetKV(ring, mapId).getValue();
+            dataToMap = ServerRequestLib.serverGetKV(ring, mapId).getValue();
             mapper.Map(new MapInput(dataToMap));
 
             if (dataSet.size() > 0) {
@@ -557,7 +557,7 @@ public class ClientConnection extends Thread {
                 Pair<String, String> mapResult = new Pair<>(
                     resultKey, new MapOutput(dataSet).toString()
                 );
-                KVServerRequestLib.serverPutKV(ring, mapResult);
+                ServerRequestLib.serverPutKV(ring, mapResult);
             }
         } catch (Exception e) {
             logger.error("[MAPPER]: Error when Mapping data", e);
@@ -596,7 +596,7 @@ public class ClientConnection extends Thread {
         ReduceInput.ReduceDTO dto;
         String dataToMap;
         try {
-            dataToMap = KVServerRequestLib.serverGetKV(ring, partId).getValue();
+            dataToMap = ServerRequestLib.serverGetKV(ring, partId).getValue();
             dto = new ReduceInput.ReduceDTO(dataToMap);
 
             for (ReduceInput input : dto.getInputs()) {
@@ -611,7 +611,7 @@ public class ClientConnection extends Thread {
                 Pair<String, String> mapResult = new Pair<>(
                     resultKey, new ReduceOutput(dataSet).toString()
                 );
-                KVServerRequestLib.serverPutKV(ring, mapResult);
+                ServerRequestLib.serverPutKV(ring, mapResult);
             }
         } catch (Exception e) {
             logger.error("[MAPPER]: Error when Reducing data", e);

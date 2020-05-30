@@ -1,12 +1,12 @@
 package shared.messages;
 
-import app_kvECS.KVServerMetadata;
-import app_kvECS.impl.KVServerMetadataImpl;
+import app_kvECS.ServerMetadata;
+import app_kvECS.impl.ServerMetadataImpl;
 import app_kvServer.dsmr.MapReduce;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
-import ecs.ECSNode;
+import app_kvECS.ECSNode;
 
 import java.util.Base64;
 import java.util.Objects;
@@ -98,7 +98,7 @@ public class UnifiedMessage implements KVMessage {
     @Expose private MessageType messageType;
     @Expose private KVMessage.StatusType statusType;
     @Expose private MapReduce.Type mrType;
-    private KVServerMetadata metadata;
+    private ServerMetadata metadata;
     @Expose private KVDataSet dataSet;
     @Expose private String key;
     @Expose private String value;
@@ -142,7 +142,7 @@ public class UnifiedMessage implements KVMessage {
             return this;
         }
 
-        public Builder withMetadata(KVServerMetadata metadata) {
+        public Builder withMetadata(ServerMetadata metadata) {
             object.metadata = metadata;
             return this;
         }
@@ -251,7 +251,7 @@ public class UnifiedMessage implements KVMessage {
         this.mrReport = s.mrReport;
 
         if (Objects.nonNull(s.metadata)) {
-            this.metadata = new KVServerMetadataImpl().deserialize(s.metadata);
+            this.metadata = new ServerMetadataImpl().deserialize(s.metadata);
         } else {
             this.metadata = null;
         }
@@ -299,11 +299,11 @@ public class UnifiedMessage implements KVMessage {
         return this;
     }
 
-    public KVServerMetadata getMetadata() {
+    public ServerMetadata getMetadata() {
         return metadata;
     }
 
-    public void setMetadata(KVServerMetadata metadata) {
+    public void setMetadata(ServerMetadata metadata) {
         this.metadata = metadata;
     }
 

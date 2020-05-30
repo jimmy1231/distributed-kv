@@ -1,7 +1,6 @@
 package shared.messages;
 
-import app_kvECS.KVServerMetadata;
-import jdk.net.SocketFlow;
+import app_kvECS.ServerMetadata;
 
 public interface KVMessage {
 	
@@ -73,9 +72,9 @@ public interface KVMessage {
 
 	public void setValue(String newValue);
 
-	public KVServerMetadata getMetadata();
+	public ServerMetadata getMetadata();
 
-	public void setMetadata(KVServerMetadata newMetadata);
+	public void setMetadata(ServerMetadata newMetadata);
 }
 
 

@@ -2,18 +2,16 @@ package testing;
 
 import app_kvECS.TCPSockModule;
 import app_kvECS.HashRing;
-import app_kvECS.KVServerMetadata;
+import app_kvECS.ServerMetadata;
 import app_kvECS.impl.HashRingImpl;
-import app_kvECS.impl.KVServerMetadataImpl;
+import app_kvECS.impl.ServerMetadataImpl;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import ecs.ECSNode;
-import ecs.IECSNode;
+import app_kvECS.ECSNode;
+import app_kvECS.IECSNode;
 import shared.messages.KVMessage;
 import shared.messages.MessageType;
 import shared.messages.UnifiedMessage;
-
-import java.util.Random;
 
 public class SocketClient {
     private static HashRing getRing(int size) {
@@ -33,13 +31,13 @@ public class SocketClient {
         return ring;
     }
 
-    private static KVServerMetadata getMetadata() {
+    private static ServerMetadata getMetadata() {
         ECSNode ecsNode = new ECSNode(
             String.format("server-%d", 100),
             "127.0.0.1",
             31232);
 
-        return new KVServerMetadataImpl(
+        return new ServerMetadataImpl(
             ecsNode.getNodeName(),
             ecsNode.getNodeHost(),
             IECSNode.ECSNodeFlag.START,
@@ -57,7 +55,7 @@ public class SocketClient {
         try {
             module = new TCPSockModule("localhost", 50001);
 
-            KVServerMetadata metadata = getMetadata();
+            ServerMetadata metadata = getMetadata();
             UnifiedMessage req, resp;
             req = new UnifiedMessage.Builder()
                 .withMessageType(MessageType.ECS_TO_SERVER)

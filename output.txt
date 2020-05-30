@@ -3,18 +3,18 @@ TESTER VERSION 1.4.3
 [26.1.2020 9:58:57.126 EST] FINE: Autotest - Starting test loading!
 [26.1.2020 9:58:57.147 EST] INFO: Autotest - Loaded 4 test(s) from successfully!
 [26.1.2020 9:58:57.149 EST] FINE: Autotest - Attempting to locate all classes from jar
-[26.1.2020 9:58:57.149 EST] INFO: Autotest - Loading `app_kvClient.IKVClient` interface from jar
-[26.1.2020 9:58:57.289 EST] INFO: Autotest - Found one class implementing `app_kvClient.IKVClient`, called `app_kvClient.KVClient`, in the jar
-[26.1.2020 9:58:57.289 EST] INFO: Autotest - Loading `app_kvServer.IKVServer` interface from jar
-[26.1.2020 9:58:57.374 EST] INFO: Autotest - Found one class implementing `app_kvServer.IKVServer`, called `app_kvServer.KVServer`, in the jar
-[26.1.2020 9:58:57.375 EST] INFO: Autotest - Loading `client.KVCommInterface` interface from jar
-[26.1.2020 9:58:57.445 EST] INFO: Autotest - Found one class implementing `client.KVCommInterface`, called `client.KVStore`, in the jar
+[26.1.2020 9:58:57.149 EST] INFO: Autotest - Loading `app_kvClient.IClient` interface from jar
+[26.1.2020 9:58:57.289 EST] INFO: Autotest - Found one class implementing `app_kvClient.IClient`, called `app_kvClient.Client`, in the jar
+[26.1.2020 9:58:57.289 EST] INFO: Autotest - Loading `app_kvServer.IServer` interface from jar
+[26.1.2020 9:58:57.374 EST] INFO: Autotest - Found one class implementing `app_kvServer.IServer`, called `app_kvServer.Server`, in the jar
+[26.1.2020 9:58:57.375 EST] INFO: Autotest - Loading `app_kvClient.KVCommInterface` interface from jar
+[26.1.2020 9:58:57.445 EST] INFO: Autotest - Found one class implementing `app_kvClient.KVCommInterface`, called `app_kvClient.KVStore`, in the jar
 [26.1.2020 9:58:57.445 EST] INFO: Autotest - Loading `shared.messages.KVMessage` interface from jar
 [26.1.2020 9:58:57.533 EST] INFO: Autotest - Found one class implementing `shared.messages.KVMessage`, called `shared.messages.Message`, in the jar
 [26.1.2020 9:58:57.535 EST] FINE: Autotest - Loading and binding classes to wrappers
-class app_kvClient.KVClient
-class app_kvServer.KVServer
-class client.KVStore
+class app_kvClient.Client
+class app_kvServer.Server
+class app_kvClient.KVStore
 class shared.messages.Message
 [26.1.2020 9:58:57.541 EST] INFO: Autotest - Checking loaded classes
 [26.1.2020 9:58:57.541 EST] INFO: Autotest - Calling Server.ctor
@@ -57,42 +57,42 @@ Error! Connection refused. Check if server is running
 *** Get/Put Test ***
  [ *F* ] Basic Put
         PUT('test', 'test string');
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [ *F* ] Basic Put/Get
         PUT('test', 'test string');GET('test')
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [ *F* ] Basic Update
         PUT('test', 'test string');PUT('test', 'string')
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [ *F* ] Basic Delete
         PUT('test', 'test string');PUT('test', '')
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [ *F* ] Delete Non-existing KV
         server.clearStorage();PUT('test', '')
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [ *F* ] Put Bad Key
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [ *F* ] Get Missing Key
-        *** Method `get` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `get` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `get` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `get` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
 
@@ -148,13 +148,13 @@ true
         server.put('test', 'test string');server.inCache('test')
  [ *F* ] Multi-Client
         client1.put('test', 'test string');server.inStorage('test')
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [ *F* ] Cache Evict LRU
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [  P  ] Put with no connection
@@ -171,14 +171,14 @@ true
         server.getCacheStrategy();
  [ *F* ] GetKV
         client.getStore().put('test','test string');server.getKV('test')
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [ *F* ] GetKey
         client.getStore().put('test','test string');client.getStore().get('test').getKey();
-        *** Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
-        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `client.KVStore` raised an exception. java.lang.NullPointerException
+        *** Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException        *** java.lang.reflect.InvocationTargetException: null
+        **** ca.utoronto.ece419.tester.wrapper.exceptions.ForwardedException: Method `put` from `app_kvClient.KVStore` raised an exception. java.lang.NullPointerException
         ***** java.lang.reflect.InvocationTargetException: null
         ****** java.lang.NullPointerException: null
  [  P  ] ClearStorage

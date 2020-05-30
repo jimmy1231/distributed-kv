@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
-import ecs.ECSNode;
-import ecs.IECSNode;
+import app_kvECS.ECSNode;
+import app_kvECS.IECSNode;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static ecs.IECSNode.ECSNodeFlag.*;
+import static app_kvECS.IECSNode.ECSNodeFlag.*;
 
 public class HashRingImpl extends HashRing {
     /**

@@ -1,22 +1,22 @@
 package shared;
 
-import app_kvClient.IKVClient;
-import app_kvServer.IKVServer;
-import app_kvClient.KVClient;
-import app_kvServer.KVServer;
+import app_kvClient.IClient;
+import app_kvServer.IServer;
+import app_kvClient.Client;
+import app_kvServer.Server;
 
 public final class ObjectFactory {
 	/*
 	 * Creates a KVClient object for auto-testing purposes
 	 */
-    public static IKVClient createKVClientObject() {
-    	return new KVClient();
+    public static IClient createKVClientObject() {
+    	return new Client();
     }
     
     /*
      * Creates a KVServer object for auto-testing purposes
      */
-	public static IKVServer createKVServerObject(int port, int cacheSize, String strategy) {
-		return new KVServer(port, cacheSize, strategy);
+	public static IServer createKVServerObject(int port, int cacheSize, String strategy) {
+		return new Server(port, cacheSize, strategy);
 	}
 }

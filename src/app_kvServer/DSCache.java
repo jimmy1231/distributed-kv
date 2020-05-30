@@ -10,9 +10,7 @@ import org.apache.log4j.Logger;
 import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-import java.util.logging.LogManager;
 import java.util.stream.Collectors;
 
 /**
@@ -73,7 +71,7 @@ public class DSCache {
     private Policy policy;
     private int cacheSize;
     private boolean writeThrough;
-    private IKVServer.CacheStrategy strategy;
+    private IServer.CacheStrategy strategy;
     private Lock gl;
     private Disk disk;
 
@@ -81,7 +79,7 @@ public class DSCache {
     private int n = 0;
 
     public DSCache(int size, String strategy, Disk disk, boolean writeThrough) {
-        IKVServer.CacheStrategy strat = IKVServer.CacheStrategy.valueOf(strategy);
+        IServer.CacheStrategy strat = IServer.CacheStrategy.valueOf(strategy);
         switch (strat) {
             case LRU:
                 policy = new PolicyLRU();
@@ -166,7 +164,7 @@ public class DSCache {
         return contains;
     }
 
-    public IKVServer.CacheStrategy getCacheStrategy() {
+    public IServer.CacheStrategy getCacheStrategy() {
         return strategy;
     }
 

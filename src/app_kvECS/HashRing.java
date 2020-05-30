@@ -1,11 +1,7 @@
 package app_kvECS;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.annotations.Expose;
-import ecs.ECSNode;
-import ecs.IECSNode;
 import org.apache.log4j.Logger;
-import shared.Pair;
 
 import javax.xml.bind.DatatypeConverter;
 import java.security.MessageDigest;

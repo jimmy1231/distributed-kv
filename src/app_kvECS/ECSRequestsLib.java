@@ -1,6 +1,5 @@
 package app_kvECS;
 
-import ecs.ECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.messages.KVDataSet;
@@ -171,7 +170,7 @@ public class ECSRequestsLib {
     public static void initServer(ECSNode server,
                                   String cacheStrategy,
                                   int cacheSize,
-                                  KVServerMetadata metadata) throws Exception {
+                                  ServerMetadata metadata) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
             .withStatusType(KVMessage.StatusType.SERVER_INIT)
@@ -185,7 +184,7 @@ public class ECSRequestsLib {
     }
 
     public static void updateServer(ECSNode server,
-                                    KVServerMetadata metadata) throws Exception {
+                                    ServerMetadata metadata) throws Exception {
         UnifiedMessage msg = new UnifiedMessage.Builder()
             .withMessageType(MessageType.ECS_TO_SERVER)
             .withStatusType(KVMessage.StatusType.SERVER_UPDATE)

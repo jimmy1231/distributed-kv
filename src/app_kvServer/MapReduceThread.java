@@ -1,7 +1,7 @@
 package app_kvServer;
 
 import app_kvServer.dsmr.MapReduce;
-import ecs.ECSNode;
+import app_kvECS.ECSNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import shared.messages.KVMessage;
@@ -41,11 +41,11 @@ public class MapReduceThread extends Thread {
 
             switch (mapOrReduce) {
                 case MAP:
-                    resultId = KVServerRequestLib.serverDoMap(worker, partId, mrType);
+                    resultId = ServerRequestLib.serverDoMap(worker, partId, mrType);
                     this.resultId = resultId;
                     break;
                 case REDUCE:
-                    resultId = KVServerRequestLib.serverDoReduce(worker, partId, mrType);
+                    resultId = ServerRequestLib.serverDoReduce(worker, partId, mrType);
                     this.resultId = resultId;
                     break;
                 default:

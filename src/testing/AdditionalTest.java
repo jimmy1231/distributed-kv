@@ -2,9 +2,7 @@ package testing;
 
 import app_kvServer.DSCache;
 import app_kvServer.Disk;
-import app_kvServer.KVServer;
-import client.KVStore;
-import junit.framework.TestResult;
+import app_kvClient.KVStore;
 import org.junit.Rule;
 import org.junit.Test;
 
@@ -13,8 +11,6 @@ import org.junit.rules.Timeout;
 import shared.messages.KVMessage;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class AdditionalTest extends TestCase {
 
